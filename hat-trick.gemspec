@@ -24,4 +24,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency "rails", "~> 3.1"
   s.add_runtime_dependency "validation_group"
+  s.add_runtime_dependency "gon"
 end
