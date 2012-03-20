@@ -7,5 +7,4 @@ module HatTrick
 
 end
 
-::ActionController::Base.send(:extend, HatTrick::DSL::ClassMethods)
-::ActionController::Base.send(:include, HatTrick::DSL::InstanceMethods)
+::ActionController::Base.send(:include, HatTrick::DSL)

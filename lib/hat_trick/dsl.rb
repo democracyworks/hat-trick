@@ -2,6 +2,8 @@ require 'hat_trick/wizard'
 
 module HatTrick
   module DSL
+    extend ActiveSupport::Concern
+
     module ClassMethods
       def wizard(&blk)
         if block_given?
