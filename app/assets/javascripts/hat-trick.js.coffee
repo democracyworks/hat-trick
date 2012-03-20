@@ -1,4 +1,4 @@
-#= require_tree .
+#= require vendor_js
 
 $ ->
   $form = $("form.wizard")
