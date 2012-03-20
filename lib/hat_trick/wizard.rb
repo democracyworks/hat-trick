@@ -3,7 +3,16 @@ require 'hat_trick/step'
 module HatTrick
   class Wizard
     include Enumerable
-    attr_accessor :current_step, :last_step
+    attr_accessor :current_step, :last_step, :create_url, :update_url,
+                  :controller
+
+    def initialize
+      @current_form_url = :create_url
+    end
+
+    def current_form_url
+      send(@current_form_url)
+    end
 
     def each
       step = current_step
@@ -78,6 +87,5 @@ module HatTrick
       end
     end
     alias_method :steps, :to_ary
-
   end
 end

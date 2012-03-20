@@ -1,6 +1,13 @@
+require 'hat_trick/form_helper'
+
 module HatTrick
   class RailsEngine < ::Rails::Engine
-    # this causes Rails to look for assets inside this gem,
-    # which is all we need for now
+    # just defining this causes Rails to look for assets inside this gem
+
+    initializer 'hat-trick.form_helpers' do
+      ActiveSupport.on_load(:action_view) do
+        include HatTrick::FormHelper
+      end
+    end
   end
 end
