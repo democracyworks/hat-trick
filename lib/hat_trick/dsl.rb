@@ -1,60 +1,24 @@
 require 'hat_trick/wizard'
+require 'hat_trick/controller_hooks'
 
 module HatTrick
   module DSL
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def wizard(&blk)
+      def wizard(&block)
         if block_given?
           include HatTrick::DSL::ControllerInstanceMethods
-          include HatTrick::DSL::HelperMethods
-
           include HatTrick::ControllerHooks
-          %w(new edit create update).each do |meth|
-            # TODO: Figure out how to hook into these methods when they don't yet exist
-            # OR: Figure out a cleaner way to do this
-            # alias_method_chain meth, :hat_trick
-          end
 
           @wizard = HatTrick::Wizard.new
+
           @wizard_dsl = HatTrick::DSL::WizardContext.new(@wizard)
-
-          # dsl_metaclass = class << @wizard_dsl; self; end
-          #
-          # dsl_metaclass.send(:define_method, :method_missing) do |*args|
-          #   if self.respond_to?(args[0])
-          #     self.send(args[0], args[1..-1])
-          #   else
-          #     super(*args)
-          #   end
-          # end
-
-          # dsl_metaclass.send(:define_method, :respond_to?) do |meth|
-          #   if self.respond_to?(meth)
-          #     true
-          #   else
-          #     super(meth)
-          #   end
-          # end
-
-          @wizard_dsl.instance_eval &blk
+          @wizard_dsl.instance_eval &block
 
         else
           raise ArgumentError, "wizard called without a block"
         end
-      end
-    end
-
-    module HelperMethods
-      extend ActiveSupport::Concern
-
-      included do
-        helper_method :wizard_url
-      end
-
-      def wizard_url
-        self.class.instance_variable_get("@wizard").current_form_url
       end
     end
 
@@ -65,33 +29,23 @@ module HatTrick
         before_filter :assign_controller
       end
 
-      def current_wizard
-        wizard = self.class.instance_variable_get("@wizard")
-        raise "No wizard has been declared for this controller" unless wizard
-        wizard
+      private
+
+      def ht_wizard
+        @wizard ||= self.class.instance_variable_get("@wizard")
+        raise "No wizard has been declared for this controller" unless @wizard
+        @wizard
       end
 
       def assign_controller
-        current_wizard.controller = self
+        ht_wizard.controller = self
       end
     end
 
     module WizardMethods
-      def create_url(&blk)
-        if block_given?
-          @wizard.create_url = @wizard.controller.instance_eval &blk
-        end
-      end
-
-      def update_url(&blk)
-        if block_given?
-          @wizard.update_url = @wizard.controller.instance_eval &blk
-        end
-      end
-
-      def step(name, args={}, &blk)
+      def step(name, args={}, &block)
         current_step = wizard.add_step(name, args)
-        instance_eval &blk if block_given?
+        instance_eval &block if block_given?
       end
 
       def next_step(name)
@@ -108,12 +62,12 @@ module HatTrick
         wizard.current_step = wizard.next_step
       end
 
-      def before_this_step(&blk)
-        wizard.current_step.before_callback = blk
+      def before_this_step(&block)
+        wizard.current_step.before_callback = block
       end
 
-      def after_this_step(&blk)
-        wizard.current_step.after_callback = blk
+      def after_this_step(&block)
+        wizard.current_step.after_callback = block
       end
     end
 

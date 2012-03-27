@@ -2,8 +2,15 @@ module HatTrick
   module FormHelper
     def wizard_form_for(record, *args, &proc)
       options = args.extract_options!
-      options[:html] = { class: "wizard" }
+      options[:html] = { :class => 'wizard' }
+
+      wizard = controller.send(:ht_wizard)
+      wizard.model = record
+
+      options[:url] = wizard.create_url
+
       controller.gon.form_model = record
+
       output = ActiveSupport::SafeBuffer.new
       output.safe_concat(wizard_partial)
       # now run the default FormBuilder & append to output

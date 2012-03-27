@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["cap10morgan@gmail.com"]
   s.homepage    = ""
   s.summary     = %q{Rails wizards done right}
-  s.description = %q{Combines jQuery Form Wizard, validation_group, with its own functionality for the perfect triple-play of Rails wizarding.}
+  s.description = %q{Combines jQuery FormWizard, validation_group, and gon for the perfect triple-play of Rails wizarding.}
 
   s.rubyforge_project = "hat-trick"
 

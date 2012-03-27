@@ -4,16 +4,7 @@ require 'hat_trick/controller_hooks'
 module HatTrick
   class Wizard
     include Enumerable
-    attr_accessor :current_step, :last_step, :create_url, :update_url,
-                  :controller
-
-    def initialize
-      @current_form_url = :create_url
-    end
-
-    def current_form_url
-      send(@current_form_url)
-    end
+    attr_accessor :current_step, :first_step, :last_step, :controller, :model
 
     def each
       step = current_step
@@ -38,6 +29,7 @@ module HatTrick
 
       if empty?
         self.current_step = new_step
+        self.first_step   = new_step
       else
         new_step.previous_step = last_step
         last_step.next_step = new_step
@@ -80,6 +72,18 @@ module HatTrick
       end
     end
 
+    def model_created?
+      !(model.nil? || model.new_record?)
+    end
+
+    def current_form_url
+      model_created? ? update_url : create_url
+    end
+
+    def current_form_method
+      model_created? ? 'put' : 'post'
+    end
+
     def to_ary
       [].tap do |ary|
         self.each do |step|
@@ -88,5 +92,40 @@ module HatTrick
       end
     end
     alias_method :steps, :to_ary
+
+    def controller=(controller)
+      unless @controller
+        @controller = controller
+        alias_action_methods!
+      end
+      @controller
+    end
+
+    def create_url
+      controller.url_for(:controller => controller.controller_name,
+                         :action => 'create', :only_path => true)
+    end
+
+    def update_url
+      if model_created?
+        controller.url_for(:controller => controller.controller_name,
+                           :action => 'update', :id => model,
+                           :only_path => true)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def alias_action_methods!
+      action_methods = controller.action_methods.reject do |m|
+        /^render/ =~ m.to_s
+      end
+      HatTrick::ControllerHooks.def_action_method_aliases!(action_methods)
+      action_methods.each do |meth|
+        controller.class.send(:alias_method_chain, meth, :hat_trick)
+      end
+    end
   end
 end
