@@ -1,4 +1,5 @@
 require 'hat_trick/step'
+require 'hat_trick/controller_hooks'
 
 module HatTrick
   class Wizard

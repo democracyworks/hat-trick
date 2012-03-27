@@ -127,29 +127,5 @@ module HatTrick
       end
     end
   end
-
-  module ControllerHooks
-    extend ActiveSupport::Concern
-
-    def new_with_hat_trick
-      Rails.logger.info "new_with_hat_trick called"
-      new_without_hat_trick
-    end
-
-    def edit_with_hat_trick
-      Rails.logger.info "edit_with_hat_trick called"
-      edit_without_hat_trick
-    end
-
-    def create_with_hat_trick
-      Rails.logger.info "create_with_hat_trick called"
-      create_without_hat_trick
-    end
-
-    def update_with_hat_trick
-      Rails.logger.info "update_with_hat_trick called"
-      update_without_hat_trick
-    end
-  end
 end
 
