@@ -28,8 +28,10 @@ In your view:
       <fieldset id="third_step">...</fieldset>
     <% end %>
     
+The id's of the fieldsets in your form should match the step names you define in your controller.
+    
 ## Controlling the wizard flow
-Sometimes you need to specify different paths through a wizard. The way you do that with hat-trick is in the wizard DSL in the controller. Here are some examples:
+Sometimes you need to specify different paths through a wizard based on certain conditions. The way you do that with hat-trick is in the wizard DSL in the controller. Here are some examples:
 
 Jumping to a step based on logged in status:
 
