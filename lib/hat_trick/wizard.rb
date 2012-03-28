@@ -1,75 +1,22 @@
-require 'hat_trick/step'
 require 'hat_trick/controller_hooks'
 
 module HatTrick
   class Wizard
-    include Enumerable
-    attr_accessor :current_step, :first_step, :last_step, :controller, :model
+    attr_accessor :current_step, :controller, :model
+    attr_reader :wizard_definition
 
-    def each
-      step = current_step
-      until step.nil?
-        yield step
-        step = step.next_step
-      end
-    end
-    alias_method :each_step, :each
+    delegate :first_step, :last_step, :find_step, :to => :wizard_definition
 
-    def empty?
-      current_step.nil?
+    def initialize(wizard_definition)
+      @wizard_definition = wizard_definition
     end
 
-    def add_step(step, args={})
-      if step.is_a?(HatTrick::Step)
-        new_step = step
-      else
-        new_step = Step.new(name: step)
-        new_step.fieldset = args[:fieldset] ? args[:fieldset] : new_step.name
+    def controller=(new_controller)
+      @controller = new_controller
+      step = if controller.params.has_key?('_ht_meta')
+        find_step controller.params['_ht_meta']['step']
       end
-
-      if empty?
-        self.current_step = new_step
-        self.first_step   = new_step
-      else
-        new_step.previous_step = last_step
-        last_step.next_step = new_step
-      end
-      self.last_step = new_step
-      new_step
-    end
-
-    def delete_step(step)
-      replace_step(step)
-      step
-    end
-
-    def replace_step(old, replacement=nil)
-      old_step = find_step(old)
-      before_step = old_step.previous_step
-      after_step = old_step.next_step
-      if replacement
-        if replacement.is_a?(HatTrick::Step)
-          new_step = replacement
-        else
-          new_step = Step.new(name: replacement)
-        end
-        new_next = new_step
-        new_previous = new_step
-      else
-        new_next = after_step
-        new_previous = before_step
-      end
-      before_step.next_step = new_next
-      after_step.previous_step = new_previous
-      true
-    end
-
-    def find_step(step)
-      if step.is_a?(HatTrick::Step)
-        find { |s| s.equal? step }
-      else
-        find { |s| s.name == step.to_sym }
-      end
+      self.current_step = step if step
     end
 
     def model_created?
@@ -82,23 +29,6 @@ module HatTrick
 
     def current_form_method
       model_created? ? 'put' : 'post'
-    end
-
-    def to_ary
-      [].tap do |ary|
-        self.each do |step|
-          ary << step
-        end
-      end
-    end
-    alias_method :steps, :to_ary
-
-    def controller=(controller)
-      unless @controller
-        @controller = controller
-        alias_action_methods!
-      end
-      @controller
     end
 
     def create_url
@@ -116,15 +46,28 @@ module HatTrick
       end
     end
 
-    private
+    def start!
+      self.current_step = first_step
+      current_step.run_before_callback!(controller)
+    end
+
+    def advance_step!(current_step_name)
+      step = find_step(current_step_name)
+      self.current_step = step
+      step.run_after_callback!(controller)
+      self.current_step = step.next_step
+      current_step.run_before_callback!(controller)
+    end
 
     def alias_action_methods!
       action_methods = controller.action_methods.reject do |m|
-        /^render/ =~ m.to_s
+        /^render/ =~ m.to_s ||
+        controller.respond_to?("#{m}_with_hat_trick", :include_private)
       end
       HatTrick::ControllerHooks.def_action_method_aliases!(action_methods)
       action_methods.each do |meth|
         controller.class.send(:alias_method_chain, meth, :hat_trick)
+        controller.class.send(:private, "#{meth}_without_hat_trick")
       end
     end
   end

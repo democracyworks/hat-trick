@@ -62,6 +62,14 @@ module HatTrick
       callbacks[:after] = blk
     end
 
+    def run_before_callback!(context)
+      run_callback(:before, context)
+    end
+
+    def run_after_callback!(context)
+      run_callback(:after, context)
+    end
+
     protected
 
     def run_callback(type, context)
