@@ -20,7 +20,7 @@ module HatTrick
     end
 
     def model_created?
-      !(model.nil? || model.new_record?)
+      !(model.nil? || (model.respond_to?(:new_record?) && model.new_record?))
     end
 
     def current_form_url
