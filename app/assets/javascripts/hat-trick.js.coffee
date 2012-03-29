@@ -33,7 +33,7 @@ createAjaxEvents = (form, firstStep=true) ->
         console.log "Sending these data to the server: #{$.param(data)}"
       success: (data) ->
         console.log "Successful form POST; got #{$.param(data)}"
-        setFormAction($form, data.ht)
+        setFormAction($form, data.ht) if data.ht?
   remoteAjax
 
 $ ->
@@ -46,7 +46,7 @@ $ ->
   wizard_buttons = '<input type="reset" /><input type="submit" />'
   $fieldsets.find("div.buttons").html wizard_buttons
 
-  setFormAction($form, ht.wizardMetadata)
+  setFormAction($form, ht.wizardMetadata) if ht?
 
   $form.formwizard
     formPluginEnabled: true,
