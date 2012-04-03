@@ -51,8 +51,17 @@ module HatTrick
       end
 
       def repeat_step(name)
-        step = wizard_def.find_step(name)
-        wizard_def.add_step step.dup
+        repeated_step = wizard_def.find_step(name)
+        raise ArgumentError, "Couldn't find step named #{name}" unless repeated_step
+        new_step = repeated_step.dup
+        # use the repeated step's fieldset id
+        new_step.fieldset = repeated_step.fieldset
+        # but use the current step's name
+        new_step.name = wizard_def.last_step.name
+        # set the repeated flag
+        new_step.repeat = true
+        # now replace the step we're in the middle of defining w/ new_step
+        wizard_def.replace_step(wizard_def.last_step, new_step)
       end
 
       def skip_this_step
