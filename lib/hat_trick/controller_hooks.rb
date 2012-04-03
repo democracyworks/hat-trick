@@ -70,10 +70,6 @@ module HatTrick
       end
     end
 
-    def new_hook(*args)
-      ht_wizard.start!
-    end
-
     def create_hook(*args)
       setup_validation_group_for(ht_wizard.current_step)
     end
@@ -86,6 +82,8 @@ module HatTrick
       if params.has_key?('_ht_meta')
         current_step = params['_ht_meta']['step']
         ht_wizard.advance_step!(current_step)
+      else
+        ht_wizard.start! unless ht_wizard.started?
       end
     end
 
