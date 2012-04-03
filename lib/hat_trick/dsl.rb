@@ -75,6 +75,10 @@ module HatTrick
       def after_this_step(&block)
         wizard_def.last_step.after_callback = block
       end
+
+      def include_data(key, &block)
+        wizard_def.last_step.include_data = { key.to_sym => block }
+      end
     end
 
     class WizardContext
