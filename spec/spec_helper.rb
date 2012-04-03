@@ -7,6 +7,7 @@ module Rails
   end
 
   class Engine
+    def self.initializer(*args, &block); end
   end
 end
 
