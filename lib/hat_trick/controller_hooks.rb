@@ -104,7 +104,8 @@ module HatTrick
 
       if ht_wizard.model && args[0].has_key?(:json)
         # this sets the wizard metadata for subsequent AJAX requests
-        args[0][:json] = { :model => ht_wizard.model, :ht => wizard_metadata }
+        args[0][:json] = { :formModel => ht_wizard.model,
+                           :wizardMetadata => wizard_metadata }
       end
 
       render_without_hat_trick(*args)
