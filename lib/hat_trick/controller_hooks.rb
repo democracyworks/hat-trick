@@ -106,6 +106,7 @@ module HatTrick
         # this sets the wizard metadata for subsequent AJAX requests
         args[0][:json] = { :formModel => ht_wizard.model,
                            :wizardMetadata => wizard_metadata }
+        args[0][:json].merge! ht_wizard.include_data
       end
 
       render_without_hat_trick(*args)
