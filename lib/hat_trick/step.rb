@@ -1,9 +1,8 @@
 module HatTrick
   class Step
-    include Comparable
-
-    attr_reader :callbacks
-    attr_accessor :name, :fieldset, :next_step, :previous_step
+    attr_reader :callbacks, :include_data_key
+    attr_accessor :name, :fieldset
+    attr_writer :repeat
 
     def initialize(args={})
       args.each_pair do |k,v|
@@ -13,45 +12,38 @@ module HatTrick
         end
       end
       @callbacks = {}
+      @repeat = false
     end
 
     def name=(name)
       @name = name.to_sym
     end
 
+    def fieldset=(fieldset)
+      @fieldset = fieldset.to_sym
+    end
+
+    def fieldset
+      @fieldset or @name
+    end
+
+    def repeat?
+      @repeat
+    end
+
     def to_s
-      str = "<HatTrick::Step :#{name}"
+      str = "<HatTrick::Step:0x%08x :#{name}" % (object_id * 2)
       str += " fieldset: #{fieldset}" if fieldset != name
       str += ">"
       str
     end
 
-    def <=>(other)
-      if self.before?(other)
-        -1
-      elsif self.after?(other)
-        1
-      elsif self.equal? other
-        0
-      else
-        raise ArgumentError, "Can't compare steps not in the same wizard"
-      end
+    def to_sym
+      name.to_sym
     end
 
-    def before?(other)
-      step = self
-      until (step = step.next_step).nil?
-        return true if step.equal? other
-      end
-      false
-    end
-
-    def after?(other)
-      step = self
-      until (step = step.previous_step).nil?
-        return true if step.equal? other
-      end
-      false
+    def as_json(options = nil)
+      { :name => name, :fieldset => fieldset, :repeat => repeat? }
     end
 
     def before_callback=(blk)
@@ -62,8 +54,17 @@ module HatTrick
       callbacks[:after] = blk
     end
 
+    def include_data=(hash)
+      callbacks[:include_data] = hash.values.first
+      @include_data_key = hash.keys.first
+    end
+
     def run_before_callback!(context)
       run_callback(:before, context)
+    end
+
+    def run_include_data_callback!(context)
+      run_callback(:include_data, context)
     end
 
     def run_after_callback!(context)

@@ -4,63 +4,50 @@ require 'hat_trick/wizard'
 module HatTrick
   class WizardDefinition
     include Enumerable
-    attr_accessor :first_step, :last_step
+    attr_reader :steps
 
-    def each
-      step = first_step
-      until step.nil?
-        yield step
-        step = step.next_step
-      end
-    end
+    delegate :each, :empty?, :first, :last, :to => :steps
+
     alias_method :each_step, :each
+    alias_method :to_ary, :steps
+    alias_method :first_step, :first
+    alias_method :last_step, :last
 
-    def empty?
-      first_step.nil?
+    def initialize
+      @steps = []
     end
 
     def add_step(step, args={})
       if step.is_a?(HatTrick::Step)
         new_step = step
       else
-        new_step = Step.new(name: step)
-        new_step.fieldset = args[:fieldset] ? args[:fieldset] : new_step.name
+        step_args = args.merge(:name => step)
+        new_step = Step.new(step_args)
       end
 
-      if empty?
-        self.first_step = new_step
-      else
-        new_step.previous_step = last_step
-        last_step.next_step = new_step
-      end
-      self.last_step = new_step
+      steps << new_step
+
       new_step
     end
 
-    def delete_step(step)
-      replace_step(step)
-      step
+    def delete_step(_step)
+      step = find_step(_step)
+      steps.delete(step)
     end
 
-    def replace_step(old, replacement=nil)
-      old_step = find_step(old)
-      before_step = old_step.previous_step
-      after_step = old_step.next_step
-      if replacement
-        if replacement.is_a?(HatTrick::Step)
-          new_step = replacement
-        else
-          new_step = Step.new(name: replacement)
-        end
-        new_next = new_step
-        new_previous = new_step
+    def replace_step(_old_step, _new_step)
+      old_step = find_step(_old_step)
+      raise ArgumentError, "Couldn't find step #{_old_step}" unless old_step
+      if _new_step.is_a?(HatTrick::Step)
+        new_step = _new_step
       else
-        new_next = after_step
-        new_previous = before_step
+        new_step = Step.new(:name => _new_step)
       end
-      before_step.next_step = new_next
-      after_step.previous_step = new_previous
-      true
+
+      old_index = steps.index(old_step)
+      steps.delete_at(old_index)
+      steps.insert(old_index, new_step)
+      new_step
     end
 
     def find_step(step)
@@ -71,14 +58,17 @@ module HatTrick
       end
     end
 
-    def to_ary
-      [].tap do |ary|
-        self.each do |step|
-          ary << step
-        end
-      end
+    def step_after(_step)
+      step = find_step(_step)
+      after_index = steps.index(step) + 1
+      steps[after_index]
     end
-    alias_method :steps, :to_ary
+
+    def step_before(_step)
+      step = find_step(_step)
+      before_index = steps.index(step) - 1
+      steps[before_index]
+    end
 
     def get_wizard(controller)
       wizard = HatTrick::Wizard.new(self)

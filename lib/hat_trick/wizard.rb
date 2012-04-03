@@ -5,7 +5,9 @@ module HatTrick
     attr_accessor :current_step, :controller, :model
     attr_reader :wizard_definition
 
-    delegate :first_step, :last_step, :find_step, :to => :wizard_definition
+    delegate :first_step, :last_step, :find_step, :each, :to_ary, :to_json,
+             :empty?, :step_after, :step_before, :steps,
+             :to => :wizard_definition
 
     def initialize(wizard_definition)
       @wizard_definition = wizard_definition
@@ -46,6 +48,14 @@ module HatTrick
       end
     end
 
+    def next_step
+      step_after current_step
+    end
+
+    def started?
+      !current_step.nil?
+    end
+
     def start!
       self.current_step = first_step
       current_step.run_before_callback!(controller)
@@ -55,8 +65,13 @@ module HatTrick
       step = find_step(current_step_name)
       self.current_step = step
       step.run_after_callback!(controller)
-      self.current_step = step.next_step
+      self.current_step = next_step
       current_step.run_before_callback!(controller)
+      @include_data_result = current_step.run_include_data_callback!(controller)
+    end
+
+    def include_data
+      { current_step.include_data_key => @include_data_result }
     end
 
     def alias_action_methods!
