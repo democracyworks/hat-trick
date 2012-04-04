@@ -96,7 +96,7 @@ module HatTrick
       wizard_metadata = {
         :url => ht_wizard.current_form_url,
         :method => ht_wizard.current_form_method,
-        :nextStep => ht_wizard.next_step,
+        :currentStep => ht_wizard.current_step,
       }
 
       # this sets the wizard_metadata for the initial page load

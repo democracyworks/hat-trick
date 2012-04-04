@@ -2,15 +2,18 @@ require 'hat_trick/controller_hooks'
 
 module HatTrick
   class Wizard
-    attr_accessor :current_step, :controller, :model
-    attr_reader :wizard_definition
+    attr_accessor :current_step, :controller, :model, :step_overrides
+    attr_reader :wizard_def, :wizard_dsl_context
 
     delegate :first_step, :last_step, :find_step, :each, :to_ary, :to_json,
              :empty?, :step_after, :step_before, :steps,
-             :to => :wizard_definition
+             :to => :wizard_def
 
-    def initialize(wizard_definition)
-      @wizard_definition = wizard_definition
+    def initialize(wizard_def)
+      @wizard_def = wizard_def
+      @wizard_dsl_context = DSL::WizardContext.new(@wizard_def)
+      @wizard_dsl_context.wizard = self
+      @step_overrides = {}
     end
 
     def controller=(new_controller)
@@ -19,6 +22,11 @@ module HatTrick
         find_step controller.params['_ht_meta']['step']
       end
       self.current_step = step if step
+    end
+
+    def current_step=(step)
+      raise "Don't set current_step to nil" if step.nil?
+      @current_step = step
     end
 
     def model_created?
@@ -48,8 +56,19 @@ module HatTrick
       end
     end
 
+    def add_step_override(source_step, override_type, target_step)
+      source = source_step.to_sym
+      @step_overrides[source] ||= {}
+      @step_overrides[source][override_type.to_sym] = target_step
+    end
+
     def next_step
-      step_after current_step
+      current = current_step.to_sym
+      if step_overrides.has_key?(current) && step_overrides[current].has_key?(:after)
+        step_overrides[current][:after]
+      else
+        step_after current_step
+      end
     end
 
     def started?
@@ -58,20 +77,21 @@ module HatTrick
 
     def start!
       self.current_step = first_step
-      current_step.run_before_callback!(controller)
+      current_step.run_before_callback!(controller, wizard_dsl_context)
     end
 
     def advance_step!(current_step_name)
       step = find_step(current_step_name)
       self.current_step = step
-      step.run_after_callback!(controller)
+      step.run_after_callback!(controller, wizard_dsl_context)
       self.current_step = next_step
-      current_step.run_before_callback!(controller)
-      @include_data_result = current_step.run_include_data_callback!(controller)
+      current_step.run_before_callback!(controller, wizard_dsl_context)
     end
 
     def include_data
-      { current_step.include_data_key => @include_data_result }
+      return {} unless model
+      inc_data = current_step.run_include_data_callback!(controller, model)
+      { current_step.include_data_key => inc_data }
     end
 
     def alias_action_methods!

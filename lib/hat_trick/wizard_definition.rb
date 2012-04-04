@@ -71,10 +71,12 @@ module HatTrick
     end
 
     def get_wizard(controller)
-      wizard = HatTrick::Wizard.new(self)
-      wizard.controller = controller
-      wizard.alias_action_methods!
-      wizard
+      controller.send(:ht_wizard) or (
+        wizard = HatTrick::Wizard.new(self)
+        wizard.controller = controller
+        wizard.alias_action_methods!
+        wizard
+      )
     end
   end
 end

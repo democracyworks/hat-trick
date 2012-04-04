@@ -1,8 +1,7 @@
 module HatTrick
   class Step
     attr_reader :callbacks, :include_data_key
-    attr_accessor :name, :fieldset
-    attr_writer :repeat
+    attr_accessor :name, :fieldset, :repeat_of
 
     def initialize(args={})
       args.each_pair do |k,v|
@@ -12,7 +11,6 @@ module HatTrick
         end
       end
       @callbacks = {}
-      @repeat = false
     end
 
     def name=(name)
@@ -24,11 +22,11 @@ module HatTrick
     end
 
     def fieldset
-      @fieldset or @name
+      @fieldset or name
     end
 
     def repeat?
-      @repeat
+      !repeat_of.nil?
     end
 
     def to_s
@@ -43,7 +41,9 @@ module HatTrick
     end
 
     def as_json(options = nil)
-      { :name => name, :fieldset => fieldset, :repeat => repeat? }
+      json = { :name => name, :fieldset => fieldset }
+      json[:repeatOf] = repeat_of.as_json if repeat?
+      json
     end
 
     def before_callback=(blk)
@@ -59,24 +59,25 @@ module HatTrick
       @include_data_key = hash.keys.first
     end
 
-    def run_before_callback!(context)
-      run_callback(:before, context)
+    def run_before_callback!(context, wizard_dsl)
+      run_callback(:before, context, wizard_dsl)
     end
 
-    def run_include_data_callback!(context)
-      run_callback(:include_data, context)
+    def run_include_data_callback!(context, model)
+      run_callback(:include_data, context, model)
     end
 
-    def run_after_callback!(context)
-      run_callback(:after, context)
+    def run_after_callback!(context, wizard_dsl)
+      run_callback(:after, context, wizard_dsl)
     end
 
     protected
 
-    def run_callback(type, context)
+    def run_callback(type, context, arg)
       callback = callbacks[type.to_sym]
       if callback && callback.is_a?(Proc)
-        context.instance_eval &callback
+        context.instance_exec arg, &callback if callback.arity > 0
+        context.instance_eval &callback if callback.arity == 0
       end
     end
   end

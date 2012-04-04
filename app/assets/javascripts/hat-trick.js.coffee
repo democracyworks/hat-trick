@@ -7,19 +7,27 @@ class HatTrickWizard
     @fieldsets.addClass("step")
     wizard_buttons = '<input type="reset" /><input type="submit" />'
     @fieldsets.find("div.buttons").html wizard_buttons
-    this.setAction(@wizard.url, @wizard.method)
     this.enableFormwizard() # unless this.formwizardEnabled()
     this.setCurrentStepField()
-    this.linkNextStep(@wizard.nextStep)
+    # TODO: Try this out instead of putting :start first
+    # this.showStep(@wizard.currentStep)
     this.bindEvents()
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
 
+  createMethodField: (method) ->
+    """<input type="hidden" name="_method" value="#{method}" />"""
+
   setAction: (url, method) ->
-    console.log "Setting form action to #{method} #{url}"
+    methodLower = method.toLowerCase()
+    console.log "Setting form action to #{methodLower} #{url}"
     @form.attr("action", url)
-    @form.attr("method", method)
+    @form.attr("method", "post")
+    methodField = @form.find('input[name="_method"]')
+    methodField.remove()
+    if methodLower isnt "post"
+      @form.prepend(this.createMethodField(method))
 
   currentStepId: ->
     @form.formwizard("state").currentStep
@@ -29,24 +37,6 @@ class HatTrickWizard
     this.findStep(stepId)
 
   nextStepFieldHTML: """<input type="hidden" name="_ht_next_step" class="_ht_link" value="" />"""
-
-  linkNextStep: (nextStep) ->
-    $currentStep = this.currentStep()
-    if nextStep.repeat
-      console.log "Cloning repeated step #{nextStep.fieldset}"
-      $clonedStep = $currentStep.clone()
-      $clonedStep.css("display", "none")
-      $clonedStep.attr("id", "#{nextStep.name}")
-      $currentStep.after($clonedStep)
-      @form.formwizard("update_steps")
-    else
-      console.log "Linking form step to #{nextStep.fieldset}"
-      $stepLinks = $currentStep.find("input._ht_link")
-      $stepLink = if $stepLinks.length > 0
-        $stepLinks
-      else
-        $currentStep.append(@nextStepFieldHTML).find("input._ht_link")
-      $stepLink.val(nextStep)
 
   createAjaxEvents: (firstStep=true) ->
     remoteAjax = {}
@@ -65,6 +55,20 @@ class HatTrickWizard
             this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
           window.ht = data
     remoteAjax
+
+  repeatStep: (step) ->
+    $sourceStep = this.findStep(step.repeatOf.fieldset)
+    console.log "Cloning repeated step #{step.repeatOf.fieldset}"
+    $clonedStep = $sourceStep.clone(true)
+    $clonedStep.css("display", "none")
+    $clonedStep.attr("id", step.name)
+    $sourceStep.after($clonedStep)
+    @form.formwizard("update_steps")
+    @form.formwizard("show", step.name)
+
+  showStep: (step) ->
+    console.log "Showing step #{step.fieldset}"
+    @form.formwizard("show", step.fieldset)
 
   formwizardEnabled: ->
     @form.formwizard?
@@ -135,13 +139,18 @@ class HatTrickWizard
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
-      this.linkNextStep(ht.wizardMetadata.nextStep)
       this.setFormFields(ht.formModel)
 
       if data.previousStep is data.firstStep
         console.log "Adding additional Ajax events"
         # adds additional Ajax events now that we have the update URL
         @form.formwizard("option", remoteAjax: this.createAjaxEvents(false))
+
+    @form.bind "after_remote_ajax", (event, data) =>
+      if ht.wizardMetadata.currentStep.repeatOf?
+        this.repeatStep(ht.wizardMetadata.currentStep)
+      else
+        this.showStep(ht.wizardMetadata.currentStep)
 
 $ ->
   $form = $("form.wizard")
