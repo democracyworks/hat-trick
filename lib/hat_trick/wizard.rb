@@ -80,12 +80,20 @@ module HatTrick
       current_step.run_before_callback!(controller, wizard_dsl_context)
     end
 
+    def finish!
+      # Do something here
+    end
+
     def advance_step!(current_step_name)
       step = find_step(current_step_name)
       self.current_step = step
       step.run_after_callback!(controller, wizard_dsl_context)
-      self.current_step = next_step
-      current_step.run_before_callback!(controller, wizard_dsl_context)
+      if current_step == last_step
+        finish!
+      else
+        self.current_step = next_step
+        current_step.run_before_callback!(controller, wizard_dsl_context)
+      end
     end
 
     def include_data
