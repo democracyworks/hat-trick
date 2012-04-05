@@ -93,11 +93,11 @@ module HatTrick
         end
       end
 
-      def before_this_step(&block)
+      def before(&block)
         wizard_def.last_step.before_callback = block
       end
 
-      def after_this_step(&block)
+      def after(&block)
         wizard_def.last_step.after_callback = block
       end
 
