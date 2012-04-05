@@ -7,6 +7,7 @@ class HatTrickWizard
     fieldsets.addClass("step")
     wizard_buttons = '<input type="reset" /><input type="submit" />'
     fieldsets.find("div.buttons").html wizard_buttons
+    window.htData = {}
     this.enableFormwizard() # unless this.formwizardEnabled()
     this.setCurrentStepField()
     # TODO: Try this out instead of putting :start first
@@ -61,7 +62,8 @@ class HatTrickWizard
         console.log "Successful form POST; got #{$.param(data)}"
         if data.wizardMetadata?
           this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
-        window.htData = data
+        # merge new data with window.htData
+        $.extend(window.htData, data)
     ajax
 
   updateSteps: ->
