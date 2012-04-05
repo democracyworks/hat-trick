@@ -99,7 +99,8 @@ module HatTrick
     def include_data
       return {} unless model
       inc_data = current_step.run_include_data_callback!(controller, model)
-      { current_step.include_data_key => inc_data }
+      data_key = current_step.include_data_key
+      { data_key.to_s.camelize(:lower) => inc_data }
     end
 
     def alias_action_methods!
