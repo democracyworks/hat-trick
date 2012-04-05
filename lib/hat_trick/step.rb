@@ -59,25 +59,27 @@ module HatTrick
       @include_data_key = hash.keys.first
     end
 
-    def run_before_callback!(context, wizard_dsl)
-      run_callback(:before, context, wizard_dsl)
+    def run_before_callback!(context, wizard_dsl, model)
+      run_callback(:before, context, wizard_dsl, model)
     end
 
-    def run_include_data_callback!(context, model)
-      run_callback(:include_data, context, model)
+    def run_include_data_callback!(context, wizard_dsl, model)
+      run_callback(:include_data, context, wizard_dsl, model)
     end
 
-    def run_after_callback!(context, wizard_dsl)
-      run_callback(:after, context, wizard_dsl)
+    def run_after_callback!(context, wizard_dsl, model)
+      run_callback(:after, context, wizard_dsl, model)
     end
 
     protected
 
-    def run_callback(type, context, arg)
+    def run_callback(type, context, *args)
       callback = callbacks[type.to_sym]
       if callback && callback.is_a?(Proc)
-        if callback.arity > 0
-          context.instance_exec arg, &callback
+        if callback.arity > 1
+          context.instance_exec args[0], args[1], &callback
+        elsif callback.arity == 0
+          context.instance_exec args[0], &callback
         else
           context.instance_eval &callback
         end

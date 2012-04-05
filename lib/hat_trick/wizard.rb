@@ -77,28 +77,29 @@ module HatTrick
 
     def start!
       self.current_step = first_step
-      current_step.run_before_callback!(controller, wizard_dsl_context)
+      current_step.run_before_callback!(controller, wizard_dsl_context, model)
     end
 
     def finish!
       # Do something here
+      # Such as: Force the wizard to display the "done" page
     end
 
     def advance_step!(current_step_name)
       step = find_step(current_step_name)
       self.current_step = step
-      step.run_after_callback!(controller, wizard_dsl_context)
+      step.run_after_callback!(controller, wizard_dsl_context, model)
       if current_step == last_step
         finish!
       else
         self.current_step = next_step
-        current_step.run_before_callback!(controller, wizard_dsl_context)
+        current_step.run_before_callback!(controller, wizard_dsl_context, model)
       end
     end
 
     def include_data
       return {} unless model
-      inc_data = current_step.run_include_data_callback!(controller, model)
+      inc_data = current_step.run_include_data_callback!(controller, wizard_dsl_context, model)
       data_key = current_step.include_data_key
       { data_key.to_s.camelize(:lower) => inc_data }
     end
