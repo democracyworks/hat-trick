@@ -76,8 +76,11 @@ module HatTrick
     def run_callback(type, context, arg)
       callback = callbacks[type.to_sym]
       if callback && callback.is_a?(Proc)
-        context.instance_exec arg, &callback if callback.arity > 0
-        context.instance_eval &callback if callback.arity == 0
+        if callback.arity > 0
+          context.instance_exec arg, &callback
+        else
+          context.instance_eval &callback
+        end
       end
     end
   end
