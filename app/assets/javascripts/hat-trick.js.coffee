@@ -3,10 +3,10 @@
 class HatTrickWizard
   constructor: (formElem, @wizard) ->
     @form = $(formElem)
-    @fieldsets = @form.find("fieldset")
-    @fieldsets.addClass("step")
+    fieldsets = @form.find("fieldset")
+    fieldsets.addClass("step")
     wizard_buttons = '<input type="reset" /><input type="submit" />'
-    @fieldsets.find("div.buttons").html wizard_buttons
+    fieldsets.find("div.buttons").html wizard_buttons
     this.enableFormwizard() # unless this.formwizardEnabled()
     this.setCurrentStepField()
     # TODO: Try this out instead of putting :start first
@@ -38,32 +38,44 @@ class HatTrickWizard
 
   nextStepFieldHTML: """<input type="hidden" name="_ht_next_step" class="_ht_link" value="" />"""
 
-  createAjaxEvents: (firstStep=true) ->
+  fieldsets: ->
+    @form.find("fieldset")
+
+  ajaxEvents: (firstStep=false) ->
     remoteAjax = {}
-    $fieldsets = @fieldsets
+    $fieldsets = this.fieldsets()
     $fieldsets = $fieldsets.filter(":first") if firstStep
     $fieldsets.each (index, element) =>
-      console.log "Adding AJAX to step #{index}"
-      remoteAjax[$(element).attr("id")] =
-        url: @form.attr("action"),
-        dataType: "json",
-        beforeSubmit: (data) =>
-          console.log "Sending these data to the server: #{$.param(data)}"
-        success: (data) =>
-          console.log "Successful form POST; got #{$.param(data)}"
-          if data.wizardMetadata?
-            this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
-          window.ht = data
+      stepId = $(element).attr("id")
+      remoteAjax[stepId] = this.createAjaxEvent(stepId)
     remoteAjax
+
+  createAjaxEvent: (step) ->
+    console.log "Adding AJAX to step #{step}"
+    ajax =
+      url: @form.attr("action"),
+      dataType: "json",
+      beforeSubmit: (data) =>
+        console.log "Sending these data to the server: #{$.param(data)}"
+      success: (data) =>
+        console.log "Successful form POST; got #{$.param(data)}"
+        if data.wizardMetadata?
+          this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
+        window.htData = data
+    ajax
+
+  updateSteps: ->
+    @form.formwizard("update_steps")
+    @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
   repeatStep: (step) ->
     $sourceStep = this.findStep(step.repeatOf.fieldset)
     console.log "Cloning repeated step #{step.repeatOf.fieldset}"
-    $clonedStep = $sourceStep.clone(true)
+    $clonedStep = $sourceStep.clone(true, true)
     $clonedStep.css("display", "none")
     $clonedStep.attr("id", step.name)
     $sourceStep.after($clonedStep)
-    @form.formwizard("update_steps")
+    this.updateSteps()
     @form.formwizard("show", step.name)
 
   showStep: (step) ->
@@ -82,7 +94,7 @@ class HatTrickWizard
       disableUIStyles: true,
       inDuration: 0,
       linkClass: "_ht_link",
-      remoteAjax: this.createAjaxEvents(), # adds first Ajax event
+      remoteAjax: this.ajaxEvents(true), # adds first Ajax event
       formOptions:
         success: (data) =>
           console.log "Successful form POST"
@@ -139,21 +151,21 @@ class HatTrickWizard
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
-      this.setFormFields(ht.formModel)
+      this.setFormFields(htData.formModel)
 
       if data.previousStep is data.firstStep
         console.log "Adding additional Ajax events"
         # adds additional Ajax events now that we have the update URL
-        @form.formwizard("option", remoteAjax: this.createAjaxEvents(false))
+        @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
     @form.bind "after_remote_ajax", (event, data) =>
-      if ht.wizardMetadata.currentStep.repeatOf?
-        this.repeatStep(ht.wizardMetadata.currentStep)
+      if htData.wizardMetadata.currentStep.repeatOf?
+        this.repeatStep(htData.wizardMetadata.currentStep)
       else
-        this.showStep(ht.wizardMetadata.currentStep)
+        this.showStep(htData.wizardMetadata.currentStep)
 
 $ ->
   $form = $("form.wizard")
-  if ht? and !htWizard?
+  if htData? and !htWizard?
     console.log "Creating new HatTrickWizard instance"
-    window.htWizard = new HatTrickWizard($form, ht.wizardMetadata)
+    window.htWizard = new HatTrickWizard($form, htData.wizardMetadata)
