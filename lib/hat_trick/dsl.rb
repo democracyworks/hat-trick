@@ -81,7 +81,16 @@ module HatTrick
       end
 
       def skip_this_step
-        wizard_def.last_step = wizard_def.next_step
+        if wizard
+          skip_to_step = wizard.next_step
+          if skip_to_step
+            wizard.current_step = skip_to_step
+          else
+            wizard.finish!
+          end
+        else
+          raise "skip_this_step should only be called in a before_this_step callback"
+        end
       end
 
       def before_this_step(&block)
