@@ -17,7 +17,7 @@ module HatTrick
     end
 
     def save_with_hat_trick(*args)
-      Rails.logger.info "Saving #{self.inspect} with hat trick"
+      # Rails.logger.info "Saving #{self.inspect} with hat trick"
       enable_validation_group HatTrick::ModelMethods.current_validation_group_for(self.class)
       save_without_hat_trick(*args)
     end
