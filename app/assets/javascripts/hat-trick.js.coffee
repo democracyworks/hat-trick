@@ -77,6 +77,7 @@ class HatTrickWizard
   goToStepId: (stepId) ->
     console.log "Setting up goto #{stepId}"
     this.setHTMeta("next_step", stepId)
+    @form.formwizard("next")
 
   repeatStep: (step) ->
     $sourceStep = this.findStep(step.repeatOf.fieldset)
