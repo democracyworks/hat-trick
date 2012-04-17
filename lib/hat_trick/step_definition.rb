@@ -16,6 +16,13 @@ module HatTrick
       @skipped = false
     end
 
+    def initialize_copy(source)
+      @callbacks = source.callbacks.dup
+      @buttons = source.buttons.dup
+      @skipped = false
+      @repeat_of = source
+    end
+
     def name=(name)
       @name = name.to_sym
     end

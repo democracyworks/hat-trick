@@ -12,7 +12,7 @@ module HatTrick
       @wizard_def = wizard_def
       @wizard_dsl_context = DSL::WizardContext.new(@wizard_def)
       @wizard_dsl_context.wizard = self
-      @steps = @wizard_def.steps.map { |s| HatTrick::Step.new(s) }
+      @steps = @wizard_def.steps.map { |s| HatTrick::Step.new(s, self) }
     end
 
     def controller=(new_controller)
@@ -24,6 +24,10 @@ module HatTrick
       step = find_step(_step)
       raise "#{step} is not a member of this wizard" unless step
       @current_step = step
+    end
+
+    def session
+      controller.session unless controller.nil?
     end
 
     def model_created?
@@ -75,6 +79,7 @@ module HatTrick
     end
 
     def start
+      session["hat-trick.steps_visited"] = []
       self.current_step = first_step
       run_before_callback
     end
@@ -100,23 +105,31 @@ module HatTrick
     end
 
     def advance_step(next_step_name=nil)
-      requested_next_step = find_step(next_step_name) unless next_step_name.nil?
+      # clean up current step
+      current_step.visited = true
       run_after_callback
+
+      # see if there is a requested next step
+      requested_next_step = find_step(next_step_name) unless next_step_name.nil?
+
+      # finish if we're on the last step
       if current_step == last_step && !requested_next_step
         finish
-      else
+      else # we're not on the last step
         if requested_next_step
           Rails.logger.info "Force advancing to step: #{requested_next_step}"
           self.current_step = requested_next_step
+          run_before_callback
+          # if the step was explicitly requested, we ignore #skipped?
         else
           Rails.logger.info "Advancing to step: #{next_step}"
           self.current_step = next_step
-        end
-        run_before_callback
-        # Running the before callback may have marked current_step as skipped
-        while current_step.skipped?
-          self.current_step = next_step
           run_before_callback
+          # Running the before callback may have marked current_step as skipped
+          while current_step.skipped?
+            self.current_step = next_step
+            run_before_callback
+          end
         end
       end
     end

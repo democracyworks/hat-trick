@@ -77,8 +77,6 @@ module HatTrick
         new_step.fieldset = repeated_step.fieldset
         # but use the current step's name
         new_step.name = wizard_def.last_step.name
-        # set the repeated flag
-        new_step.repeat_of = repeated_step
         if wizard
           # TODO: Might turn all these into run-time methods; which would get
           # rid of this wizard / wizard_def distinction

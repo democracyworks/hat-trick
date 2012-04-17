@@ -92,7 +92,6 @@ module HatTrick
       end
 
       if params.has_key?('_ht_meta')
-        ht_wizard.current_step.visited = true
         next_step = params['_ht_meta']['next_step']
         ht_wizard.advance_step(next_step)
       end
