@@ -183,11 +183,14 @@ class HatTrickWizard
         console.log "Setting reset button val to #{label}"
         $buttonsDiv.find('input:reset').val(label)
       else
-        console.log "Adding new #{name}:#{label} button"
-        $newButton = $buttonsDiv.append(this.createButton(name, label))
-        $newButton.click (event) =>
-          event.preventDefault()
-          this.goToStepId(name)
+        buttonSelector = """input:button[name="#{name}"][value="#{label}"]"""
+        $existingButtons = $buttonsDiv.find(buttonSelector)
+        if $existingButtons.length == 0
+          console.log "Adding new #{name}:#{label} button"
+          $newButton = $buttonsDiv.append(this.createButton(name, label))
+          $newButton.click (event) =>
+            event.preventDefault()
+            this.goToStepId(name)
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
