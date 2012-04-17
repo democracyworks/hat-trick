@@ -154,7 +154,7 @@ class HatTrickWizard
 
   setSelectFields: (formModel) ->
     this.setFieldValues formModel, "select", ($select, value) =>
-      $select.find("option[value=#{value}]").attr("selected", "selected")
+      $select.find("option[value=\"#{value}\"]").attr("selected", "selected")
 
   setCheckboxes: (formModel) ->
     this.setFieldValues formModel, "input:checkbox", ($checkbox, value) =>
@@ -162,7 +162,7 @@ class HatTrickWizard
 
   setRadioButtons: (formModel) ->
     this.setFieldValues formModel, "input:radio", ($radio, value) =>
-      $radio.find("[value=#{value}]").attr("checked", "checked")
+      $radio.find("[value=\"#{value}\"]").attr("checked", "checked")
 
   setFormFields: (formModel) ->
     this.fillTextFields(formModel)
