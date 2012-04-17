@@ -123,10 +123,16 @@ class HatTrickWizard
       $meta = @form.prepend(this.htMetaHTML(key)).find("#_ht_#{key}")
     $meta.val(value)
 
+  clearHTMeta: (key) ->
+    @form.find("input:hidden#_ht_#{key}").remove()
+
   setCurrentStepField: ->
     stepId = this.currentStepId()
     this.setHTMeta("step", stepId)
     console.log "Current form step: #{stepId}"
+
+  clearNextStepField: ->
+    this.clearHTMeta("next_step")
 
   fieldRegex: /^([^\[]+)\[([^\]]+)\]$/
 
@@ -185,6 +191,7 @@ class HatTrickWizard
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
+      this.clearNextStepField()
       this.setFormFields(htData.formModel)
 
       buttons = this.buttons[this.currentStepId()]
