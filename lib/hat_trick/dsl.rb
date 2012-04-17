@@ -36,6 +36,11 @@ module HatTrick
       def setup_wizard
         wizard_def = self.class.instance_variable_get("@wizard_def")
         @ht_wizard = wizard_def.get_wizard(self)
+
+        if params.has_key?('_ht_meta')
+          step_name = params['_ht_meta']['step']
+          @ht_wizard.current_step = step_name if step_name
+        end
       end
     end
 
@@ -43,7 +48,7 @@ module HatTrick
       attr_reader :wizard_def
       attr_accessor :wizard
 
-      delegate :model, :to => :wizard
+      delegate :model, :previously_visited_step, :to => :wizard
 
       def initialize(wizard_def)
         @wizard_def = wizard_def
@@ -54,11 +59,14 @@ module HatTrick
         instance_eval &block if block_given?
       end
 
-      def next_step(name)
-        step = wizard_def.find_step(name)
-        raise "next_step should only be called from a callback" if wizard.nil?
-        current_step = wizard.current_step
-        wizard.add_step_override(current_step, :after, step)
+      def next_step(name=nil)
+        if name.nil?
+          wizard.next_step
+        else
+          raise "next_step should only be called from an after block" if wizard.nil?
+          step = wizard.find_step(name)
+          wizard.current_step.next_step = step
+        end
       end
 
       def repeat_step(name)
@@ -72,8 +80,8 @@ module HatTrick
         # set the repeated flag
         new_step.repeat_of = repeated_step
         if wizard
-          # TODO: See if this actually works
-          wizard.add_step_override(repeated_step, :after, new_step)
+          # TODO: Might turn all these into run-time methods; which would get
+          # rid of this wizard / wizard_def distinction
         else
           # replace the step we're in the middle of defining w/ new_step
           wizard_def.replace_step(wizard_def.last_step, new_step)
@@ -82,15 +90,22 @@ module HatTrick
 
       def skip_this_step
         if wizard
-          skip_to_step = wizard.next_step
-          if skip_to_step
-            wizard.current_step = skip_to_step
-          else
-            wizard.finish!
-          end
+          wizard.skip_step(wizard.current_step)
         else
-          raise "skip_this_step should only be called in a before_this_step callback"
+          # skip_this_step in wizard definition context means the step
+          # can be explicitly jumped to, but won't be in the normal flow
+          wizard_def.last_step.skipped = true
         end
+      end
+
+      def button_to(name, options=nil)
+        if wizard
+          raise "button_to not yet supported in before/after blocks"
+        end
+        label = options[:label] if options
+        label ||= name.to_s.humanize
+        step = wizard_def.last_step
+        step.buttons = step.buttons.merge(name => label)
       end
 
       def before(&block)

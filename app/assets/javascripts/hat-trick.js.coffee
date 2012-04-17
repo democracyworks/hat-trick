@@ -8,11 +8,15 @@ class HatTrickWizard
     wizard_buttons = '<input type="reset" /><input type="submit" />'
     fieldsets.find("div.buttons").html wizard_buttons
     window.htData = {}
+    # prevent submitting the step that happens to be the last fieldset
+    this.addFakeLastStep()
     this.enableFormwizard() # unless this.formwizardEnabled()
     this.setCurrentStepField()
     # TODO: Try this out instead of putting :start first
     # this.showStep(@wizard.currentStep)
     this.bindEvents()
+
+  buttons: {}
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
@@ -52,7 +56,7 @@ class HatTrickWizard
     remoteAjax
 
   createAjaxEvent: (step) ->
-    console.log "Adding AJAX to step #{step}"
+    # console.log "Adding AJAX to step #{step}"
     ajax =
       url: @form.attr("action"),
       dataType: "json",
@@ -69,6 +73,10 @@ class HatTrickWizard
   updateSteps: ->
     @form.formwizard("update_steps")
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
+
+  goToStepId: (stepId) ->
+    console.log "Setting up goto #{stepId}"
+    this.setHTMeta("next_step", stepId)
 
   repeatStep: (step) ->
     $sourceStep = this.findStep(step.repeatOf.fieldset)
@@ -87,6 +95,9 @@ class HatTrickWizard
   formwizardEnabled: ->
     @form.formwizard?
 
+  addFakeLastStep: ->
+    @form.append """<fieldset id="_ht_fake_last_step" style="display: none;" class="step"></fieldset>"""
+
   enableFormwizard: ->
     @form.formwizard
       formPluginEnabled: true,
@@ -103,17 +114,19 @@ class HatTrickWizard
         beforeSubmit: (data) =>
           console.log "Sending these data to the server: #{$.param(data)}"
 
-  stepFieldHTML: """<input type="hidden" name="_ht_meta[step]" id="_ht_step" value="" />"""
+  htMetaHTML: (name) ->
+    """<input type="hidden" name="_ht_meta[#{name}]" id="_ht_#{name}" value="" />"""
+
+  setHTMeta: (key, value) ->
+    $meta = @form.find("input:hidden#_ht_#{key}")
+    if $meta.length is 0
+      $meta = @form.prepend(this.htMetaHTML(key)).find("#_ht_#{key}")
+    $meta.val(value)
 
   setCurrentStepField: ->
-    $stepFields = @form.find("#_ht_step")
-    $stepField = if $stepFields.length > 0
-      $stepFields
-    else
-      @form.prepend(@stepFieldHTML).find("#_ht_step")
     stepId = this.currentStepId()
+    this.setHTMeta("step", stepId)
     console.log "Current form step: #{stepId}"
-    $stepField.val(stepId)
 
   fieldRegex: /^([^\[]+)\[([^\]]+)\]$/
 
@@ -150,10 +163,33 @@ class HatTrickWizard
     this.setCheckboxes(formModel)
     this.setRadioButtons(formModel)
 
+  createButton: (name, label) ->
+    """<input type="button" name="#{name}" value="#{label}" />"""
+
+  setButton: (name, label) ->
+    $buttonsDiv = this.currentStep().find("div.buttons")
+    switch name
+      when "next"
+        console.log "Setting submit button val to #{label}"
+        $buttonsDiv.find('input:submit').val(label)
+      when "back"
+        console.log "Setting reset button val to #{label}"
+        $buttonsDiv.find('input:reset').val(label)
+      else
+        console.log "Adding new #{name}:#{label} button"
+        $newButton = $buttonsDiv.append(this.createButton(name, label))
+        $newButton.click (event) =>
+          event.preventDefault()
+          this.goToStepId(name)
+
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
       this.setFormFields(htData.formModel)
+
+      buttons = this.buttons[this.currentStepId()]
+      if buttons?
+        this.setButton(name, label) for own name, label of buttons
 
       if data.previousStep is data.firstStep
         console.log "Adding additional Ajax events"
@@ -161,6 +197,10 @@ class HatTrickWizard
         @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
     @form.bind "after_remote_ajax", (event, data) =>
+      if htData.wizardMetadata.currentStep.buttons?
+        stepId = htData.wizardMetadata.currentStep.fieldset
+        this.buttons[stepId] = htData.wizardMetadata.currentStep.buttons
+
       if htData.wizardMetadata.currentStep.repeatOf?
         this.repeatStep(htData.wizardMetadata.currentStep)
       else

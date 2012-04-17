@@ -8,7 +8,7 @@ module HatTrick
       alias_method_chain :render, :hat_trick
     end
 
-    def self.def_action_method_aliases!(action_methods)
+    def self.def_action_method_aliases(action_methods)
       action_methods.each do |meth|
         Rails.logger.info "Aliasing #{meth}"
         module_eval <<-RUBY_EVAL
@@ -47,6 +47,8 @@ module HatTrick
     end
 
     def model_class
+      model_name = params_model_name
+      return nil if model_name.nil?
       begin
         model_class = params_model_name.constantize
       rescue NameError
@@ -59,6 +61,7 @@ module HatTrick
 
     def setup_validation_group_for(wizard_step)
       klass = model_class
+      return if klass.nil?
       step_name = wizard_step.name
       validation_groups = ::ActiveRecord::Base.validation_group_classes[klass] || []
       unless validation_groups.include?(step_name)
@@ -79,18 +82,19 @@ module HatTrick
     end
 
     def common_hook(*args)
-      if params.has_key?('_ht_meta')
-        current_step = params['_ht_meta']['step']
-        ht_wizard.advance_step!(current_step)
-      else
-        ht_wizard.start! unless ht_wizard.started?
-      end
+      # nothing here for now
     end
 
     def render_with_hat_trick(*args)
       if args.first.has_key?(:json)
         model = args[0][:json]
         ht_wizard.model = model
+      end
+
+      if params.has_key?('_ht_meta')
+        ht_wizard.current_step.visited = true
+        next_step = params['_ht_meta']['next_step']
+        ht_wizard.advance_step(next_step)
       end
 
       wizard_metadata = {

@@ -5,6 +5,7 @@ module HatTrick
       options[:html] = { :class => 'wizard' }
 
       wizard = controller.send(:ht_wizard)
+      wizard.start unless wizard.started?
 
       # Do we still need these 2 lines?
       wizard.model = record
