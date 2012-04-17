@@ -1,9 +1,14 @@
 ENV["RAILS_ENV"] ||= 'test'
 require 'bundler/setup'
+require 'logger'
 
 module Rails
   def self.root
     Pathname.new(File.expand_path('../..', __FILE__))
+  end
+
+  def self.logger
+    @logger ||= ::Logger.new(STDOUT).tap { |l| l.level = ::Logger::ERROR }
   end
 
   class Engine
