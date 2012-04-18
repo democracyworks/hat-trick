@@ -217,7 +217,7 @@ class HatTrickWizard
         @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
     @form.bind "after_remote_ajax", (event, data) =>
-      if htData.wizardMetadata.currentStep.buttons?
+      if htData.wizardMetadata?.currentStep.buttons?
         stepId = htData.wizardMetadata.currentStep.fieldset
         this.buttons[stepId] = htData.wizardMetadata.currentStep.buttons
 
