@@ -68,7 +68,16 @@ class HatTrickWizard
           this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
         # merge new data with window.htData
         $.extend(window.htData, data)
+      error: (data) =>
+        appErrors = eval "(#{data.responseText})"
+        this.addErrorItem value[0] for key, value of appErrors.formModel
     ajax
+
+  addErrorItem: (message) ->
+    $errorList = this.currentStep().find("ul.hat_trick_errors")
+    if $errorList.length > 0
+      $errorList.append("<li>#{message}</li>")
+      $errorList.show()
 
   updateSteps: ->
     @form.formwizard("update_steps")
