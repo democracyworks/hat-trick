@@ -138,7 +138,7 @@ module HatTrick
       return {} unless model
       inc_data = current_step.run_include_data_callback(controller, wizard_dsl_context, model)
       data_key = current_step.include_data_key
-      { data_key.to_s.camelize(:lower) => inc_data }
+      { data_key.to_s.camelize(:lower) => camelize_hash_keys(inc_data) }
     end
 
     def alias_action_methods
@@ -162,6 +162,15 @@ module HatTrick
     def find_step_after(step)
       next_path_step = step_after step
       next_path_step or find_next_active_step(step)
+    end
+
+    def camelize_hash_keys(_hash)
+      return nil if _hash.nil?
+      hash = {}
+      _hash.each do |k,v|
+        hash[k.to_s.camelize(:lower)] = v
+      end
+      hash
     end
   end
 end

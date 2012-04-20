@@ -54,14 +54,6 @@ module HatTrick
       name.to_sym
     end
 
-    def camelize_hash_keys(_hash)
-      hash = {}
-      _hash.each do |k,v|
-        hash[k.to_s.camelize(:lower)] = v
-      end
-      hash
-    end
-
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
       json[:repeatOf] = repeat_of.as_json if repeat?
