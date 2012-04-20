@@ -221,7 +221,7 @@ class HatTrickWizard
         stepId = htData.wizardMetadata.currentStep.fieldset
         this.buttons[stepId] = htData.wizardMetadata.currentStep.buttons
 
-      if htData.wizardMetadata.currentStep.repeatOf?
+      if htData.wizardMetadata?.currentStep.repeatOf?
         this.repeatStep(htData.wizardMetadata.currentStep)
       else
         this.showStep(htData.wizardMetadata.currentStep)
