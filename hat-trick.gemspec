@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rspec"
   s.add_development_dependency "mocha"
-  s.add_development_dependency "ruby-debug19"
+  s.add_development_dependency "debugger"
 
   s.add_runtime_dependency "rails", "~> 3.1"
   s.add_runtime_dependency "validation_group"
