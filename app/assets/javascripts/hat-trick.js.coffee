@@ -56,14 +56,13 @@ class HatTrickWizard
     remoteAjax
 
   createAjaxEvent: (step) ->
-    # console.log "Adding AJAX to step #{step}"
     ajax =
       url: @form.attr("action"),
       dataType: "json",
       beforeSubmit: (data) =>
-        console.log "Sending these data to the server: #{$.param(data)}"
+        console.log "Sending these data to the server: #{JSON.stringify(data)}"
       success: (data) =>
-        console.log "Successful form POST; got #{$.param(data)}"
+        console.log "Successful form POST; got #{JSON.stringify(data)}"
         if data.wizardMetadata?
           this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
         # merge new data with window.htData
@@ -122,7 +121,7 @@ class HatTrickWizard
         success: (data) =>
           console.log "Successful form POST"
         beforeSubmit: (data) =>
-          console.log "Sending these data to the server: #{$.param(data)}"
+          console.log "Sending these data to the server: #{JSON.stringify(data)}"
 
   htMetaHTML: (name) ->
     """<input type="hidden" name="_ht_meta[#{name}]" id="_ht_#{name}" value="" />"""
@@ -153,8 +152,8 @@ class HatTrickWizard
       elementName = $element.attr("name")
       if elementName? and elementName.search(@fieldRegex) isnt -1
         [_, modelName, fieldName] = elementName.match(@fieldRegex)
-        if formModel[modelName]? and formModel[modelName][fieldName]?
-          fieldValue = formModel[modelName][fieldName]
+        if formModel[fieldName]?
+          fieldValue = formModel[fieldName]
           callback($element, fieldValue) if fieldValue?
 
   fillTextFields: (formModel) ->
@@ -212,7 +211,6 @@ class HatTrickWizard
         this.setButton(name, label) for own name, label of buttons
 
       if data.previousStep is data.firstStep
-        console.log "Adding additional Ajax events"
         # adds additional Ajax events now that we have the update URL
         @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
