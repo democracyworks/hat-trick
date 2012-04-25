@@ -107,7 +107,7 @@ module HatTrick
 
       if ht_wizard.model && args[0].has_key?(:json)
         # this sets the wizard metadata for subsequent AJAX requests
-        args[0][:json] = { :formModel => ht_wizard.model.reload,
+        args[0][:json] = { :formModel => ht_wizard.model,
                            :wizardMetadata => wizard_metadata }
         args[0][:json].merge! ht_wizard.include_data
       end
