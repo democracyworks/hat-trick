@@ -17,7 +17,7 @@ module HatTrick
     end
 
     def initialize_copy(source)
-      @callbacks = source.callbacks.dup
+      @callbacks = {}
       @buttons = source.buttons.dup
       @skipped = false
       @repeat_of = source
