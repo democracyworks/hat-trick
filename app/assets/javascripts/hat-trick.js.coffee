@@ -68,6 +68,7 @@ class HatTrickWizard
         # merge new data with window.htData
         $.extend(window.htData, data)
       error: (data) =>
+        # console.log "Error response: #{data.responseText}"
         appErrors = eval "(#{data.responseText})"
         this.addErrorItem value[0] for key, value of appErrors.formModel
     ajax
@@ -219,9 +220,9 @@ class HatTrickWizard
         stepId = htData.wizardMetadata.currentStep.fieldset
         this.buttons[stepId] = htData.wizardMetadata.currentStep.buttons
 
-      if htData.wizardMetadata?.currentStep.repeatOf?
+      if htData.wizardMetadata?.currentStep?.repeatOf?
         this.repeatStep(htData.wizardMetadata.currentStep)
-      else
+      else if htData.wizardMetadata?.currentStep?
         this.showStep(htData.wizardMetadata.currentStep)
 
 $ ->
