@@ -70,11 +70,20 @@ class HatTrickWizard
       error: (data) =>
         # console.log "Error response: #{data.responseText}"
         appErrors = eval "(#{data.responseText})"
+        this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.formModel
     ajax
 
+  getErrorListElement: ->
+    this.currentStep().find("ul.hat_trick_errors")
+
+  clearErrors: ->
+    $errorList = this.getErrorListElement()
+    $errorList.hide()
+    $errorList.empty()
+
   addErrorItem: (message) ->
-    $errorList = this.currentStep().find("ul.hat_trick_errors")
+    $errorList = this.getErrorListElement()
     if $errorList.length > 0
       $errorList.append("<li>#{message}</li>")
       $errorList.show()
