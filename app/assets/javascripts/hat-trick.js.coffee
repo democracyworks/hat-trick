@@ -7,7 +7,6 @@ class HatTrickWizard
     fieldsets.addClass("step")
     wizard_buttons = '<input type="reset" /><input type="submit" />'
     fieldsets.find("div.buttons").html wizard_buttons
-    window.htData = {}
     # prevent submitting the step that happens to be the last fieldset
     this.addFakeLastStep()
     this.enableFormwizard() # unless this.formwizardEnabled()
@@ -61,17 +60,17 @@ class HatTrickWizard
       dataType: "json",
       beforeSubmit: (data) =>
         console.log "Sending these data to the server: #{JSON.stringify(data)}"
-      success: (data) =>
-        console.log "Successful form POST; got #{JSON.stringify(data)}"
-        if data.wizardMetadata?
-          this.setAction(data.wizardMetadata.url, data.wizardMetadata.method)
-        # merge new data with window.htData
-        $.extend(window.htData, data)
-      error: (data) =>
+      success: (event) =>
+        console.log "Successful form POST; got #{JSON.stringify(event)}"
+        if event.metadata?
+          this.setAction(event.metadata.url, event.metadata.method)
+        # merge new data with window.hatTrick
+        $.extend(window.hatTrick, event)
+      error: (event) =>
         # console.log "Error response: #{data.responseText}"
-        appErrors = eval "(#{data.responseText})"
+        appErrors = eval "(#{event.responseText})"
         this.clearErrors()
-        this.addErrorItem value[0] for key, value of appErrors.formModel
+        this.addErrorItem value[0] for key, value of appErrors.model
     ajax
 
   getErrorListElement: ->
@@ -155,38 +154,38 @@ class HatTrickWizard
 
   fieldRegex: /^([^\[]+)\[([^\]]+)\]$/
 
-  setFieldValues: (formModel, selector, callback) ->
+  setFieldValues: (model, selector, callback) ->
     $currentStep = this.currentStep()
     $currentStep.find(selector).each (index, element) =>
       $element = $(element)
       elementName = $element.attr("name")
       if elementName? and elementName.search(@fieldRegex) isnt -1
         [_, modelName, fieldName] = elementName.match(@fieldRegex)
-        if formModel[fieldName]?
-          fieldValue = formModel[fieldName]
+        if model[fieldName]?
+          fieldValue = model[fieldName]
           callback($element, fieldValue) if fieldValue?
 
-  fillTextFields: (formModel) ->
-    this.setFieldValues formModel, "input:text", ($input, value) =>
+  fillTextFields: (model) ->
+    this.setFieldValues model, "input:text", ($input, value) =>
       $input.val(value)
 
-  setSelectFields: (formModel) ->
-    this.setFieldValues formModel, "select", ($select, value) =>
+  setSelectFields: (model) ->
+    this.setFieldValues model, "select", ($select, value) =>
       $select.find("option[value=\"#{value}\"]").attr("selected", "selected")
 
-  setCheckboxes: (formModel) ->
-    this.setFieldValues formModel, "input:checkbox", ($checkbox, value) =>
+  setCheckboxes: (model) ->
+    this.setFieldValues model, "input:checkbox", ($checkbox, value) =>
       $checkbox.attr("checked", "checked") if value
 
-  setRadioButtons: (formModel) ->
-    this.setFieldValues formModel, "input:radio", ($radio, value) =>
+  setRadioButtons: (model) ->
+    this.setFieldValues model, "input:radio", ($radio, value) =>
       $radio.find("[value=\"#{value}\"]").attr("checked", "checked")
 
-  setFormFields: (formModel) ->
-    this.fillTextFields(formModel)
-    this.setSelectFields(formModel)
-    this.setCheckboxes(formModel)
-    this.setRadioButtons(formModel)
+  setFormFields: (model) ->
+    this.fillTextFields(model)
+    this.setSelectFields(model)
+    this.setCheckboxes(model)
+    this.setRadioButtons(model)
 
   createButton: (name, label) ->
     """<input type="button" name="#{name}" value="#{label}" />"""
@@ -214,7 +213,7 @@ class HatTrickWizard
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
       this.clearNextStepField()
-      this.setFormFields(htData.formModel)
+      this.setFormFields(hatTrick.model)
 
       buttons = this.buttons[this.currentStepId()]
       if buttons?
@@ -225,17 +224,18 @@ class HatTrickWizard
         @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
     @form.bind "after_remote_ajax", (event, data) =>
-      if htData.wizardMetadata?.currentStep.buttons?
-        stepId = htData.wizardMetadata.currentStep.fieldset
-        this.buttons[stepId] = htData.wizardMetadata.currentStep.buttons
+      if hatTrick.metadata?.currentStep.buttons?
+        stepId = hatTrick.metadata.currentStep.fieldset
+        this.buttons[stepId] = hatTrick.metadata.currentStep.buttons
 
-      if htData.wizardMetadata?.currentStep?.repeatOf?
-        this.repeatStep(htData.wizardMetadata.currentStep)
-      else if htData.wizardMetadata?.currentStep?
-        this.showStep(htData.wizardMetadata.currentStep)
+      if hatTrick.metadata?.currentStep?.repeatOf?
+        this.repeatStep(hatTrick.metadata.currentStep)
+      else if hatTrick.metadata?.currentStep?
+        this.showStep(hatTrick.metadata.currentStep)
 
 $ ->
   $form = $("form.wizard")
-  if htData? and !htWizard?
+  window.hatTrick = {} unless window.hatTrick?
+  unless window.hatTrick.wizard?
     console.log "Creating new HatTrickWizard instance"
-    window.htWizard = new HatTrickWizard($form, htData.wizardMetadata)
+    window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.meta)

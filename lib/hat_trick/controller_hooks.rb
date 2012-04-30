@@ -102,14 +102,18 @@ module HatTrick
         :currentStep => ht_wizard.current_step,
       }
 
-      # this sets the wizard_metadata for the initial page load
-      gon.wizard_metadata = wizard_metadata
+      include_data = ht_wizard.include_data
 
+      # this sets the gon data (JS hatTrick object) for the initial page load
+      gon.metadata = wizard_metadata
+      gon.data = include_data
+      gon.model = ht_wizard.model
+
+      # this sets the wizard metadata for subsequent AJAX requests
       if ht_wizard.model && args[0].has_key?(:json)
-        # this sets the wizard metadata for subsequent AJAX requests
-        args[0][:json] = { :formModel => ht_wizard.model,
-                           :wizardMetadata => wizard_metadata }
-        args[0][:json].merge! ht_wizard.include_data
+        args[0][:json] = { :model => ht_wizard.model,
+                           :metadata => wizard_metadata }
+        args[0][:json].merge!( :data => include_data )
       end
 
       render_without_hat_trick(*args)

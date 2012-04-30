@@ -136,9 +136,13 @@ module HatTrick
 
     def include_data
       return {} unless model
-      inc_data = current_step.run_include_data_callback(controller, wizard_dsl_context, model)
-      data_key = current_step.include_data_key
-      { data_key.to_s.camelize(:lower) => camelize_hash_keys(inc_data) }
+      inc_data = {}
+      steps.each do |step|
+        step_data = step.run_include_data_callback(controller, wizard_dsl_context, model)
+        step_key = step.include_data_key.to_s.camelize(:lower)
+        inc_data[step_key] = camelize_hash_keys(step_data)
+      end
+      inc_data
     end
 
     def alias_action_methods
