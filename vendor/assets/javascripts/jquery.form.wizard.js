@@ -7,7 +7,7 @@
  * http://www.thecodemine.org
  *
  * Licensed under the MIT licens:
- *   http://www.opensource.org/licenses/mit-license.php
+ *	 http://www.opensource.org/licenses/mit-license.php
  *
  */
 
@@ -87,7 +87,7 @@
 				this.backButtonInitinalValue = this.backButton.val();
 				this.backButton.val(this.options.textBack);
 
-			if(this.options.validationEnabled && jQuery().validate  == undefined){
+			if(this.options.validationEnabled && jQuery().validate	== undefined){
 				this.options.validationEnabled = false;
 				if( (window['console'] !== undefined) ){
 					console.log("%s", "validationEnabled option set, but the validation plugin is not included");
@@ -304,7 +304,7 @@
 				}
 				return this.currentStep;
 			}else if(link == undefined && !this.isLastStep){
-				var step1 =  this.steps.filter("#" + step).next().attr("id");
+				var step1 =	this.steps.filter("#" + step).next().attr("id");
 				return step1;
 			}
 		},
@@ -312,9 +312,13 @@
 		_show : function(step){
 			var backwards = false;
 			var triggerStepShown = step !== undefined;
+			var fragment;
+			var elementId;
 			if(step == undefined || step == ""){
+					fragment = $.deparam.fragment();
+					elementId = $(this.element).attr( 'id' );
+					step = fragment["_" + elementId] || this.firstStep;
 					this.activatedSteps.pop();
-					step = this.firstStep;
 					this.activatedSteps.push(step);
 			}else{
 				if($.inArray(step, this.activatedSteps) > -1){
@@ -336,7 +340,7 @@
 
 		},
 
-	   _reset : function(){
+		 _reset : function(){
 			this.element.resetForm()
 			$("label,:input,textarea",this).removeClass("error");
 			for(var i = 0; i < this.activatedSteps.length; i++){
@@ -372,7 +376,7 @@
 			return currentState;
 		},
 
-	  /*Methods*/
+		/*Methods*/
 
 		show : function(step){
 			if(this.options.historyEnabled){
@@ -429,7 +433,7 @@
 		},
 
 		options: {
-	   		historyEnabled	: false,
+				 historyEnabled	: false,
 			validationEnabled : false,
 			validationOptions : undefined,
 			formPluginEnabled : false,
@@ -451,6 +455,6 @@
 			formOptions : { reset: true, success: function(data) { if( (window['console'] !== undefined) ){console.log("%s", "form submit successful");}},
 			disableUIStyles : false
 		}
-   }
+	 }
  });
 })(jQuery);
