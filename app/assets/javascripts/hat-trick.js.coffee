@@ -119,7 +119,7 @@ class HatTrickWizard
   enableFormwizard: ->
     @form.formwizard
       formPluginEnabled: true,
-      validationEnabled: true,
+      validationEnabled: false,
       focusFirstInput: true,
       historyEnabled: true,
       disableUIStyles: true,
