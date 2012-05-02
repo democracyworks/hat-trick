@@ -234,4 +234,4 @@ $ ->
   window.hatTrick = {} unless window.hatTrick?
   unless window.hatTrick.wizard?
     console.log "Creating new HatTrickWizard instance"
-    window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.meta)
+    window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
