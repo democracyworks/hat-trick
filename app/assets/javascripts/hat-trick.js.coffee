@@ -28,6 +28,7 @@ class HatTrickWizard
     console.log "Setting form action to #{methodLower} #{url}"
     @form.attr("action", url)
     @form.attr("method", "post")
+    @form.formwizard("option", remoteAjax: this.ajaxEvents())
     methodField = @form.find('input[name="_method"]')
     methodField.remove()
     if methodLower isnt "post"
@@ -45,10 +46,9 @@ class HatTrickWizard
   fieldsets: ->
     @form.find("fieldset")
 
-  ajaxEvents: (firstStep=false) ->
+  ajaxEvents: ->
     remoteAjax = {}
     $fieldsets = this.fieldsets()
-    $fieldsets = $fieldsets.filter(":first") if firstStep
     $fieldsets.each (index, element) =>
       stepId = $(element).attr("id")
       remoteAjax[stepId] = this.createAjaxEvent(stepId)
@@ -125,7 +125,7 @@ class HatTrickWizard
       disableUIStyles: true,
       inDuration: 0,
       linkClass: "_ht_link",
-      remoteAjax: this.ajaxEvents(true), # adds first Ajax event
+      remoteAjax: this.ajaxEvents(),
       formOptions:
         success: (data) =>
           console.log "Successful form POST"
@@ -218,10 +218,6 @@ class HatTrickWizard
       buttons = this.buttons[this.currentStepId()]
       if buttons?
         this.setButton(name, label) for own name, label of buttons
-
-      if data.previousStep is data.firstStep
-        # adds additional Ajax events now that we have the update URL
-        @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
     @form.bind "after_remote_ajax", (event, data) =>
       if hatTrick.metadata?.currentStep.buttons?
