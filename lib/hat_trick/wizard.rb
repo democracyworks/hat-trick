@@ -135,7 +135,7 @@ module HatTrick
     end
 
     def include_data
-      return {} unless model
+      return {} if model.nil? || model.is_a?(ActiveModel::Errors)
       inc_data = {}
       steps.each do |step|
         step_data = step.run_include_data_callback(controller, wizard_dsl_context, model)
