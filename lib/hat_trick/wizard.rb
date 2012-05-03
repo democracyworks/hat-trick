@@ -129,11 +129,12 @@ module HatTrick
     end
 
     def include_data
-      return {} if model.nil? || model.is_a?(ActiveModel::Errors)
+      return {} if model.nil?
       inc_data = {}
       include_data_steps = steps_before(current_step) << current_step
       include_data_steps.each do |step|
         step_data = step.run_include_data_callback(controller, wizard_dsl_context, model)
+        return {} unless step_data.respond_to?(:as_json)
         step_key = step.include_data_key.to_s.camelize(:lower)
         begin
           inc_data[step_key] = camelize_hash_keys(step_data.as_json)

@@ -88,13 +88,15 @@ module HatTrick
 
     protected
 
-    def run_callback(type, context, *args)
+    def run_callback(type, context, wizard_dsl, model)
       callback = callbacks[type.to_sym]
       if callback && callback.is_a?(Proc)
         if callback.arity > 1
-          context.instance_exec args[0], args[1], &callback
+          unless model.is_a?(ActiveModel::Errors)
+            context.instance_exec wizard_dsl, model, &callback
+          end
         elsif callback.arity == 1
-          context.instance_exec args[0], &callback
+          context.instance_exec wizard_dsl, &callback
         else
           context.instance_eval &callback
         end
