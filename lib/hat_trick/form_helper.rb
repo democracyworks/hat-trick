@@ -7,10 +7,6 @@ module HatTrick
       wizard = controller.send(:ht_wizard)
       wizard.start unless wizard.started?
 
-      # Do we still need these 2 lines?
-      wizard.model = record
-      controller.gon.form_model = record
-
       options[:url] = wizard.current_form_url
       options[:method] = wizard.current_form_method.to_sym
 
