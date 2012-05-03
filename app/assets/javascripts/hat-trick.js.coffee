@@ -60,15 +60,18 @@ class HatTrickWizard
       dataType: "json",
       beforeSubmit: (data) =>
         console.log "Sending these data to the server: #{JSON.stringify(data)}"
-      success: (event) =>
-        console.log "Successful form POST; got #{JSON.stringify(event)}"
-        if event.metadata?
-          this.setAction(event.metadata.url, event.metadata.method)
-        # merge new data with window.hatTrick
-        $.extend(window.hatTrick, event)
+      success: (response) =>
+        console.log "Successful form POST; got #{JSON.stringify(response)}"
+        if response.metadata?
+          this.setAction(response.metadata.url, response.metadata.method)
+        $.extend(window.hatTrick, response) # merge new data with hatTrick
       error: (event) =>
-        # console.log "Error response: #{data.responseText}"
-        appErrors = eval "(#{event.responseText})"
+        console.log "Error response: #{event.responseText}"
+        try
+          appErrors = eval "(#{event.responseText})"
+        catch err
+          # TODO: Make this notify us when an error occurs.
+          appErrors = model: { unknown: ["A weird error has occurred."] }
         this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.model
     ajax
