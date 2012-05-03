@@ -131,10 +131,15 @@ module HatTrick
     def include_data
       return {} if model.nil? || model.is_a?(ActiveModel::Errors)
       inc_data = {}
-      steps.each do |step|
+      include_data_steps = steps_before(current_step) << current_step
+      include_data_steps.each do |step|
         step_data = step.run_include_data_callback(controller, wizard_dsl_context, model)
         step_key = step.include_data_key.to_s.camelize(:lower)
-        inc_data[step_key] = camelize_hash_keys(step_data)
+        begin
+          inc_data[step_key] = camelize_hash_keys(step_data.as_json)
+        rescue NoMethodError => e
+          Rails.logger.error "Unable to serialize data for step #{step}: #{e}"
+        end
       end
       inc_data
     end
