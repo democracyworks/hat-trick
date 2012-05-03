@@ -98,12 +98,6 @@ module HatTrick
       step.run_after_callback(controller, wizard_dsl_context, model)
     end
 
-    def advance_step_with_debugger
-      require 'ruby-debug'
-      debugger
-      advance_step
-    end
-
     def advance_step(next_step_name=nil)
       # clean up current step
       current_step.visited = true
