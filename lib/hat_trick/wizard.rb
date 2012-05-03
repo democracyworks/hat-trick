@@ -168,10 +168,13 @@ module HatTrick
     end
 
     def camelize_hash_keys(_hash)
-      return nil if _hash.nil?
       hash = {}
-      _hash.each do |k,v|
-        hash[k.to_s.camelize(:lower)] = v
+      if _hash.respond_to?(:each)
+        _hash.each do |k,v|
+          hash[k.to_s.camelize(:lower)] = v
+        end
+      else
+        hash = _hash
       end
       hash
     end
