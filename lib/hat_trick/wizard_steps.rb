@@ -26,7 +26,9 @@ module HatTrick
     def steps_after(_step)
       step = find_step(_step)
       return [] unless step
-      after_index = steps.index(step) + 1
+      step_index = steps.index(step)
+      max_index = steps.count - 1
+      after_index = step_index < max_index ? step_index + 1 : step_index
       steps[after_index .. -1]
     end
 
@@ -37,7 +39,8 @@ module HatTrick
     def steps_before(_step)
       step = find_step(_step)
       return [] unless step
-      before_index = steps.index(step) - 1
+      step_index = steps.index(step)
+      before_index = step_index > 0 ? step_index - 1 : step_index
       steps[0 .. before_index]
     end
 
