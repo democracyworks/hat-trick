@@ -81,10 +81,6 @@ module HatTrick
       setup_validation_group_for(ht_wizard.current_step)
     end
 
-    def common_hook(*args)
-      # nothing here for now
-    end
-
     def render_with_hat_trick(*args)
       if args.first.has_key?(:json)
         model = args[0][:json]
