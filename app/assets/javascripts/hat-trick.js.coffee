@@ -5,9 +5,8 @@ class HatTrickWizard
     @form = $(formElem)
     fieldsets = @form.find("fieldset")
     fieldsets.addClass("step")
-    wizard_buttons = '<input type="reset" /><input type="submit" />'
-    fieldsets.find("div.buttons").html wizard_buttons
     # prevent submitting the step that happens to be the last fieldset
+    this.setDefaultButtons()
     this.addFakeLastStep()
     this.enableFormwizard() # unless this.formwizardEnabled()
     this.setCurrentStepField()
@@ -16,6 +15,10 @@ class HatTrickWizard
     this.bindEvents()
 
   buttons: {}
+
+  setDefaultButtons: ($scope = @form.find("fieldset")) ->
+    wizard_buttons = '<input type="reset" /><input type="submit" />'
+    $scope.find("div.buttons").html wizard_buttons
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
