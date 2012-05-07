@@ -82,8 +82,9 @@ module HatTrick
     end
 
     def render_with_hat_trick(*args)
-      if args.first.has_key?(:json)
-        model = args[0][:json]
+      rendered = args.first
+      if rendered && rendered.has_key?(:json)
+        model = rendered[:json]
         ht_wizard.model = model
       end
 
@@ -106,7 +107,7 @@ module HatTrick
       gon.model = ht_wizard.model
 
       # this sets the wizard metadata for subsequent AJAX requests
-      if ht_wizard.model && args[0].has_key?(:json)
+      if ht_wizard.model && rendered.has_key?(:json)
         args[0][:json] = { :model => ht_wizard.model,
                            :metadata => wizard_metadata }
         args[0][:json].merge!( :data => include_data )
