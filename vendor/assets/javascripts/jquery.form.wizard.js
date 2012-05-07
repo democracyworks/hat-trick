@@ -71,21 +71,8 @@
       this.isLastStep = false;
       this.previousStep = undefined;
       this.currentStep = this.steps.eq(0).attr("id");
-      this.nextButton  = this.element.find(this.options.next)
-          .click(function() {
-            return wizard._next();
-          });
 
-      this.nextButtonInitinalValue = this.nextButton.val();
-      this.nextButton.val(this.options.textNext);
-
-        this.backButton  = this.element.find(this.options.back)
-          .click(function() {
-            wizard._back();return false;
-          });
-
-        this.backButtonInitinalValue = this.backButton.val();
-        this.backButton.val(this.options.textBack);
+      this._updateButtons();
 
       if(this.options.validationEnabled && jQuery().validate  == undefined){
         this.options.validationEnabled = false;
@@ -139,6 +126,26 @@
       }
       this._show(undefined);
       return $(this);
+    },
+
+    _updateButtons : function(){
+      var wizard = this;
+
+      this.nextButton  = this.element.find(this.options.next)
+          .click(function() {
+            return wizard._next();
+          });
+
+      this.nextButtonInitinalValue = this.nextButton.val();
+      this.nextButton.val(this.options.textNext);
+
+      this.backButton  = this.element.find(this.options.back)
+        .click(function() {
+          wizard._back();return false;
+        });
+
+      this.backButtonInitinalValue = this.backButton.val();
+      this.backButton.val(this.options.textBack);
     },
 
     _next : function(){
@@ -422,6 +429,7 @@
     update_steps : function(){
       this.steps = this.element.find(".step").addClass("ui-formwizard-content");
       this.steps.not("#" + this.currentStep).hide().find(":input").addClass("ui-wizard-content").attr("disabled","disabled");
+      this._updateButtons();
       this._checkIflastStep(this.currentStep);
       this._enableNavigation();
       if(!this.options.disableUIStyles){
