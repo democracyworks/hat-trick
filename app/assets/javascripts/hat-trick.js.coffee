@@ -215,6 +215,17 @@ class HatTrickWizard
             event.preventDefault()
             this.goToStepId(name)
 
+  setContents: (stepPartials) ->
+    for stepName, partial of stepPartials
+      do (stepName, partial) =>
+        stepId = underscoreString stepName
+        $partial = $(partial)
+        fieldsetContents = $partial.find('fieldset').html()
+        $step = $("fieldset##{stepId}")
+        $step.html fieldsetContents
+        this.setDefaultButtons($step)
+        this.updateSteps()
+
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
@@ -226,6 +237,9 @@ class HatTrickWizard
         this.setButton(name, label) for own name, label of buttons
 
     @form.bind "after_remote_ajax", (event, data) =>
+      if hatTrick.data.hatTrickStepContents?
+        this.setContents(hatTrick.data.hatTrickStepContents)
+
       if hatTrick.metadata?.currentStep.buttons?
         stepId = hatTrick.metadata.currentStep.fieldset
         this.buttons[stepId] = hatTrick.metadata.currentStep.buttons
@@ -241,3 +255,17 @@ $ ->
   unless window.hatTrick.wizard?
     console.log "Creating new HatTrickWizard instance"
     window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
+
+camelizeString = (string) ->
+  re = /_([^_]*)/g
+  while matches = re.exec(string)
+    result = string.slice(0, matches.index) unless result?
+    result += "#{matches[1][0].toUpperCase()}#{matches[1].slice(1)}"
+  result
+
+underscoreString = (string) ->
+  re = /([A-Z]+)([a-z\d]+)/g
+  while matches = re.exec(string)
+    result = string.slice(0, matches.index) unless result?
+    result += "_#{matches[1].toLowerCase()}#{matches[2]}"
+  result
