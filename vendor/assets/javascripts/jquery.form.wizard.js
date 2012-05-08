@@ -165,11 +165,6 @@
           var complete = options.complete;
 
           options = $.extend({},options,{
-            success: function(data, statusText){
-              if((success !== undefined && success(data, statusText)) || (success == undefined)){
-                wizard._continueToNextStep();
-              }
-            },
             beforeSend : function(xhr){
               wizard._disableNavigation();
               if(beforeSend !== undefined)
