@@ -180,9 +180,12 @@
               if(complete !== undefined)
                 complete(xhr, statusText);
               $(wizard.element).trigger('after_remote_ajax', {"currentStep" : wizard.currentStep});
+              if(statusText==="success") {
+                wizard._continueToNextStep();
+              }
               wizard._enableNavigation();
             }
-          })
+          });
           this.element.ajaxSubmit(options);
           return false;
         }
