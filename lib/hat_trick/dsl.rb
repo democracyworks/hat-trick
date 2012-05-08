@@ -117,6 +117,13 @@ module HatTrick
       def include_data(key, &block)
         wizard_def.last_step.include_data = { key.to_sym => block }
       end
+
+      def set_contents(&block)
+        current_step_name = wizard_def.last_step.to_sym
+        include_data "hat_trick_step_contents" do |wiz, model|
+          { current_step_name => instance_exec(wiz, model, &block) }
+        end
+      end
     end
   end
 end
