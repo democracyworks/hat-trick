@@ -14,6 +14,8 @@ class HatTrickWizard
     # this.showStep(@wizard.currentStep)
     this.bindEvents()
 
+  linkClass: "_ht_link"
+
   buttons: {}
 
   setDefaultButtons: ($scope = @form.find("fieldset")) ->
@@ -43,8 +45,6 @@ class HatTrickWizard
   currentStep: ->
     stepId = this.currentStepId()
     this.findStep(stepId)
-
-  nextStepFieldHTML: """<input type="hidden" name="_ht_next_step" class="_ht_link" value="" />"""
 
   fieldsets: ->
     @form.find("fieldset")
@@ -114,8 +114,8 @@ class HatTrickWizard
     @form.formwizard("show", step.name)
 
   showStep: (step) ->
-    console.log "Showing step #{step.fieldset}"
-    @form.formwizard("show", step.fieldset)
+    inputId = "_ht_link_to_#{step.fieldset}"
+    this.setHiddenInput "_ht_step_link", step.fieldset, inputId, @linkClass, this.currentStep()
 
   formwizardEnabled: ->
     @form.formwizard?
@@ -131,7 +131,7 @@ class HatTrickWizard
       historyEnabled: true,
       disableUIStyles: true,
       inDuration: 0,
-      linkClass: "_ht_link",
+      linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
       formOptions:
         success: (data) =>
@@ -140,14 +140,18 @@ class HatTrickWizard
         beforeSubmit: (data) =>
           console.log "Sending these data to the server: #{JSON.stringify(data)}"
 
-  htMetaHTML: (name) ->
-    """<input type="hidden" name="_ht_meta[#{name}]" id="_ht_#{name}" value="" />"""
+  setHiddenInput: (name, value, id, classes = "", scope = @form) ->
+    $scope = $(scope)
+    $input = $scope.find("""input##{id}[name="#{name}"]""")
+    if $input.length is 0
+      $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
+    $input.val value
+
+  hiddenInputHTML: (name, id, classes = "") ->
+    """<input type="hidden" id="#{id}" name="#{name}" class="#{classes}" value="" />"""
 
   setHTMeta: (key, value) ->
-    $meta = @form.find("input:hidden#_ht_#{key}")
-    if $meta.length is 0
-      $meta = @form.prepend(this.htMetaHTML(key)).find("#_ht_#{key}")
-    $meta.val(value)
+    this.setHiddenInput "_ht_meta[#{key}]", value, "_ht_#{key}"
 
   clearHTMeta: (key) ->
     @form.find("input:hidden#_ht_#{key}").remove()
