@@ -28,7 +28,7 @@ class HatTrickWizard
 
   setAction: (url, method) ->
     methodLower = method.toLowerCase()
-    console.log "Setting form action to #{methodLower} #{url}"
+    # console.log "Setting form action to #{methodLower} #{url}"
     @form.attr("action", url)
     @form.attr("method", "post")
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
@@ -62,9 +62,10 @@ class HatTrickWizard
       url: @form.attr("action"),
       dataType: "json",
       beforeSubmit: (data) =>
-        console.log "Sending these data to the server: #{JSON.stringify(data)}"
+        # console.log "Sending these data to the server: #{JSON.stringify(data)}"
+        true
       success: (response) =>
-        console.log "Successful form POST; got #{JSON.stringify(response)}"
+        # console.log "Successful form POST; got #{JSON.stringify(response)}"
         if response.metadata?
           this.setAction(response.metadata.url, response.metadata.method)
         $.extend(window.hatTrick, response) # merge new data with hatTrick
@@ -104,7 +105,7 @@ class HatTrickWizard
 
   repeatStep: (step) ->
     $sourceStep = this.findStep(step.repeatOf.fieldset)
-    console.log "Cloning repeated step #{step.repeatOf.fieldset}"
+    # console.log "Cloning repeated step #{step.repeatOf.fieldset}"
     $clonedStep = $sourceStep.clone(true, true)
     $clonedStep.css("display", "none")
     $clonedStep.attr("id", step.name)
@@ -134,7 +135,8 @@ class HatTrickWizard
       remoteAjax: this.ajaxEvents(),
       formOptions:
         success: (data) =>
-          console.log "Successful form POST"
+          # console.log "Successful form POST"
+          true
         beforeSubmit: (data) =>
           console.log "Sending these data to the server: #{JSON.stringify(data)}"
 
@@ -153,7 +155,7 @@ class HatTrickWizard
   setCurrentStepField: ->
     stepId = this.currentStepId()
     this.setHTMeta("step", stepId)
-    console.log "Current form step: #{stepId}"
+    # console.log "Current form step: #{stepId}"
 
   clearNextStepField: ->
     this.clearHTMeta("next_step")
@@ -188,6 +190,7 @@ class HatTrickWizard
       $radio.find("[value=\"#{value}\"]").attr("checked", "checked")
 
   setFormFields: (model) ->
+    # console.log "Setting form fields based on: #{JSON.stringify(model)}"
     this.fillTextFields(model)
     this.setSelectFields(model)
     this.setCheckboxes(model)
@@ -200,10 +203,10 @@ class HatTrickWizard
     $buttonsDiv = this.currentStep().find("div.buttons")
     switch name
       when "next"
-        console.log "Setting submit button val to #{label}"
+        # console.log "Setting submit button val to #{label}"
         $buttonsDiv.find('input:submit').val(label)
       when "back"
-        console.log "Setting reset button val to #{label}"
+        # console.log "Setting reset button val to #{label}"
         $buttonsDiv.find('input:reset').val(label)
       else
         buttonSelector = """input:button[name="#{name}"][value="#{label}"]"""
@@ -253,7 +256,7 @@ $ ->
   $form = $("form.wizard")
   window.hatTrick = {} unless window.hatTrick?
   unless window.hatTrick.wizard?
-    console.log "Creating new HatTrickWizard instance"
+    # console.log "Creating new HatTrickWizard instance"
     window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
 
 camelizeString = (string) ->
