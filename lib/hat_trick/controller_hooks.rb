@@ -15,7 +15,7 @@ module HatTrick
           def #{meth}_with_hat_trick(*args)
             Rails.logger.info "#{meth}_with_hat_trick called"
             #{meth}_hook(*args) if respond_to?("#{meth}_hook", :include_private)
-            common_hook(*args)
+            common_hook(*args) if respond_to?(:common_hook, :include_private)
             #{meth}_without_hat_trick(*args)
           end
           private "#{meth}_with_hat_trick"
