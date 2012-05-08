@@ -243,11 +243,17 @@
       }
     },
 
-    _enableNavigation : function(){
+    _setNavButtonValues : function(){
       if(this.isLastStep){
         this.nextButton.val(this.options.textSubmit);
       }else{
         this.nextButton.val(this.options.textNext);
+      }
+    },
+
+    _enableNavigation : function(){
+      if(this.nextButton.val() === ""){
+        this._setNavButtonValues();
       }
 
       if($.trim(this.currentStep) !== this.steps.eq(0).attr("id")){
