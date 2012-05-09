@@ -268,6 +268,7 @@ camelizeString = (string) ->
   while matches = re.exec(string)
     result = string.slice(0, matches.index) unless result?
     result += "#{matches[1][0].toUpperCase()}#{matches[1].slice(1)}"
+  result = string unless result?
   result
 
 underscoreString = (string) ->
@@ -275,4 +276,5 @@ underscoreString = (string) ->
   while matches = re.exec(string)
     result = string.slice(0, matches.index) unless result?
     result += "_#{matches[1].toLowerCase()}#{matches[2]}"
+  result = string unless result?
   result
