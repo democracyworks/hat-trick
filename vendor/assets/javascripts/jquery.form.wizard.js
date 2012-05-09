@@ -131,10 +131,15 @@
     _updateButtons : function(){
       var wizard = this;
 
-      this.nextButton  = this.element.find(this.options.next)
-          .click(function() {
+      this.nextButton = this.element.find(this.options.next);
+
+      this.nextButton.each(function(index) {
+        if ($(this).data("events") == undefined || $(this).data("events").click.length === 0) {
+          $(this).click(function() {
             return wizard._next();
           });
+        }
+      });
 
       this.nextButtonInitinalValue = this.nextButton.val();
       this.nextButton.val(this.options.textNext);
@@ -175,9 +180,11 @@
               if(complete !== undefined)
                 complete(xhr, statusText);
               $(wizard.element).trigger('after_remote_ajax', {"currentStep" : wizard.currentStep});
-              if(statusText==="success") {
+
+              if (statusText === "success") {
                 wizard._continueToNextStep();
               }
+
               wizard._enableNavigation();
             }
           });
