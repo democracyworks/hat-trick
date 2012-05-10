@@ -6,21 +6,19 @@ class HatTrickWizard
     fieldsets = @form.find("fieldset")
     fieldsets.addClass("step")
     # prevent submitting the step that happens to be the last fieldset
-    this.setDefaultButtons()
+    this.addDefaultButtons()
     this.addFakeLastStep()
-    this.enableFormwizard() # unless this.formwizardEnabled()
+    this.enableFormwizard()
     this.setCurrentStepField()
-    # TODO: Try this out instead of putting :start first
-    # this.showStep(@wizard.currentStep)
     this.bindEvents()
 
   linkClass: "_ht_link"
 
   buttons: {}
 
-  setDefaultButtons: ($scope = @form.find("fieldset")) ->
+  addDefaultButtons: ($scope = @form.find("fieldset")) ->
     wizard_buttons = '<input type="reset" /><input type="submit" />'
-    $scope.find("div.buttons").html wizard_buttons
+    $scope.find("div.buttons").prepend wizard_buttons
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
@@ -100,7 +98,7 @@ class HatTrickWizard
 
   goToStepId: (stepId) ->
     console.log "Setting up goto #{stepId}"
-    this.setHTMeta("next_step", stepId)
+    this.showStep(stepId)
     @form.formwizard("next")
 
   repeatStep: (step) ->
@@ -113,9 +111,9 @@ class HatTrickWizard
     this.updateSteps()
     @form.formwizard("show", step.name)
 
-  showStep: (step) ->
-    inputId = "_ht_link_to_#{step.fieldset}"
-    this.setHiddenInput "_ht_step_link", step.fieldset, inputId, @linkClass, this.currentStep()
+  showStep: (stepId) ->
+    inputId = "_ht_link_to_#{stepId}"
+    this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
 
   formwizardEnabled: ->
     @form.formwizard?
@@ -217,7 +215,7 @@ class HatTrickWizard
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length == 0
           # console.log "Adding new #{name}:#{label} button"
-          $newButton = $buttonsDiv.append(this.createButton(name, label))
+          $newButton = $(this.createButton(name, label)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
             this.goToStepId(name)
@@ -230,7 +228,7 @@ class HatTrickWizard
         fieldsetContents = $partial.find('fieldset').html()
         $step = $("fieldset##{stepId}")
         $step.html fieldsetContents
-        this.setDefaultButtons($step)
+        this.addDefaultButtons($step)
         this.updateSteps()
 
   bindEvents: ->
@@ -254,7 +252,7 @@ class HatTrickWizard
       if hatTrick.metadata?.currentStep?.repeatOf?
         this.repeatStep(hatTrick.metadata.currentStep)
       else if hatTrick.metadata?.currentStep?
-        this.showStep(hatTrick.metadata.currentStep)
+        this.showStep(hatTrick.metadata.currentStep.fieldset)
 
 $ ->
   $form = $("form.wizard")
