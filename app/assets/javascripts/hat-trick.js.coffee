@@ -2,12 +2,13 @@
 
 class HatTrickWizard
   constructor: (formElem, @wizard) ->
+    this.formwizardEnabled = false
     @form = $(formElem)
-    fieldsets = @form.find("fieldset")
-    fieldsets.addClass("step")
+    this.addStepClass()
     # prevent submitting the step that happens to be the last fieldset
-    this.addDefaultButtons()
     this.addFakeLastStep()
+    this.addDefaultButtons()
+    this.setupButtonsForAllSteps()
     this.enableFormwizard()
     this.setCurrentStepField()
     this.bindEvents()
@@ -16,9 +17,19 @@ class HatTrickWizard
 
   buttons: {}
 
+  addStepClass: ->
+    @form.find("fieldset").addClass("step")
+
   addDefaultButtons: ($scope = @form.find("fieldset")) ->
-    wizard_buttons = '<input type="reset" /><input type="submit" />'
-    $scope.find("div.buttons").prepend wizard_buttons
+    hatTrick = this
+    $scope.each (index) ->
+      if index is 0 and not hatTrick.formwizardEnabled
+        hatTrick.buttons[$(this).attr('id')] =
+          next: "Next"
+      else
+        hatTrick.buttons[$(this).attr('id')] =
+          next: "Next"
+          back: "Back"
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
@@ -115,9 +126,6 @@ class HatTrickWizard
     inputId = "_ht_link_to_#{stepId}"
     this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
 
-  formwizardEnabled: ->
-    @form.formwizard?
-
   addFakeLastStep: ->
     @form.append """<fieldset id="_ht_fake_last_step" style="display: none;" class="step"></fieldset>"""
 
@@ -137,6 +145,7 @@ class HatTrickWizard
           true
         beforeSubmit: (data) =>
           console.log "Sending these data to the server: #{JSON.stringify(data)}"
+    this.formwizardEnabled = true
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->
     $scope = $(scope)
@@ -201,24 +210,41 @@ class HatTrickWizard
   createButton: (name, label) ->
     """<input type="button" name="#{name}" value="#{label}" />"""
 
-  setButton: (name, label) ->
-    $buttonsDiv = this.currentStep().find("div.buttons")
+  setButton: (stepId, name, label) ->
+    $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     switch name
       when "next"
         # console.log "Setting submit button val to #{label}"
-        $buttonsDiv.find('input:submit').val(label)
+        $button = $buttonsDiv.find('input:submit')
+        unless $button.length > 0
+          $button = $('<input type="submit" />').appendTo $buttonsDiv
+        $button.val(label)
       when "back"
         # console.log "Setting reset button val to #{label}"
-        $buttonsDiv.find('input:reset').val(label)
+        $button = $buttonsDiv.find('input:reset').val(label)
+        unless $button.length > 0
+          $button = $('<input type="reset" />').appendTo $buttonsDiv
+        $button.val(label)
       else
         buttonSelector = """input:button[name="#{name}"][value="#{label}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
-        if $existingButtons.length == 0
+        if $existingButtons.length is 0
           # console.log "Adding new #{name}:#{label} button"
           $newButton = $(this.createButton(name, label)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
             this.goToStepId(name)
+
+  setupButtonsForAllSteps: ->
+    this.setupButtonsForStep $(fieldset).attr('id') for fieldset in $('fieldset')
+
+  setupButtonsForCurrentStep: ->
+    this.setupButtonsForStep this.currentStepId()
+
+  setupButtonsForStep: (stepId) ->
+    buttons = this.buttons[stepId]
+    if buttons?
+      this.setButton(stepId, name, label) for name, label of buttons
 
   setContents: (stepPartials) ->
     for stepName, partial of stepPartials
@@ -236,10 +262,7 @@ class HatTrickWizard
       this.setCurrentStepField()
       this.clearNextStepField()
       this.setFormFields(hatTrick.model)
-
-      buttons = this.buttons[this.currentStepId()]
-      if buttons?
-        this.setButton(name, label) for own name, label of buttons
+      this.setupButtonsForCurrentStep()
 
     @form.bind "after_remote_ajax", (event, data) =>
       if hatTrick.data.hatTrickStepContents?
