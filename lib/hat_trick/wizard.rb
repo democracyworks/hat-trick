@@ -1,17 +1,17 @@
 require 'hat_trick/controller_hooks'
 require 'hat_trick/wizard_steps'
+require 'hat_trick/dsl'
 
 module HatTrick
   class Wizard
     include WizardSteps
+    include HatTrick::DSL
 
     attr_accessor :controller, :model
-    attr_reader :current_step, :wizard_def, :wizard_dsl_context, :steps
+    attr_reader :current_step, :wizard_def, :steps
 
     def initialize(wizard_def)
       @wizard_def = wizard_def
-      @wizard_dsl_context = DSL::WizardContext.new(@wizard_def)
-      @wizard_dsl_context.wizard = self
       @steps = @wizard_def.steps.map { |s| HatTrick::Step.new(s, self) }
     end
 
@@ -91,11 +91,11 @@ module HatTrick
     end
 
     def run_before_callback(step=current_step)
-      step.run_before_callback(controller, wizard_dsl_context, model)
+      step.run_before_callback(controller, model)
     end
 
     def run_after_callback(step=current_step)
-      step.run_after_callback(controller, wizard_dsl_context, model)
+      step.run_after_callback(controller, model)
     end
 
     def advance_step(next_step_name=nil)
@@ -133,7 +133,7 @@ module HatTrick
       inc_data = {}
       include_data_steps = steps_before(current_step) << current_step
       include_data_steps.each do |step|
-        step_data = step.run_include_data_callback(controller, wizard_dsl_context, model)
+        step_data = step.run_include_data_callback(controller, model)
         return {} unless step_data.respond_to?(:as_json)
         step_key = step.include_data_key.to_s.camelize(:lower)
         begin
