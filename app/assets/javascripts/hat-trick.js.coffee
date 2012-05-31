@@ -8,8 +8,10 @@ class HatTrickWizard
     # prevent submitting the step that happens to be the last fieldset
     this.addFakeLastStep()
     this.addDefaultButtons()
+    this.setButtonMetadataForCurrentStep()
     this.setupButtonsForAllSteps()
     this.enableFormwizard()
+    this.setupButtonsForCurrentStep()
     this.setCurrentStepField()
     this.bindEvents()
 
@@ -68,23 +70,21 @@ class HatTrickWizard
 
   createAjaxEvent: (step) ->
     ajax =
-      url: @form.attr("action"),
-      dataType: "json",
-      beforeSubmit: (data) =>
-        # console.log "Sending these data to the server: #{JSON.stringify(data)}"
-        true
-      success: (response) =>
-        # console.log "Successful form POST; got #{JSON.stringify(response)}"
-        if response.metadata?
-          this.setAction(response.metadata.url, response.metadata.method)
-        $.extend(window.hatTrick, response) # merge new data with hatTrick
-      error: (event) =>
-        console.log "Error response: #{event.responseText}"
+      url: @form.attr("action")
+      dataType: "json"
+      success: (serverData) =>
+        this.handleServerData serverData
+        # console.log "Successful form POST; got #{JSON.stringify(serverData)}"
+      error: (event, status, errorThrown) =>
+        console.log "Error response: #{event.status} #{status} - #{errorThrown} - #{event.responseText}"
         try
           appErrors = eval "(#{event.responseText})"
         catch err
-          # TODO: Make this notify us when an error occurs.
-          appErrors = model: { unknown: ["A weird error has occurred."] }
+          appErrors =
+            model:
+              unknown: [
+                "There was an error communicating with the server. TurboVote staff have been notified."
+              ]
         this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.model
     ajax
@@ -108,13 +108,12 @@ class HatTrickWizard
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
   goToStepId: (stepId) ->
-    console.log "Setting up goto #{stepId}"
     this.showStep(stepId)
     @form.formwizard("next")
 
+  # TODO: Try linking to the same step rather than cloning it.
   repeatStep: (step) ->
     $sourceStep = this.findStep(step.repeatOf.fieldset)
-    # console.log "Cloning repeated step #{step.repeatOf.fieldset}"
     $clonedStep = $sourceStep.clone(true, true)
     $clonedStep.css("display", "none")
     $clonedStep.attr("id", step.name)
@@ -139,12 +138,6 @@ class HatTrickWizard
       inDuration: 0,
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
-      formOptions:
-        success: (data) =>
-          # console.log "Successful form POST"
-          true
-        beforeSubmit: (data) =>
-          console.log "Sending these data to the server: #{JSON.stringify(data)}"
     this.formwizardEnabled = true
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->
@@ -166,7 +159,6 @@ class HatTrickWizard
   setCurrentStepField: ->
     stepId = this.currentStepId()
     this.setHTMeta("step", stepId)
-    # console.log "Current form step: #{stepId}"
 
   clearNextStepField: ->
     this.clearHTMeta("next_step")
@@ -208,22 +200,22 @@ class HatTrickWizard
     this.setRadioButtons(model)
 
   createButton: (name, label) ->
-    """<input type="button" name="#{name}" value="#{label}" />"""
+    """<input type="button" class="wizard_button" name="#{name}" value="#{label}" />"""
 
   setButton: (stepId, name, label) ->
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     switch name
       when "next"
-        # console.log "Setting submit button val to #{label}"
+        # console.log "Setting #{stepId} submit button val to #{label}"
         $button = $buttonsDiv.find('input:submit')
         unless $button.length > 0
-          $button = $('<input type="submit" />').appendTo $buttonsDiv
+          $button = $('<input class="wizard_button wizard_next" type="submit" />').appendTo $buttonsDiv
         $button.val(label)
       when "back"
         # console.log "Setting reset button val to #{label}"
         $button = $buttonsDiv.find('input:reset').val(label)
         unless $button.length > 0
-          $button = $('<input type="reset" />').appendTo $buttonsDiv
+          $button = $('<input class="wizard_button wizard_back" type="reset" />').appendTo $buttonsDiv
         $button.val(label)
       else
         buttonSelector = """input:button[name="#{name}"][value="#{label}"]"""
@@ -257,25 +249,41 @@ class HatTrickWizard
         this.addDefaultButtons($step)
         this.updateSteps()
 
+  handleServerData: (data) ->
+    if data.metadata?
+      this.setAction(data.metadata.url, data.metadata.method)
+    $.extend(window.hatTrick, data) # merge new data with hatTrick
+    this.updateStepContents()
+    this.updateStepFromMetadata()
+
+  updateStepContents: ->
+    if hatTrick.data.hatTrickStepContents?
+      this.setContents(hatTrick.data.hatTrickStepContents)
+
+  setButtonMetadataForCurrentStep: ->
+    if hatTrick.metadata?.currentStep?
+      currentStep = hatTrick.metadata.currentStep
+      if currentStep.buttons?
+        stepId = currentStep.fieldset
+        this.buttons[stepId] = currentStep.buttons
+
+  updateStepFromMetadata: ->
+    if hatTrick.metadata?.currentStep?
+      this.setButtonMetadataForCurrentStep()
+
+      currentStep = hatTrick.metadata.currentStep
+      if currentStep.repeatOf?
+        this.repeatStep(currentStep)
+      else
+        console.log "Showing step #{currentStep.fieldset}"
+        this.showStep(currentStep.fieldset)
+
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.setCurrentStepField()
       this.clearNextStepField()
       this.setFormFields(hatTrick.model)
       this.setupButtonsForCurrentStep()
-
-    @form.bind "after_remote_ajax", (event, data) =>
-      if hatTrick.data.hatTrickStepContents?
-        this.setContents(hatTrick.data.hatTrickStepContents)
-
-      if hatTrick.metadata?.currentStep.buttons?
-        stepId = hatTrick.metadata.currentStep.fieldset
-        this.buttons[stepId] = hatTrick.metadata.currentStep.buttons
-
-      if hatTrick.metadata?.currentStep?.repeatOf?
-        this.repeatStep(hatTrick.metadata.currentStep)
-      else if hatTrick.metadata?.currentStep?
-        this.showStep(hatTrick.metadata.currentStep.fieldset)
 
 $ ->
   $form = $("form.wizard")
