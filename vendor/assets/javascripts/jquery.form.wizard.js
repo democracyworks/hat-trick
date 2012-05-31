@@ -94,10 +94,13 @@
       }
 
       if(this.options.historyEnabled){
-        $(window).bind('hashchange', undefined, function(event){
-          var hashStep = event.getState( "_step" ) || wizard.firstStep;
-          if(hashStep !== wizard.currentStep){
-            if(wizard.options.validationEnabled && hashStep === wizard._navigate(wizard.currentStep)){
+        History.Adapter.bind(window, 'statechange', function() {
+          var state;
+          var step;
+          state = History.getState();
+          step = state.data.step;
+          if(step !== wizard.currentStep){
+            if(wizard.options.validationEnabled && step === wizard._navigate(wizard.currentStep)){
               if(!wizard.element.valid()){
                 wizard._updateHistory(wizard.currentStep);
                 wizard.element.validate().focusInvalid();
@@ -105,8 +108,8 @@
                 return false;
               }
             }
-            if(hashStep !== wizard.currentStep)
-              wizard._show(hashStep);
+            if(step !== wizard.currentStep)
+              wizard._show(step);
           }
         });
       }
@@ -233,10 +236,10 @@
       return false;
     },
 
-    _updateHistory : function(step){
+    _updateHistory : function(step) {
       var state = {};
-      state["_step"] = step;
-      $.bbq.pushState(state);
+      state["step"] = step;
+      History.pushState(state, "Step " + step, step);
     },
 
     _disableNavigation : function(){
@@ -327,13 +330,22 @@
       }
     },
 
+    _stepFromPath : function() {
+      var path = window.location.pathname;
+      var pathComponents = path.split('/');
+      for (var i = pathComponents.length; i >= 0; i--) {
+        if (pathComponents[i] !== "") {
+          return pathComponents[i];
+        }
+      }
+    },
+
     _show : function(step){
       var backwards = false;
       var triggerStepShown = step !== undefined;
       var fragment;
       if(step == undefined || step == ""){
-          fragment = $.deparam.fragment();
-          step = fragment["_step"] || this.firstStep;
+          step = this._stepFromPath() || this.firstStep;
           this.activatedSteps.pop();
           this.activatedSteps.push(step);
       }else{
