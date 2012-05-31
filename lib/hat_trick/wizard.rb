@@ -5,7 +5,6 @@ require 'hat_trick/dsl'
 module HatTrick
   class Wizard
     include WizardSteps
-    # include HatTrick::DSL
 
     attr_accessor :controller, :model
     attr_reader :current_step, :wizard_def, :steps
