@@ -5,7 +5,7 @@ require 'hat_trick/dsl'
 module HatTrick
   class Wizard
     include WizardSteps
-    include HatTrick::DSL
+    # include HatTrick::DSL
 
     attr_accessor :controller, :model
     attr_reader :current_step, :wizard_def, :steps
@@ -43,11 +43,13 @@ module HatTrick
     end
 
     def create_url
+      wizard_def.configured_create_url or
       controller.url_for(:controller => controller.controller_name,
                          :action => 'create', :only_path => true)
     end
 
     def update_url
+      wizard_def.configured_update_url or
       if model_created?
         controller.url_for(:controller => controller.controller_name,
                            :action => 'update', :id => model,
@@ -134,10 +136,10 @@ module HatTrick
       include_data_steps = steps_before(current_step) << current_step
       include_data_steps.each do |step|
         step_data = step.run_include_data_callback(controller, model)
-        return {} unless step_data.respond_to?(:as_json)
+        return {} if step_data.nil? || !step_data.respond_to?(:as_json)
         step_key = step.include_data_key.to_s.camelize(:lower)
         begin
-          inc_data[step_key] = camelize_hash_keys(step_data.as_json)
+          inc_data[step_key] = camelize_hash_keys(step_data)
         rescue NoMethodError => e
           Rails.logger.error "Unable to serialize data for step #{step}: #{e}"
         end

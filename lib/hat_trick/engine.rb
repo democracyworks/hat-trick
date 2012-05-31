@@ -1,7 +1,7 @@
 require 'hat_trick/form_helper'
 
 module HatTrick
-  class RailsEngine < ::Rails::Engine
+  class Engine < ::Rails::Engine
     # just defining this causes Rails to look for assets inside this gem
 
     initializer 'hat-trick.form_helpers' do
