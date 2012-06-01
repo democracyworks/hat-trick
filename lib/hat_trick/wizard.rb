@@ -81,7 +81,7 @@ module HatTrick
 
     def start
       session["hat-trick.steps_visited"] = []
-      self.current_step = first_step
+      self.current_step ||= first_step
       run_before_callback
     end
 

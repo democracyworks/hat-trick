@@ -138,6 +138,7 @@ class HatTrickWizard
       inDuration: 0,
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
+      firstStep: hatTrick.metadata.currentStep.name
     this.formwizardEnabled = true
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->

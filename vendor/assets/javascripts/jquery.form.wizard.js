@@ -66,11 +66,11 @@
 
       this.steps = this.element.find(".step").hide();
 
-      this.firstStep = this.steps.eq(0).attr("id");
+      this.firstStep = this.options.firstStep || this.steps.eq(0).attr("id");
       this.activatedSteps = new Array();
       this.isLastStep = false;
       this.previousStep = undefined;
-      this.currentStep = this.steps.eq(0).attr("id");
+      this.currentStep = this.firstStep;
 
       this._updateButtons();
 
@@ -345,9 +345,9 @@
       var triggerStepShown = step !== undefined;
       var fragment;
       if(step == undefined || step == ""){
-          step = this._stepFromPath() || this.firstStep;
-          this.activatedSteps.pop();
-          this.activatedSteps.push(step);
+        step = this._stepFromPath() || this.firstStep;
+        this.activatedSteps.pop();
+        this.activatedSteps.push(step);
       }else{
         if($.inArray(step, this.activatedSteps) > -1){
           backwards = true;
