@@ -276,7 +276,7 @@ class HatTrickWizard
       if currentStep.repeatOf?
         this.repeatStep(currentStep)
       else
-        console.log "Showing step #{currentStep.fieldset}"
+        # console.log "Showing step #{currentStep.fieldset}"
         this.showStep(currentStep.fieldset)
 
   bindEvents: ->
@@ -287,11 +287,12 @@ class HatTrickWizard
       this.setupButtonsForCurrentStep()
 
 $ ->
-  $form = $("form.wizard")
-  window.hatTrick = {} unless window.hatTrick?
-  unless window.hatTrick.wizard?
-    # console.log "Creating new HatTrickWizard instance"
-    window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
+  if $("form.wizard").length > 0
+    $form = $("form.wizard")
+    window.hatTrick = {} unless window.hatTrick?
+    unless window.hatTrick.wizard?
+      # console.log "Creating new HatTrickWizard instance"
+      window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
 
 camelizeString = (string) ->
   re = /_([^_]*)/g
