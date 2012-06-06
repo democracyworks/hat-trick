@@ -119,7 +119,7 @@ class HatTrickWizard
     $clonedStep.attr("id", step.name)
     $sourceStep.after($clonedStep)
     this.updateSteps()
-    @form.formwizard("show", step.name)
+    this.showStep step.name
 
   showStep: (stepId) ->
     inputId = "_ht_link_to_#{stepId}"
