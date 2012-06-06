@@ -135,7 +135,7 @@ module HatTrick
       include_data_steps = steps_before(current_step) << current_step
       include_data_steps.each do |step|
         step_data = step.run_include_data_callback(controller, model)
-        return {} if step_data.nil? || !step_data.respond_to?(:as_json)
+        next if step_data.nil? || !step_data.respond_to?(:as_json)
         step_key = step.include_data_key.to_s.camelize(:lower)
         begin
           inc_data[step_key] = camelize_hash_keys(step_data)
