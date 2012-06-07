@@ -113,12 +113,13 @@ class HatTrickWizard
 
   # TODO: Try linking to the same step rather than cloning it.
   repeatStep: (step) ->
-    $sourceStep = this.findStep(step.repeatOf.fieldset)
-    $clonedStep = $sourceStep.clone(true, true)
-    $clonedStep.css("display", "none")
-    $clonedStep.attr("id", step.name)
-    $sourceStep.after($clonedStep)
-    this.updateSteps()
+    if $("fieldset##{step.name}").length is 0
+      $sourceStep = this.findStep(step.repeatOf.fieldset)
+      $clonedStep = $sourceStep.clone(true, true)
+      $clonedStep.css("display", "none")
+      $clonedStep.attr("id", step.name)
+      $sourceStep.after($clonedStep)
+      this.updateSteps()
     this.showStep step.name
 
   showStep: (stepId) ->
