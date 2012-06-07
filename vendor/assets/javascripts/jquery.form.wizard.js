@@ -133,31 +133,18 @@
 
     _updateButtons : function(){
       var wizard = this;
-      var events;
 
       this.nextButton = this.element.find(this.options.next);
-
-      this.nextButton.each(function(index) {
-        if ($(this).data("events") == undefined || $(this).data("events").click.length === 0) {
-          $(this).click(function() {
-            return wizard._next();
-          });
-        }
+      this.nextButton.unbind('click').click(function() {
+        return wizard._next();
       });
 
       this.nextButtonInitinalValue = this.nextButton.val();
       this.nextButton.val(this.options.textNext);
 
       this.backButton  = this.element.find(this.options.back);
-      this.backButton.each(function() {
-        events = $(this).data('events');
-        if (events == undefined ||
-            events['click'] == undefined ||
-            events['click'].length === 0) {
-          $(this).click(function() {
-            wizard._back();return false;
-          });
-        }
+      this.backButton.unbind('click').click(function() {
+        wizard._back();return false;
       });
 
       this.backButtonInitinalValue = this.backButton.val();
