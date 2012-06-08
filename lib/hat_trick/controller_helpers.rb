@@ -3,11 +3,15 @@ module HatTrick
 
     private
 
-    def params_model_name
+    def model_key
       params.each do |k,v|
-        return class_name(k) if v.is_a?(Hash) && is_model?(k)
+        return k if v.is_a?(Hash) && is_model?(k)
       end
       nil
+    end
+
+    def params_model_name
+      class_name model_key
     end
 
     def is_model?(model_name)
@@ -27,12 +31,12 @@ module HatTrick
       model_name = params_model_name
       return nil if model_name.nil?
       begin
-        model_class = params_model_name.constantize
+        model_klass = params_model_name.constantize
       rescue NameError
         Rails.logger.error "Could not find model class #{params_model_name.camelize}"
         nil
       else
-        model_class
+        model_klass
       end
     end
 
@@ -42,7 +46,13 @@ module HatTrick
       step_name = wizard_step.name
       validation_groups = ::ActiveRecord::Base.validation_group_classes[klass] || []
       unless validation_groups.include?(step_name)
-        klass.validation_group(step_name, :fields => params.keys)
+        validation_fields = params.keys # TODO: Try it without these
+        model = model_key
+        if model
+          validation_fields += params[model].keys
+        end
+        validation_fields = validation_fields.map &:to_sym
+        klass.validation_group(step_name, :fields => validation_fields)
       end
       HatTrick::ModelMethods.set_current_validation_group_for(model_class, step_name)
       unless klass.included_modules.include?(HatTrick::ModelMethods)
