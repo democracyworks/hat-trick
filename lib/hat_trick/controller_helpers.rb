@@ -11,7 +11,7 @@ module HatTrick
     end
 
     def params_model_name
-      class_name model_key
+      class_name model_key unless model_key.nil?
     end
 
     def is_model?(model_name)
