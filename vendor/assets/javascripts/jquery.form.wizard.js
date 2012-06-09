@@ -136,6 +136,11 @@
 
       this.nextButton = this.element.find(this.options.next);
       this.nextButton.unbind('click').click(function() {
+        var data = {
+          "currentStep": wizard.currentStep,
+          "button": this
+        };
+        $(wizard.element).trigger('next_click', data);
         return wizard._next();
       });
 
@@ -144,7 +149,13 @@
 
       this.backButton  = this.element.find(this.options.back);
       this.backButton.unbind('click').click(function() {
-        wizard._back();return false;
+        var data = {
+          "currentStep": wizard.currentStep,
+          "button": this
+        };
+        $(wizard.element).trigger('back_click', data);
+        wizard._back();
+        return false;
       });
 
       this.backButtonInitinalValue = this.backButton.val();
@@ -172,12 +183,19 @@
               wizard._disableNavigation();
               if(beforeSend !== undefined)
                 beforeSend(xhr);
-              $(wizard.element).trigger('before_remote_ajax', {"currentStep" : wizard.currentStep});
+              $(wizard.element).trigger('before_remote_ajax', {
+                "xhr": xhr,
+                "currentStep" : wizard.currentStep
+              });
             },
             complete : function(xhr, statusText){
               if(complete !== undefined)
                 complete(xhr, statusText);
-              $(wizard.element).trigger('after_remote_ajax', {"currentStep" : wizard.currentStep});
+              $(wizard.element).trigger('after_remote_ajax', {
+                "xhr": xhr,
+                "statusText": statusText,
+                "currentStep" : wizard.currentStep
+              });
 
               if (statusText === "success") {
                 wizard._continueToNextStep();
