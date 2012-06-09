@@ -89,8 +89,13 @@ module HatTrick
         raise "button_to must be called from within a wizard block" unless wizard_def
         label = options[:label] if options
         label ||= name.to_s.humanize
+
+        id = options[:id] if options
+
         step = wizard_def.last_step
-        step.buttons = step.buttons.merge(name => label)
+        button = { :label => label }
+        button[:id] = id unless id.nil?
+        step.buttons = step.buttons.merge(name => button)
       end
 
       def before(&block)

@@ -25,14 +25,18 @@ class HatTrickWizard
   addDefaultButtons: ($scope = @form.find("fieldset")) ->
     hatTrick = this
     $scope.each (index) ->
-      if index is 0 and not hatTrick.formwizardEnabled
-        hatTrick.buttons[$(this).attr('id')] =
-          next: "Next"
-      else
-        hatTrick.buttons[$(this).attr('id')] =
-          next: "Next"
-          back: "Back"
-
+      id = $(this).attr('id')
+      buttons =
+        next:
+          id: "#{id}_next_button"
+          label: "Next"
+      if index > 0 or hatTrick.formwizardEnabled
+        buttons['back'] =
+          id: "#{id}_back_button"
+          label: "Back"
+  
+      hatTrick.buttons[id] = buttons
+  
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
 
@@ -201,30 +205,36 @@ class HatTrickWizard
     this.setCheckboxes(model)
     this.setRadioButtons(model)
 
-  createButton: (name, label) ->
-    """<input type="button" class="wizard_button" name="#{name}" value="#{label}" />"""
+  createButton: (name, button) ->
+    $button = $("""<input type="button" class="wizard_button" name="#{name}" value="#{button.label}" />""")
+    if button.id?
+      $button.attr("id", button.id) 
+    $button
 
-  setButton: (stepId, name, label) ->
+  setButton: (stepId, name, button) ->
+    # console.log "Setting button for #{stepId} named #{name} to #{JSON.stringify(button)}"
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     switch name
       when "next"
-        # console.log "Setting #{stepId} submit button val to #{label}"
+        # console.log "Setting #{stepId} submit button val to #{button.label}"
         $button = $buttonsDiv.find('input:submit')
         unless $button.length > 0
           $button = $('<input class="wizard_button wizard_next" type="submit" />').appendTo $buttonsDiv
-        $button.val(label)
+        $button.val(button.label)
+        $button.attr("id", button.id) if button.id?
       when "back"
-        # console.log "Setting reset button val to #{label}"
-        $button = $buttonsDiv.find('input:reset').val(label)
+        # console.log "Setting reset button val to #{button.label}"
+        $button = $buttonsDiv.find('input:reset').val(button.label)
         unless $button.length > 0
           $button = $('<input class="wizard_button wizard_back" type="reset" />').appendTo $buttonsDiv
-        $button.val(label)
+        $button.val(button.label)
+        $button.attr("id", button.id) if button.id?
       else
-        buttonSelector = """input:button[name="#{name}"][value="#{label}"]"""
+        buttonSelector = """input:button[name="#{name}"][value="#{button.label}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
-          # console.log "Adding new #{name}:#{label} button"
-          $newButton = $(this.createButton(name, label)).appendTo($buttonsDiv)
+          # console.log "Adding new #{name}:#{button.label} button"
+          $newButton = $(this.createButton(name, button)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
             this.goToStepId(name)
@@ -238,7 +248,7 @@ class HatTrickWizard
   setupButtonsForStep: (stepId) ->
     buttons = this.buttons[stepId]
     if buttons?
-      this.setButton(stepId, name, label) for name, label of buttons
+      this.setButton(stepId, name, button) for name, button of buttons
 
   setContents: (stepPartials) ->
     for stepName, partial of stepPartials
