@@ -133,6 +133,9 @@ class HatTrickWizard
     inputId = "_ht_link_to_#{stepId}"
     this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
 
+  LinkFieldSet: ->
+    this.currentStep().find("input[name='_ht_step_link']").length > 0
+
   addFakeLastStep: ->
     @form.append """<fieldset id="_ht_fake_last_step" style="display: none;" class="step"></fieldset>"""
 
