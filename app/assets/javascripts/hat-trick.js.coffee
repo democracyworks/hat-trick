@@ -129,6 +129,9 @@ class HatTrickWizard
       this.updateSteps()
     this.setLinkField step.name
 
+  removeLinkField: ->
+    this.currentStep().find("input.#{@linkClass}").remove()
+
   setLinkField: (stepId) ->
     inputId = "_ht_link_to_#{stepId}"
     this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
@@ -172,8 +175,10 @@ class HatTrickWizard
     stepId = this.currentStepId()
     this.setHTMeta("step", stepId)
 
+  # TODO: See if we still need this "next_step" ht_meta field.
   clearNextStepField: ->
     this.clearHTMeta("next_step")
+    this.removeLinkField()
 
   fieldRegex: /^([^\[]+)\[([^\]]+)\]$/
 
