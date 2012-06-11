@@ -136,11 +136,11 @@
 
       this.nextButton = this.element.find(this.options.next);
       this.nextButton.unbind('click').click(function() {
-        var data = {
+        var nextClickCallbackData = {
           "currentStep": wizard.currentStep,
-          "button": this
+          "button": $(this).attr("id")
         };
-        $(wizard.element).trigger('next_click', data);
+        $(wizard.element).trigger('next_click', nextClickCallbackData);
         return wizard._next();
       });
 
@@ -149,11 +149,11 @@
 
       this.backButton  = this.element.find(this.options.back);
       this.backButton.unbind('click').click(function() {
-        var data = {
+        var backClickCallbackData = {
           "currentStep": wizard.currentStep,
-          "button": this
+          "button": $(this).attr("id")
         };
-        $(wizard.element).trigger('back_click', data);
+        $(wizard.element).trigger('back_click', backClickCallbackData);
         wizard._back();
         return false;
       });
