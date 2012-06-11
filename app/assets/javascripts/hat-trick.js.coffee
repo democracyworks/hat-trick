@@ -219,7 +219,14 @@ class HatTrickWizard
   createButton: (name, button) ->
     $button = $("""<input type="button" class="wizard_button" name="#{name}" value="#{button.label}" />""")
     if button.id?
-      $button.attr("id", button.id) 
+      $button.attr("id", button.id)
+    else
+      $button.attr("id", "#{this.currentStepId()}_#{name}_#{button.label}")
+    $button.click =>
+      clickCallbackData =
+        currentStep: this.currentStepId()
+        button: $button.attr "id"
+      @form.trigger "other_button_click", clickCallbackData
     $button
 
   setButton: (stepId, name, button) ->
