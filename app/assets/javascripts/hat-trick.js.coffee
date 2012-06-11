@@ -76,6 +76,8 @@ class HatTrickWizard
     ajax =
       url: @form.attr("action")
       dataType: "json"
+      # beforeSubmit: (data) =>
+      #   console.log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
         this.handleServerData serverData
         # console.log "Successful form POST; got #{JSON.stringify(serverData)}"
@@ -112,10 +114,11 @@ class HatTrickWizard
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
 
   goToStepId: (stepId) ->
-    this.showStep(stepId)
+    this.setLinkField(stepId)
     @form.formwizard("next")
 
   # TODO: Try linking to the same step rather than cloning it.
+  # I'm becoming more and more convinced that that won't work, however. And this isn't as bad as it used to be.
   repeatStep: (step) ->
     if $("fieldset##{step.name}").length is 0
       $sourceStep = this.findStep(step.repeatOf.fieldset)
@@ -124,9 +127,9 @@ class HatTrickWizard
       $clonedStep.attr("id", step.name)
       $sourceStep.after($clonedStep)
       this.updateSteps()
-    this.showStep step.name
+    this.setLinkField step.name
 
-  showStep: (stepId) ->
+  setLinkField: (stepId) ->
     inputId = "_ht_link_to_#{stepId}"
     this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
 
@@ -288,7 +291,7 @@ class HatTrickWizard
         this.repeatStep(currentStep)
       else
         # console.log "Showing step #{currentStep.fieldset}"
-        this.showStep(currentStep.fieldset)
+        this.setLinkField(currentStep.fieldset) unless this.LinkFieldSet()
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
