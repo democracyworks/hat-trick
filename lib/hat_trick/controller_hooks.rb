@@ -36,7 +36,7 @@ module HatTrick
       setup_validation_group_for(ht_wizard.current_step)
     end
 
-    def render_with_hat_trick(*args)
+    def render_with_hat_trick(*args, &block)
       rendered = args.first
       if rendered && rendered.has_key?(:json)
         model = rendered[:json]
@@ -68,7 +68,7 @@ module HatTrick
         args[0][:json].merge!( :data => include_data )
       end
 
-      render_without_hat_trick(*args)
+      render_without_hat_trick(*args, &block)
     end
   end
 end
