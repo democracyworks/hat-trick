@@ -12,7 +12,7 @@ module HatTrick
 
     def self.def_action_method_aliases(action_methods)
       action_methods.each do |meth|
-        Rails.logger.info "Aliasing #{meth}"
+        # Rails.logger.info "Aliasing #{meth}"
         module_eval <<-RUBY_EVAL
           def #{meth}_with_hat_trick(*args)
             Rails.logger.info "#{meth}_with_hat_trick called"
