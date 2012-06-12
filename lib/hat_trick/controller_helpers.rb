@@ -59,9 +59,6 @@ module HatTrick
         klass.validation_group(step_name, :fields => validation_fields)
       end
       HatTrick::ModelMethods.set_current_validation_group_for(model_class, step_name)
-      unless klass.included_modules.include?(HatTrick::ModelMethods)
-        klass.send(:include, HatTrick::ModelMethods)
-      end
     end
   end
 end

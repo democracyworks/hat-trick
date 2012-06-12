@@ -18,6 +18,13 @@ module HatTrick
       @controller = new_controller
     end
 
+    def model=(new_model)
+      @model = new_model
+      unless @model.class.included_modules.include?(HatTrick::ModelMethods)
+        @model.class.send(:include, HatTrick::ModelMethods)
+      end
+    end
+
     def current_step=(_step)
       raise "Don't set current_step to nil" if _step.nil?
       step = find_step(_step)
