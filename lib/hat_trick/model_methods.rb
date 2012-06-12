@@ -7,6 +7,7 @@ module HatTrick
 
     included do
       alias_method_chain :perform_validations, :hat_trick
+      alias_method_chain :as_json, :model_name
     end
 
     def self.set_current_validation_group_for(klass, validation_group_name)
@@ -21,6 +22,11 @@ module HatTrick
     def perform_validations_with_hat_trick(*args, &block)
       enable_current_validation_group
       perform_validations_without_hat_trick(*args, &block)
+    end
+
+    def as_json_with_model_name(*args, &block)
+      json = as_json_without_model_name(*args, &block)
+      json.merge! :__name__ => self.class.to_s.underscore if json.respond_to?(:merge!)
     end
 
     private
