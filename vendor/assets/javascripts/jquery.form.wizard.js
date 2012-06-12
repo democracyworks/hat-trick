@@ -135,27 +135,41 @@
       var wizard = this;
 
       this.nextButton = this.element.find(this.options.next);
-      this.nextButton.unbind('click').click(function() {
-        var nextClickCallbackData = {
-          "currentStep": wizard.currentStep,
-          "button": $(this).attr("id")
-        };
-        $(wizard.element).trigger('next_click', nextClickCallbackData);
-        return wizard._next();
+      this.nextButton.each(function(index) {
+        var events = $(this).data("events");
+        if (typeof events === "undefined" ||
+            typeof events['click'] === "undefined" ||
+            events['click'].length === 0) {
+          $(this).click(function() {
+            var nextClickCallbackData = {
+              "currentStep": wizard.currentStep,
+              "button": $(this).attr("id")
+            };
+            $(wizard.element).trigger('next_click', nextClickCallbackData);
+            return wizard._next();
+          });
+        }
       });
 
       this.nextButtonInitinalValue = this.nextButton.val();
       this.nextButton.val(this.options.textNext);
 
       this.backButton  = this.element.find(this.options.back);
-      this.backButton.unbind('click').click(function() {
-        var backClickCallbackData = {
-          "currentStep": wizard.currentStep,
-          "button": $(this).attr("id")
-        };
-        $(wizard.element).trigger('back_click', backClickCallbackData);
-        wizard._back();
-        return false;
+      this.backButton.each(function() {
+        var events = $(this).data('events');
+        if (typeof events === "undefined" ||
+            typeof events['click'] === "undefined" ||
+            events['click'].length === 0) {
+          $(this).click(function() {
+            var backClickCallbackData = {
+              "currentStep": wizard.currentStep,
+              "button": $(this).attr("id")
+            };
+            $(wizard.element).trigger('back_click', backClickCallbackData);
+            wizard._back();
+            return false;
+          });
+        }
       });
 
       this.backButtonInitinalValue = this.backButton.val();
