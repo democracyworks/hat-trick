@@ -28,8 +28,12 @@ module HatTrick
     end
 
     def model_class
+      return ht_wizard.model.class if ht_wizard.model
+
+      # if that didn't work, try to grab it from the params hash
       model_name = params_model_name
       return nil if model_name.nil?
+
       begin
         model_klass = params_model_name.constantize
       rescue NameError
