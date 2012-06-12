@@ -46,7 +46,7 @@ class HatTrickWizard
 
   setAction: (url, method) ->
     methodLower = method.toLowerCase()
-    # console.log "Setting form action to #{methodLower} #{url}"
+    # log "Setting form action to #{methodLower} #{url}"
     @form.attr("action", url)
     @form.attr("method", "post")
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
@@ -78,12 +78,12 @@ class HatTrickWizard
       url: @form.attr("action")
       dataType: "json"
       # beforeSubmit: (data) =>
-      #   console.log "Sending these data to the server: #{JSON.stringify data}"
+      #   log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
         this.handleServerData serverData
-        # console.log "Successful form POST; got #{JSON.stringify(serverData)}"
+        # log "Successful form POST; got #{JSON.stringify(serverData)}"
       error: (event, status, errorThrown) =>
-        console.log "Error response: #{event.status} #{status} - #{errorThrown} - #{event.responseText}"
+        log "Error response: #{event.status} #{status} - #{errorThrown} - #{event.responseText}"
         try
           appErrors = eval "(#{event.responseText})"
         catch err
@@ -190,7 +190,7 @@ class HatTrickWizard
       elementName = $element.attr("name")
       if elementName? and elementName.search(@fieldRegex) isnt -1
         [_, modelName, fieldName] = elementName.match(@fieldRegex)
-        if model[fieldName]?
+        if model['__name__'] is modelName and model[fieldName]?
           fieldValue = model[fieldName]
           callback($element, fieldValue) if fieldValue?
 
@@ -211,7 +211,7 @@ class HatTrickWizard
       $radio.find("[value=\"#{value}\"]").attr("checked", "checked")
 
   setFormFields: (model) ->
-    # console.log "Setting form fields based on: #{JSON.stringify(model)}"
+    # log "Setting form fields based on: #{JSON.stringify(model)}"
     this.fillTextFields(model)
     this.setSelectFields(model)
     this.setCheckboxes(model)
@@ -231,18 +231,18 @@ class HatTrickWizard
     $button
 
   setButton: (stepId, name, button) ->
-    # console.log "Setting button for #{stepId} named #{name} to #{JSON.stringify(button)}"
+    # log "Setting button for #{stepId} named #{name} to #{JSON.stringify(button)}"
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     switch name
       when "next"
-        # console.log "Setting #{stepId} submit button val to #{button.label}"
+        # log "Setting #{stepId} submit button val to #{button.label}"
         $button = $buttonsDiv.find('input:submit')
         unless $button.length > 0
           $button = $('<input class="wizard_button wizard_next" type="submit" />').appendTo $buttonsDiv
         $button.val(button.label)
         $button.attr("id", button.id) if button.id?
       when "back"
-        # console.log "Setting reset button val to #{button.label}"
+        # log "Setting reset button val to #{button.label}"
         $button = $buttonsDiv.find('input:reset').val(button.label)
         unless $button.length > 0
           $button = $('<input class="wizard_button wizard_back" type="reset" />').appendTo $buttonsDiv
@@ -252,7 +252,7 @@ class HatTrickWizard
         buttonSelector = """input:button[name="#{name}"][value="#{button.label}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
-          # console.log "Adding new #{name}:#{button.label} button"
+          # log "Adding new #{name}:#{button.label} button"
           $newButton = $(this.createButton(name, button)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
@@ -316,7 +316,7 @@ class HatTrickWizard
       if currentStep.repeatOf?
         this.repeatStep(currentStep)
       else
-        # console.log "Showing step #{currentStep.fieldset}"
+        # log "Showing step #{currentStep.fieldset}"
         this.setLinkField(currentStep.fieldset) unless this.LinkFieldSet()
 
   bindEvents: ->
@@ -331,7 +331,7 @@ $ ->
     $form = $("form.wizard")
     window.hatTrick = {} unless window.hatTrick?
     unless window.hatTrick.wizard?
-      # console.log "Creating new HatTrickWizard instance"
+      # log "Creating new HatTrickWizard instance"
       window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
 
 camelizeString = (string) ->
@@ -349,3 +349,7 @@ underscoreString = (string) ->
     result += "_#{matches[1].toLowerCase()}#{matches[2]}"
   result = string unless result?
   result
+
+log = (msg) ->
+  if window['console']?
+    console.log msg
