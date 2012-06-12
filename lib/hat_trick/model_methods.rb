@@ -3,6 +3,8 @@ module HatTrick
     extend ActiveSupport::Concern
     mattr_accessor :validation_groups
 
+    attr_accessor :_dummy # so the dummy field will have something to set
+
     included do
       alias_method_chain :perform_validations, :hat_trick
     end
