@@ -13,6 +13,7 @@ class HatTrickWizard
     this.enableFormwizard()
     this.setupButtonsForCurrentStep()
     this.setCurrentStepField()
+    this.createDummyModelField() unless this.currentStepHasModelFields()
     this.bindEvents()
 
   linkClass: "_ht_link"
@@ -297,9 +298,19 @@ class HatTrickWizard
         stepId = currentStep.fieldset
         this.buttons[stepId] = currentStep.buttons
 
+  modelName: ->
+    hatTrick.model['__name__']
+
+  createDummyModelField: ->
+    this.setHiddenInput "#{this.modelName()}[_dummy]", "1"
+
+  currentStepHasModelFields: ->
+    this.currentStep().find("input[name^='#{this.modelName()}[']").length > 0
+
   updateStepFromMetadata: ->
     if hatTrick.metadata?.currentStep?
       this.setButtonMetadataForCurrentStep()
+      this.createDummyModelField() unless this.currentStepHasModelFields()
 
       currentStep = hatTrick.metadata.currentStep
       if currentStep.repeatOf?
