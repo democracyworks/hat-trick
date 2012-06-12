@@ -50,12 +50,12 @@ module HatTrick
       step_name = wizard_step.name
       validation_groups = ::ActiveRecord::Base.validation_group_classes[klass] || []
       unless validation_groups.include?(step_name)
-        validation_fields = params.keys # TODO: Try it without these
+        validation_fields = params.keys # TODO: Try it without these (so only the model keys below)
         model = model_key
         if model
           validation_fields += params[model].keys
         end
-        validation_fields = validation_fields.map &:to_sym
+        validation_fields = validation_fields.map(&:to_sym)
         klass.validation_group(step_name, :fields => validation_fields)
       end
       HatTrick::ModelMethods.set_current_validation_group_for(model_class, step_name)
