@@ -301,12 +301,10 @@ class HatTrickWizard
     if data.metadata?
       this.setAction(data.metadata.url, data.metadata.method)
     $.extend(window.hatTrick, data) # merge new data with hatTrick
-    this.updateStepContents()
     this.updateStepFromMetadata()
 
   updateStepContents: ->
-    if hatTrick.data.hatTrickStepContents?
-      this.setContents(hatTrick.data.hatTrickStepContents)
+    this.setContents(hatTrick.data.hatTrickStepContents)
 
   setButtonMetadataForCurrentStep: ->
     if hatTrick.metadata?.currentStep?
@@ -326,6 +324,7 @@ class HatTrickWizard
 
   updateStepFromMetadata: ->
     if hatTrick.metadata?.currentStep?
+      this.updateStepContents() if hatTrick.data.hatTrickStepContents?
       this.setButtonMetadataForCurrentStep()
       this.createDummyModelField() unless this.currentStepHasModelFields()
 
