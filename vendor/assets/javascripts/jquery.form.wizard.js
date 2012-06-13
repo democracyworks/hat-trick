@@ -67,7 +67,7 @@
       this.steps = this.element.find(".step").hide();
 
       this.firstStep = this.options.firstStep || this.steps.eq(0).attr("id");
-      this.activatedSteps = new Array();
+      this.activatedSteps = [];
       this.isLastStep = false;
       this.previousStep = undefined;
       this.currentStep = this.firstStep;
@@ -135,7 +135,7 @@
       var wizard = this;
 
       this.nextButton = this.element.find(this.options.next);
-      this.nextButton.each(function(index) {
+      this.nextButton.each(function() {
         var events = $(this).data("events");
         if (typeof events === "undefined" ||
             typeof events['click'] === "undefined" ||
