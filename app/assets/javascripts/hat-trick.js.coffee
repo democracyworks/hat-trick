@@ -11,6 +11,8 @@ class HatTrickWizard
 
   buttons: {}
 
+  stepsNeedUpdate: false
+
   stepShownCallback: ->
     if not @formwizardEnabled
       this.addStepClass()
@@ -293,7 +295,7 @@ class HatTrickWizard
         $step = $("fieldset##{stepId}")
         $step.html fieldsetContents
         this.addDefaultButtons($step)
-        this.updateSteps()
+        @stepsNeedUpdate = true
 
   handleServerData: (data) ->
     if data.metadata?
@@ -331,7 +333,6 @@ class HatTrickWizard
       if currentStep.repeatOf?
         this.repeatStep(currentStep)
       else
-        # log "Showing step #{currentStep.fieldset}"
         this.setLinkField(currentStep.fieldset) unless this.LinkFieldSet()
 
   bindEvents: ->
