@@ -2,23 +2,36 @@
 
 class HatTrickWizard
   constructor: (formElem, @wizard) ->
-    this.formwizardEnabled = false
     @form = $(formElem)
-    this.addStepClass()
-    # prevent submitting the step that happens to be the last fieldset
-    this.addFakeLastStep()
-    this.addDefaultButtons()
-    this.setButtonMetadataForCurrentStep()
-    this.setupButtonsForAllSteps()
-    this.enableFormwizard()
-    this.setupButtonsForCurrentStep()
-    this.setCurrentStepField()
-    this.createDummyModelField() unless this.currentStepHasModelFields()
-    this.bindEvents()
+    this.stepShownCallback() # because we just showed the first step (or the one in the URL)
 
   linkClass: "_ht_link"
 
   buttons: {}
+
+  stepShownCallback: ->
+    if not @formwizardEnabled
+      this.addStepClass()
+      # prevent submitting the step that happens to be the last fieldset
+      # TODO: Figure out a better way to do this
+      this.addFakeLastStep()
+      this.addDefaultButtons()
+    this.updateStepFromMetadata()
+    if not @formwizardEnabled
+      this.setupButtonsForAllSteps()
+      this.enableFormwizard() # this clobbers our button customizations for the current step
+      this.setupButtonsForCurrentStep() # so we run this to reconfigure it
+      this.bindEvents()
+    else
+      this.setupButtonsForCurrentStep()
+      # this must be run here & after setupButtonsForCurrentStep() to support setContents()
+      if @stepsNeedUpdate
+        this.updateSteps()
+        @stepsNeedUpdate = false
+    this.setCurrentStepField()
+    this.clearNextStepField()
+    this.setFormFields(hatTrick.model)
+    this.createDummyModelField() unless this.currentStepHasModelFields()
 
   addStepClass: ->
     @form.find("fieldset").addClass("step")
@@ -321,10 +334,7 @@ class HatTrickWizard
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
-      this.setCurrentStepField()
-      this.clearNextStepField()
-      this.setFormFields(hatTrick.model)
-      this.setupButtonsForCurrentStep()
+      this.stepShownCallback()
 
 $ ->
   if $("form.wizard").length > 0
