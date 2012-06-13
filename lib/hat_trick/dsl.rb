@@ -29,6 +29,8 @@ module HatTrick
       else
         # setter
         step = ht_wizard.find_step(name)
+        # explicitly set steps should not be skipped
+        step.skipped = false
         ht_wizard.current_step.next_step = step
       end
     end
