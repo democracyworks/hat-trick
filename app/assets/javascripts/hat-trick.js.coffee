@@ -5,6 +5,8 @@ class HatTrickWizard
     @form = $(formElem)
     this.stepShownCallback() # because we just showed the first step (or the one in the URL)
 
+  formwizardEnabled: false
+
   linkClass: "_ht_link"
 
   buttons: {}
