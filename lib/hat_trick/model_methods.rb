@@ -6,8 +6,8 @@ module HatTrick
     attr_accessor :_dummy # so the dummy field will have something to set
 
     included do
-      alias_method_chain :perform_validations, :hat_trick
-      alias_method_chain :as_json, :model_name
+      alias_method_chain :perform_validations, :hat_trick if instance_methods.include?(:perform_validations)
+      alias_method_chain :as_json, :model_name if instance_methods.include?(:as_json)
     end
 
     def self.set_current_validation_group_for(klass, validation_group_name)
