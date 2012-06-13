@@ -92,12 +92,6 @@ module HatTrick
       run_before_callback
     end
 
-    def finish
-      # Do something here
-      # Such as: Force the wizard to display the "done" page
-      Rails.logger.info "WIZARD FINISHED!"
-    end
-
     def run_before_callback(step=current_step)
       step.run_before_callback(controller, model)
     end
@@ -116,7 +110,7 @@ module HatTrick
 
       # finish if we're on the last step
       if current_step == last_step && !requested_next_step
-        finish
+        raise "Tried to advance beyond the last step of the wizard"
       else # we're not on the last step
         if requested_next_step
           Rails.logger.info "Force advancing to step: #{requested_next_step}"
