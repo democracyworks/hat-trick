@@ -16,6 +16,7 @@ module HatTrick
     end
 
     def self.current_validation_group_for(klass)
+      return nil unless validation_groups
       validation_groups[klass.to_s.underscore]
     end
 
@@ -38,7 +39,8 @@ module HatTrick
     end
 
     def enable_current_validation_group
-      enable_validation_group current_step_validation_group
+      validation_group = current_step_validation_group
+      enable_validation_group validation_group if validation_group
     end
   end
 end
