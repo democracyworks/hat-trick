@@ -265,8 +265,9 @@
 
     _updateHistory : function(step) {
       var state = {};
+      var title = $("title").text();
       state["step"] = step;
-      History.pushState(state, "Step " + step, step);
+      History.pushState(state, title, step);
     },
 
     _disableNavigation : function(){
