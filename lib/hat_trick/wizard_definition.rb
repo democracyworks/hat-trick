@@ -6,6 +6,8 @@ module HatTrick
   class WizardDefinition
     include WizardSteps
 
+    attr_accessor :configured_create_url, :configured_update_url
+
     def initialize
       @steps = []
     end
