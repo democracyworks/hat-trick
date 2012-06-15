@@ -1,5 +1,6 @@
 ENV["RAILS_ENV"] ||= 'test'
 require 'bundler/setup'
+require 'rails'
 require 'logger'
 
 module Rails
@@ -9,15 +10,6 @@ module Rails
 
   def self.logger
     @logger ||= ::Logger.new(STDOUT).tap { |l| l.level = ::Logger::ERROR }
-  end
-
-  class Engine
-    def self.initializer(*args, &block); end
-  end
-end
-
-module ActionController
-  class Base
   end
 end
 

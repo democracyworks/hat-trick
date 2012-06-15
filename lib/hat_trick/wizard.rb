@@ -33,7 +33,11 @@ module HatTrick
     end
 
     def session
-      controller.session unless controller.nil?
+      if controller.nil?
+        fake_session
+      else
+        controller.session
+      end
     end
 
     def model_created?
@@ -160,6 +164,10 @@ module HatTrick
     end
 
     private
+
+    def fake_session
+      @fake_session ||= {}
+    end
 
     def find_next_step
       find_step(current_step.next_step) or find_step_after(current_step)
