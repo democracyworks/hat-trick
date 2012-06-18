@@ -7,9 +7,9 @@ Gem::Specification.new do |s|
   s.version     = HatTrick::VERSION
   s.authors     = ["Wes Morgan"]
   s.email       = ["cap10morgan@gmail.com"]
-  s.homepage    = ""
-  s.summary     = %q{Rails wizards done right}
-  s.description = %q{Combines jQuery FormWizard, validation_group, and gon for the perfect triple-play of Rails wizarding.}
+  s.homepage    = "https://github.com/turbovote/hat-trick"
+  s.summary     = %q{A simple DSL for creating client-side multi-step forms in Rails.}
+  s.description = %q{Hat-Trick brings together jQuery, validation_group, and Ajax to make multi-step forms awesome. It tries to insulate you from this complexity by providing a simple yet powerful DSL for defining the steps of your form and their behavior.}
 
   s.rubyforge_project = "hat-trick"
 

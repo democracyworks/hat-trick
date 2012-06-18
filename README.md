@@ -4,7 +4,7 @@
 ## Install
     gem install hat-trick
 
-### Rails 3.2
+### Rails 3.1+
 (older versions not supported)
 
 Put this in your Gemfile:
@@ -37,8 +37,8 @@ Jumping to a step based on logged in status:
 
     wizard do
       step :first_step do
-        # after_this_step defines a callback to run after the current step is completed by the user
-        after_this_step do
+        # after defines a callback to run after the current step is completed by the user
+        after do
           # code in this block will be exec'd in the context of your controller
           if user_signed_in?
             next_step :third_step
@@ -64,8 +64,8 @@ Skipping a step under certain conditions:
     wizard do
       step :first_step
       step :second_step do
-        # before_this_step defines a callback to run before the user sees this step
-        before_this_step do
+        # before defines a callback to run before the user sees this step
+        before do
           # code in this block will be exec'd in the context of your controller
           skip_this_step unless foo.present?
         end
