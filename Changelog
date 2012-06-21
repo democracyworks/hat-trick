@@ -1,3 +1,5 @@
+* 0.1.2 - Fixes GH issue #4 - Don't run skipped steps' include_data callbacks
+
 * 0.1.1 - Added LICENSE file to license hat-trick under the MIT license.
 
 * 0.1 - Initial working release
