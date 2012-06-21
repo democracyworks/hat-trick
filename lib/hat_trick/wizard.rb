@@ -137,7 +137,7 @@ module HatTrick
     def include_data
       return {} if model.nil?
       inc_data = {}
-      include_data_steps = steps_before(current_step) << current_step
+      include_data_steps = steps_before(current_step).reject(&:skipped?) << current_step
       include_data_steps.each do |step|
         step_data = step.run_include_data_callback(controller, model)
         next if step_data.nil? || !step_data.respond_to?(:as_json)
