@@ -91,7 +91,9 @@ module HatTrick
     end
 
     def start
-      session["hat-trick.steps_visited"] = []
+      # Should move the next 2 lines into a StepCollection class
+      session["hat-trick.visited_steps"] = []
+      session["hat-trick.skipped_steps"] = []
       self.current_step ||= first_step
       run_before_callback
     end
