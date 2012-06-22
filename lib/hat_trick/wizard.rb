@@ -108,7 +108,7 @@ module HatTrick
 
     def advance_step(next_step_name=nil)
       # clean up current step
-      current_step.visited = true
+      current_step.mark_as_visited
       run_after_callback
 
       # see if there is a requested next step

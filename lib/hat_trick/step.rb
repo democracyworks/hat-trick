@@ -32,11 +32,11 @@ module HatTrick
     end
 
     def visited?
-      session["hat-trick.steps_visited"].include? self.to_sym
+      session["hat-trick.visited_steps"].include? self.to_sym
     end
 
-    def visited=(_visited)
-      session["hat-trick.steps_visited"] << self.to_sym
+    def mark_as_visited
+      session["hat-trick.visited_steps"] << self.to_sym
     end
   end
 end

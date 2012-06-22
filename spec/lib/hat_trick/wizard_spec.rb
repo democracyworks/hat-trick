@@ -56,9 +56,9 @@ describe HatTrick::Wizard do
 
   describe "#previously_visited_step" do
     it "should return the most recently visited step" do
-      wizard.steps[0].visited = true
-      wizard.steps[1].visited = true
-      wizard.steps[3].visited = true
+      wizard.steps[0].mark_as_visited
+      wizard.steps[1].mark_as_visited
+      wizard.steps[3].mark_as_visited
       wizard.current_step = :step5
       wizard.previously_visited_step.to_sym.should == :step4
     end
