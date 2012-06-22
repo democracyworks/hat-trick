@@ -264,10 +264,29 @@
     },
 
     _updateHistory : function(step) {
-      var state = {};
+      var stateData = {};
       var title = $("title").text();
-      state["step"] = step;
-      History.pushState(state, title, step);
+      var currentState = History.getState();
+      var currentStep = currentState.data.step;
+      var urlPathComponents = currentState.url.split("/");
+      var newUrlPathComponents = [];
+      var newUrl;
+      var i;
+      var lastIndex = urlPathComponents.length - 1;
+
+      for (i=3; i<lastIndex; i++) {
+        newUrlPathComponents.push(urlPathComponents[i]);
+      }
+
+      if (urlPathComponents[lastIndex] !== currentStep) {
+        newUrlPathComponents.push(urlPathComponents[lastIndex]);
+      }
+
+      newUrlPathComponents.push(step);
+      newUrl = "/" + newUrlPathComponents.join("/");
+      stateData["step"] = step;
+      
+      History.pushState(stateData, title, newUrl);
     },
 
     _disableNavigation : function(){
