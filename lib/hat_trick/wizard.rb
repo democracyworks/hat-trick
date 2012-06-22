@@ -34,6 +34,9 @@ module HatTrick
 
     def session
       if controller.nil?
+        # TODO: It seems to use the fake_session most or all of the time.
+        #       Need to figure out what's up with that.
+        # Rails.logger.warn "Hat-Trick controller is nil; using fake session"
         fake_session
       else
         controller.session
@@ -91,7 +94,8 @@ module HatTrick
     end
 
     def start
-      # Should move the next 2 lines into a StepCollection class
+      # Reset the session data
+      # TODO: Move the next 2 lines into a StepCollection class
       session["hat-trick.visited_steps"] = []
       session["hat-trick.skipped_steps"] = []
       self.current_step ||= first_step
