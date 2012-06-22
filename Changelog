@@ -1,6 +1,5 @@
 * 0.1.3 - Closes GH issue #5 - Handle non-root URLs correctly in pushState
         - Closes GH issue #6 - Don't loop past the last step when looking for the next one
-        - Closes GH issue #7 - Skipped status of a step should persist
         - Closes GH issue #8 - Only run the include_data callback for the current step
 
 * 0.1.2 - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
