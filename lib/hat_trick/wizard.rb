@@ -124,7 +124,6 @@ module HatTrick
           run_before_callback
           # if the step was explicitly requested, we ignore #skipped?
         else
-          Rails.logger.info "Advancing to step: #{next_step}"
           self.current_step = next_step
           run_before_callback
           # Running the before callback may have marked current_step as skipped
@@ -134,6 +133,7 @@ module HatTrick
             # make sure we don't loop forever
             break if current_step == last_step
           end
+          Rails.logger.info "Advancing to step: #{current_step}"
         end
       end
     end
