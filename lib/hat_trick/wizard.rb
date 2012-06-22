@@ -131,6 +131,8 @@ module HatTrick
           while current_step.skipped?
             self.current_step = next_step
             run_before_callback
+            # make sure we don't loop forever
+            break if current_step == last_step
           end
         end
       end
