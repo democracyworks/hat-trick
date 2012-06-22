@@ -29,6 +29,9 @@ module HatTrick
     end
 
     def mark_as_visited
+      unless session.has_key?("hat-trick.visited_steps")
+        session["hat-trick.visited_steps"] = []
+      end
       session["hat-trick.visited_steps"] << self.to_sym
     end
   end
