@@ -14,12 +14,12 @@ module HatTrick
       alias_method_chain :initialize, :hat_trick
     end
 
-    def initialize_with_hat_trick(*args)
+    def initialize_with_hat_trick(*args, &block)
       @_ht_config = HatTrick::Config.new(self.class.wizard_def)
       if configure_callback.is_a?(Proc)
         ht_wizard.controller.instance_exec(@_ht_config, &configure_callback)
       end
-      initialize_without_hat_trick(*args)
+      initialize_without_hat_trick(*args, &block)
     end
 
     def next_step(name=nil)
