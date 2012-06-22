@@ -140,19 +140,10 @@ module HatTrick
 
     def include_data
       return {} if model.nil?
-      inc_data = {}
-      include_data_steps = steps_before(current_step).reject(&:skipped?) << current_step
-      include_data_steps.each do |step|
-        step_data = step.run_include_data_callback(controller, model)
-        next if step_data.nil? || !step_data.respond_to?(:as_json)
-        step_key = step.include_data_key.to_s.camelize(:lower)
-        begin
-          inc_data[step_key] = camelize_hash_keys(step_data)
-        rescue NoMethodError => e
-          Rails.logger.error "Unable to serialize data for step #{step}: #{e}"
-        end
-      end
-      inc_data
+      step_data = current_step.run_include_data_callback(controller, model)
+      return {} unless step_data.respond_to?(:as_json)
+      key = current_step.include_data_key.to_s.camelize(:lower)
+      { key => camelize_hash_keys(step_data) }
     end
 
     def alias_action_methods
