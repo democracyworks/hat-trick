@@ -28,7 +28,6 @@ class HatTrickWizard
       this.bindEvents()
     else
       this.setupButtonsForCurrentStep()
-      # this must be run here & after setupButtonsForCurrentStep() to support setContents()
       if @stepsNeedUpdate
         this.updateSteps()
         @stepsNeedUpdate = false
@@ -52,9 +51,9 @@ class HatTrickWizard
         buttons['back'] =
           id: "#{id}_back_button"
           label: "Back"
-  
+
       hatTrick.buttons[id] = buttons
-  
+
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
 
@@ -110,7 +109,8 @@ class HatTrickWizard
                 "There was an error communicating with the server. TurboVote staff have been notified."
               ]
         this.clearErrors()
-        this.addErrorItem value[0] for key, value of appErrors.model
+        this.addErrorItem value[0] for key, value of appErrors.model when key isnt "__name__"
+        @form.trigger 'ajaxErrors', appErrors.model
     ajax
 
   getErrorListElement: ->
@@ -257,6 +257,7 @@ class HatTrickWizard
         unless $button.length > 0
           $button = $('<input class="wizard_button wizard_next" type="submit" />').appendTo $buttonsDiv
         $button.val(button.label)
+        # log "Set next button val to #{button.label}"
         $button.attr("id", button.id) if button.id?
       when "back"
         # log "Setting reset button val to #{button.label}"

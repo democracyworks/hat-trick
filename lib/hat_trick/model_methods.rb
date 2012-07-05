@@ -33,7 +33,7 @@ module HatTrick
     private
 
     # don't call this method 'current_validation_group', it conflicts with
-    # the gem
+    # the validation_group gem
     def current_step_validation_group
       HatTrick::ModelMethods.current_validation_group_for(self.class)
     end
