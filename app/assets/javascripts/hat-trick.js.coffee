@@ -40,6 +40,8 @@ class HatTrickWizard
     @form.find("fieldset").addClass("step")
 
   addDefaultButtons: ($scope = @form.find("fieldset")) ->
+    urlComponents = History.getState().url.split("/")
+    currentStepId = urlComponents[urlComponents.length-1]
     hatTrick = this
     $scope.each (index) ->
       id = $(this).attr('id')
@@ -47,7 +49,7 @@ class HatTrickWizard
         next:
           id: "#{id}_next_button"
           label: "Next"
-      if index > 0 or hatTrick.formwizardEnabled
+      if hatTrick.formwizardEnabled or id isnt currentStepId
         buttons['back'] =
           id: "#{id}_back_button"
           label: "Back"
