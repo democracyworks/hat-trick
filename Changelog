@@ -2,6 +2,7 @@
         - Closes GH issue #6 - Don't loop past the last step when looking for the next one
         - Closes GH issue #8 - Only run the include_data callback for the current step
         - Trigger ajaxErrors event on form element when we get errors back from an ajax call
+        - Trigger ajaxSuccess event on form element when ajax calls return successfully
 
 * 0.1.2 - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
 
