@@ -92,11 +92,15 @@ module HatTrick
         label = options[:label] if options
         label ||= name.to_s.humanize
 
-        id = options[:id] if options
+        if options
+          id = options[:id]
+          css_class = options[:class]
+        end
 
         step = wizard_def.last_step
         button = { :label => label }
         button[:id] = id unless id.nil?
+        button[:class] = css_class unless css_class.nil?
         step.buttons = step.buttons.merge(name => button)
       end
 

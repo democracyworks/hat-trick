@@ -241,6 +241,8 @@ class HatTrickWizard
       $button.attr("id", button.id)
     else
       $button.attr("id", "#{this.currentStepId()}_#{name}_#{button.label}")
+    if button["class"]?
+      $button.addClass(button["class"])
     $button.click =>
       clickCallbackData =
         currentStep: this.currentStepId()
