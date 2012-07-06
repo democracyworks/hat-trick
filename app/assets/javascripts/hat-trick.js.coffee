@@ -97,6 +97,7 @@ class HatTrickWizard
       #   log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
         this.handleServerData serverData
+        @form.trigger 'ajaxSuccess', serverData
         # log "Successful form POST; got #{JSON.stringify(serverData)}"
       error: (event, status, errorThrown) =>
         log "Error response: #{event.status} #{status} - #{errorThrown} - #{event.responseText}"
