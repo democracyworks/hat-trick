@@ -275,7 +275,9 @@
       var lastIndex = urlPathComponents.length - 1;
 
       for (i=3; i<lastIndex; i++) {
-        newUrlPathComponents.push(urlPathComponents[i]);
+        if (urlPathComponents[i] !== "") {
+          newUrlPathComponents.push(urlPathComponents[i]);
+        }
       }
 
       if (urlPathComponents[lastIndex] !== currentStep) {
@@ -285,7 +287,7 @@
       newUrlPathComponents.push(step);
       newUrl = "/" + newUrlPathComponents.join("/");
       stateData["step"] = step;
-      
+
       History.pushState(stateData, title, newUrl);
     },
 
