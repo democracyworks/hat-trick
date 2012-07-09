@@ -139,7 +139,8 @@ class HatTrickWizard
     @form.formwizard("next")
 
   # TODO: Try linking to the same step rather than cloning it.
-  # I'm becoming more and more convinced that that won't work, however. And this isn't as bad as it used to be.
+  # I'm becoming more and more convinced that that won't work, however.
+  # And this isn't as bad as it used to be.
   repeatStep: (step) ->
     if $("fieldset##{step.name}").length is 0
       $sourceStep = this.findStep(step.repeatOf.fieldset)
@@ -226,9 +227,28 @@ class HatTrickWizard
     this.setFieldValues model, "input:checkbox", ($checkbox, value) =>
       $checkbox.attr("checked", "checked") if value
 
+  # TODO: DRY this up as much as possible. Radio buttons a little different
+  #       than the other form controls since they share names and behave as a
+  #       named group.
   setRadioButtons: (model) ->
-    this.setFieldValues model, "input:radio", ($radio, value) =>
-      $radio.find("[value=\"#{value}\"]").attr("checked", "checked")
+    $currentStep = this.currentStep()
+    selector = "input:radio"
+    radioGroups = {}
+    $currentStep.find(selector).each ->
+      radioGroups[$(this).attr("name")] = true
+    for radioGroup of radioGroups
+      do (radioGroup) =>
+        if radioGroup.search(@fieldRegex) isnt -1
+          log "Setting values of radio group #{radioGroup}"
+          [_, modelName, fieldName] = radioGroup.match(@fieldRegex)
+          log "modelName: #{modelName}; model[#{fieldName}]: #{model[fieldName]}"
+          if model['__name__'] is modelName and model[fieldName]?
+            fieldValue = model[fieldName]
+            $radioGroup = $("input:radio[name=\"#{radioGroup}\"]")
+            log "Removing checked attr from radio group #{radioGroup}"
+            $radioGroup.removeAttr("checked")
+            log "Checking button with value #{fieldValue}"
+            $radioGroup.filter("[value=\"#{fieldValue}\"]").attr("checked", "checked")
 
   setFormFields: (model) ->
     # log "Setting form fields based on: #{JSON.stringify(model)}"
