@@ -249,7 +249,7 @@ class HatTrickWizard
 
   createButtonElement: (name, value, label, type="button") ->
     $elem = $("""<button type="#{type}" class="wizard_button" name="#{name}"></button>""")
-    $elem.text label
+    $elem.html label
     $elem.val value
     $elem
 
@@ -277,7 +277,7 @@ class HatTrickWizard
         unless $button.length > 0
           $button = $('<button type="submit" class="wizard_button wizard_next" name="next"></button>').appendTo $buttonsDiv
         $button.val button.value
-        $button.text button.label
+        $button.html button.label
         if button.id?
           $button.attr "id", button.id
         else
@@ -288,7 +288,7 @@ class HatTrickWizard
         unless $button.length > 0
           $button = $('<button type="reset" class="wizard_button wizard_back" name="back"></button>').appendTo $buttonsDiv
         $button.val button.value
-        $button.text button.label
+        $button.html button.label
         if button.id?
           $button.attr "id", button.id
         else

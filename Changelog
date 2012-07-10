@@ -6,6 +6,7 @@
         - Don't add slashes to wizard step URLs
         - Fix buggy radio button selection logic
         - Use <button> elements for all buttons & improve button creation logic
+        - Allow HTML inside <button> elements; use button_to label: "[your html]"
 
 * 0.1.2 - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
 
