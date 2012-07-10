@@ -406,24 +406,23 @@
         }
       }
 
-      if(this.currentStep !== step || step === this.firstStep){
+      if (this.currentStep !== step || step === this.firstStep) {
         this.previousStep = this.currentStep;
         this._checkIflastStep(step);
         this.currentStep = step;
         var stepShownCallback = function(){if(triggerStepShown)$(this.element).trigger('step_shown', $.extend({"isBackNavigation" : backwards},this._state()));};
         this._animate(this.previousStep, step, stepShownCallback);
-      };
-
+      }
 
     },
 
      _reset : function(){
-      this.element.resetForm()
+      this.element.resetForm();
       $("label,:input,textarea",this).removeClass("error");
       for(var i = 0; i < this.activatedSteps.length; i++){
         this.steps.filter("#" + this.activatedSteps[i]).hide().find(":input").attr("disabled","disabled");
       }
-      this.activatedSteps = new Array();
+      this.activatedSteps = [];
       this.previousStep = undefined;
       this.isLastStep = false;
       if(this.options.historyEnabled){
@@ -510,6 +509,10 @@
       }
     },
 
+    update_buttons : function() {
+      this._updateButtons();
+    },
+
     options: {
          historyEnabled  : false,
       validationEnabled : false,
@@ -517,8 +520,8 @@
       formPluginEnabled : false,
       linkClass  : ".link",
       submitStepClass : "submit_step",
-      back : ":reset",
-      next : ":submit",
+      back : "input:reset",
+      next : "input:submit",
       textSubmit : 'Submit',
       textNext : 'Next',
       textBack : 'Back',

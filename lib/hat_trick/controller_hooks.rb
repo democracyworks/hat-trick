@@ -44,7 +44,7 @@ module HatTrick
       end
 
       if params.has_key?('_ht_meta')
-        next_step = params['_ht_meta']['next_step']
+        next_step = params['_ht_step_link']
         ht_wizard.advance_step(next_step)
       end
 

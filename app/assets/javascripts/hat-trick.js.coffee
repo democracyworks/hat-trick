@@ -19,42 +19,32 @@ class HatTrickWizard
       # prevent submitting the step that happens to be the last fieldset
       # TODO: Figure out a better way to do this
       this.addFakeLastStep()
-      this.addDefaultButtons()
     this.updateStepFromMetadata()
     if not @formwizardEnabled
-      this.setupButtonsForAllSteps()
-      this.enableFormwizard() # this clobbers our button customizations for the current step
-      this.setupButtonsForCurrentStep() # so we run this to reconfigure it
+      currentStepId = this.currentStepIdFromMetadata()
+      # can't go back from the first step
+      if this.buttons[currentStepId]? and this.buttons[currentStepId]["back"]?
+        delete this.buttons[currentStepId]["back"]
+      this.setupButtonsForStep(currentStepId)
+      this.enableFormwizard()
       this.bindEvents()
     else
       this.setupButtonsForCurrentStep()
       if @stepsNeedUpdate
         this.updateSteps()
         @stepsNeedUpdate = false
+      else
+        this.updateButtons()
     this.setCurrentStepField()
-    this.clearNextStepField()
+    this.removeLinkField()
     this.setFormFields(hatTrick.model)
     this.createDummyModelField() unless this.currentStepHasModelFields()
 
   addStepClass: ->
     @form.find("fieldset").addClass("step")
 
-  addDefaultButtons: ($scope = @form.find("fieldset")) ->
-    urlComponents = History.getState().url.split("/")
-    currentStepId = urlComponents[urlComponents.length-1]
-    hatTrick = this
-    $scope.each (index) ->
-      id = $(this).attr('id')
-      buttons =
-        next:
-          id: "#{id}_next_button"
-          label: "Next"
-      if hatTrick.formwizardEnabled or id isnt currentStepId
-        buttons['back'] =
-          id: "#{id}_back_button"
-          label: "Back"
-
-      hatTrick.buttons[id] = buttons
+  currentStepIdFromMetadata: ->
+    hatTrick.metadata.currentStep.name
 
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
@@ -78,6 +68,8 @@ class HatTrickWizard
 
   currentStep: ->
     stepId = this.currentStepId()
+    unless stepId?
+      stepId = this.currentStepIdFromMetadata()
     this.findStep(stepId)
 
   fieldsets: ->
@@ -130,6 +122,9 @@ class HatTrickWizard
       $errorList.append("<li>#{message}</li>")
       $errorList.show()
 
+  updateButtons: ->
+    @form.formwizard("update_buttons")
+
   updateSteps: ->
     @form.formwizard("update_steps")
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
@@ -148,6 +143,7 @@ class HatTrickWizard
       $clonedStep.css("display", "none")
       $clonedStep.attr("id", step.name)
       $sourceStep.after($clonedStep)
+      this.buttons[step.name] = this.buttons[step.repeatOf.name]
       this.updateSteps()
     this.setLinkField step.name
 
@@ -158,7 +154,7 @@ class HatTrickWizard
     inputId = "_ht_link_to_#{stepId}"
     this.setHiddenInput "_ht_step_link", stepId, inputId, @linkClass, this.currentStep()
 
-  LinkFieldSet: ->
+  linkFieldSet: ->
     this.currentStep().find("input[name='_ht_step_link']").length > 0
 
   addFakeLastStep: ->
@@ -172,6 +168,8 @@ class HatTrickWizard
       historyEnabled: true,
       disableUIStyles: true,
       inDuration: 0,
+      next: "button.wizard_next",
+      back: "button.wizard_back",
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
       firstStep: hatTrick.metadata.currentStep.name
@@ -183,6 +181,7 @@ class HatTrickWizard
     if $input.length is 0
       $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
     $input.val value
+    $input
 
   hiddenInputHTML: (name, id, classes = "") ->
     """<input type="hidden" id="#{id}" name="#{name}" class="#{classes}" value="" />"""
@@ -196,11 +195,6 @@ class HatTrickWizard
   setCurrentStepField: ->
     stepId = this.currentStepId()
     this.setHTMeta("step", stepId)
-
-  # TODO: See if we still need this "next_step" ht_meta field.
-  clearNextStepField: ->
-    this.clearHTMeta("next_step")
-    this.removeLinkField()
 
   fieldRegex: /^([^\[]+)\[([^\]]+)\]$/
 
@@ -239,15 +233,11 @@ class HatTrickWizard
     for radioGroup of radioGroups
       do (radioGroup) =>
         if radioGroup.search(@fieldRegex) isnt -1
-          log "Setting values of radio group #{radioGroup}"
           [_, modelName, fieldName] = radioGroup.match(@fieldRegex)
-          log "modelName: #{modelName}; model[#{fieldName}]: #{model[fieldName]}"
           if model['__name__'] is modelName and model[fieldName]?
             fieldValue = model[fieldName]
             $radioGroup = $("input:radio[name=\"#{radioGroup}\"]")
-            log "Removing checked attr from radio group #{radioGroup}"
             $radioGroup.removeAttr("checked")
-            log "Checking button with value #{fieldValue}"
             $radioGroup.filter("[value=\"#{fieldValue}\"]").attr("checked", "checked")
 
   setFormFields: (model) ->
@@ -257,8 +247,14 @@ class HatTrickWizard
     this.setCheckboxes(model)
     this.setRadioButtons(model)
 
+  createButtonElement: (name, value) ->
+    $elem = $("""<button class="wizard_button" name="#{name}"></button>""")
+    $elem.text value
+    $elem.val value
+    $elem
+
   createButton: (name, button) ->
-    $button = $("""<input type="button" class="wizard_button" name="#{name}" value="#{button.label}" />""")
+    $button = this.createButtonElement name, button.label
     if button.id?
       $button.attr("id", button.id)
     else
@@ -272,37 +268,40 @@ class HatTrickWizard
       @form.trigger "other_button_click", clickCallbackData
     $button
 
+  # TODO: DRY this up
   setButton: (stepId, name, button) ->
-    # log "Setting button for #{stepId} named #{name} to #{JSON.stringify(button)}"
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     switch name
       when "next"
-        # log "Setting #{stepId} submit button val to #{button.label}"
-        $button = $buttonsDiv.find('input:submit')
+        $button = $buttonsDiv.find('button.wizard_next')
         unless $button.length > 0
-          $button = $('<input class="wizard_button wizard_next" type="submit" />').appendTo $buttonsDiv
-        $button.val(button.label)
-        # log "Set next button val to #{button.label}"
-        $button.attr("id", button.id) if button.id?
+          $button = $('<button class="wizard_button wizard_next" name="next"></button>').appendTo $buttonsDiv
+        $button.val button.label
+        $button.text button.label
+        if button.id?
+          $button.attr "id", button.id
+        else
+          $button.attr "id", "#{stepId}_next_button"
+        $button.addClass button["class"] if button["class"]?
       when "back"
-        # log "Setting reset button val to #{button.label}"
-        $button = $buttonsDiv.find('input:reset').val(button.label)
+        $button = $buttonsDiv.find('button.wizard_back')
         unless $button.length > 0
-          $button = $('<input class="wizard_button wizard_back" type="reset" />').appendTo $buttonsDiv
-        $button.val(button.label)
-        $button.attr("id", button.id) if button.id?
+          $button = $('<button class="wizard_button wizard_back" name="back"></button>').appendTo $buttonsDiv
+        $button.val button.label
+        $button.text button.label
+        if button.id?
+          $button.attr "id", button.id
+        else
+          $button.attr "id", "#{stepId}_back_button"
+        $button.addClass button["class"] if button["class"]?
       else
-        buttonSelector = """input:button[name="#{name}"][value="#{button.label}"]"""
+        buttonSelector = """button[name="#{name}"][value="#{button.label}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
-          # log "Adding new #{name}:#{button.label} button"
           $newButton = $(this.createButton(name, button)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
             this.goToStepId(name)
-
-  setupButtonsForAllSteps: ->
-    this.setupButtonsForStep $(fieldset).attr('id') for fieldset in $('fieldset')
 
   setupButtonsForCurrentStep: ->
     this.setupButtonsForStep this.currentStepId()
@@ -320,7 +319,6 @@ class HatTrickWizard
         fieldsetContents = $partial.find('fieldset').html()
         $step = $("fieldset##{stepId}")
         $step.html fieldsetContents
-        this.addDefaultButtons($step)
         @stepsNeedUpdate = true
 
   handleServerData: (data) ->
@@ -358,7 +356,7 @@ class HatTrickWizard
       if currentStep.repeatOf?
         this.repeatStep(currentStep)
       else
-        this.setLinkField(currentStep.fieldset) unless this.LinkFieldSet()
+        this.setLinkField(currentStep.fieldset) unless this.linkFieldSet()
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
@@ -369,7 +367,6 @@ $ ->
     $form = $("form.wizard")
     window.hatTrick = {} unless window.hatTrick?
     unless window.hatTrick.wizard?
-      # log "Creating new HatTrickWizard instance"
       window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
 
 camelizeString = (string) ->

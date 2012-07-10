@@ -12,15 +12,48 @@ module HatTrick
         end
       end
       @callbacks = {}
-      @buttons = {}
+      @buttons = {
+        next: default_next_button,
+        back: default_back_button
+      }
       @skipped = false
+      @last = false
     end
 
     def initialize_copy(source)
       @callbacks = {}
       @buttons = source.buttons.dup
       @skipped = false
+      @last = false
       @repeat_of = source
+    end
+
+    def default_next_button
+      { label: default_next_button_label }
+    end
+
+    def default_back_button
+      { label: default_back_button_label }
+    end
+
+    def default_next_button_label
+      label = "Next"
+      begin
+        label = I18n.t("wizard_buttons.next")
+      rescue NameError
+        # do nothing
+      end
+      label
+    end
+
+    def default_back_button_label
+      label = "Back"
+      begin
+        label = I18n.t("wizard_buttons.back")
+      rescue NameError
+        # do nothing
+      end
+      label
     end
 
     def name=(name)
@@ -43,6 +76,19 @@ module HatTrick
       @skipped
     end
 
+    def last=(_last)
+      @last = _last
+      if @last
+        buttons.delete(:next)
+      else
+        buttons[:next] = default_next_button
+      end
+    end
+
+    def last?
+      @last
+    end
+
     def to_s
       str = "<HatTrick::Step:0x%08x :#{name}" % (object_id * 2)
       str += " fieldset: #{fieldset}" if fieldset != name
@@ -57,7 +103,7 @@ module HatTrick
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
       json[:repeatOf] = repeat_of.as_json if repeat?
-      json[:buttons] = buttons unless buttons.empty?
+      json[:buttons] = buttons.empty? ? {} : buttons
       json
     end
 

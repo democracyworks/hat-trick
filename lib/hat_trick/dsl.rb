@@ -87,6 +87,11 @@ module HatTrick
         wizard_def.last_step.skipped = true
       end
 
+      def last_step
+        raise "skip_this_step must be called from within a wizard block" unless wizard_def
+        wizard_def.last_step.last = true
+      end
+
       def button_to(name, options=nil)
         raise "button_to must be called from within a wizard block" unless wizard_def
         label = options[:label] if options
