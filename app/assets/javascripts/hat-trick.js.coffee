@@ -168,8 +168,8 @@ class HatTrickWizard
       historyEnabled: true,
       disableUIStyles: true,
       inDuration: 0,
-      next: "button.wizard_next",
-      back: "button.wizard_back",
+      next: "button:submit",
+      back: "button:reset",
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
       firstStep: hatTrick.metadata.currentStep.name
@@ -247,18 +247,18 @@ class HatTrickWizard
     this.setCheckboxes(model)
     this.setRadioButtons(model)
 
-  createButtonElement: (name, value) ->
-    $elem = $("""<button class="wizard_button" name="#{name}"></button>""")
-    $elem.text value
+  createButtonElement: (name, value, label, type="button") ->
+    $elem = $("""<button type="#{type}" class="wizard_button" name="#{name}"></button>""")
+    $elem.text label
     $elem.val value
     $elem
 
   createButton: (name, button) ->
-    $button = this.createButtonElement name, button.label
+    $button = this.createButtonElement name, button.value, button.label
     if button.id?
       $button.attr("id", button.id)
     else
-      $button.attr("id", "#{this.currentStepId()}_#{name}_#{button.label}")
+      $button.attr("id", "#{this.currentStepId()}_#{name}_#{button.value}")
     if button["class"]?
       $button.addClass(button["class"])
     $button.click =>
@@ -275,8 +275,8 @@ class HatTrickWizard
       when "next"
         $button = $buttonsDiv.find('button.wizard_next')
         unless $button.length > 0
-          $button = $('<button class="wizard_button wizard_next" name="next"></button>').appendTo $buttonsDiv
-        $button.val button.label
+          $button = $('<button type="submit" class="wizard_button wizard_next" name="next"></button>').appendTo $buttonsDiv
+        $button.val button.value
         $button.text button.label
         if button.id?
           $button.attr "id", button.id
@@ -286,8 +286,8 @@ class HatTrickWizard
       when "back"
         $button = $buttonsDiv.find('button.wizard_back')
         unless $button.length > 0
-          $button = $('<button class="wizard_button wizard_back" name="back"></button>').appendTo $buttonsDiv
-        $button.val button.label
+          $button = $('<button type="reset" class="wizard_button wizard_back" name="back"></button>').appendTo $buttonsDiv
+        $button.val button.value
         $button.text button.label
         if button.id?
           $button.attr "id", button.id
@@ -295,7 +295,7 @@ class HatTrickWizard
           $button.attr "id", "#{stepId}_back_button"
         $button.addClass button["class"] if button["class"]?
       else
-        buttonSelector = """button[name="#{name}"][value="#{button.label}"]"""
+        buttonSelector = """button[name="#{name}"][value="#{button.value}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
           $newButton = $(this.createButton(name, button)).appendTo($buttonsDiv)

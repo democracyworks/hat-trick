@@ -92,10 +92,13 @@ module HatTrick
         wizard_def.last_step.last = true
       end
 
-      def button_to(name, options=nil)
+      def button_to(name, options={})
         raise "button_to must be called from within a wizard block" unless wizard_def
-        label = options[:label] if options
+        label = options[:label]
         label ||= name.to_s.humanize
+
+        value = options[:value]
+        value ||= name.to_s.parameterize
 
         if options
           id = options[:id]
@@ -103,7 +106,7 @@ module HatTrick
         end
 
         step = wizard_def.last_step
-        button = { :label => label }
+        button = { :value => value, :label => label }
         button[:id] = id unless id.nil?
         button[:class] = css_class unless css_class.nil?
         step.buttons = step.buttons.merge(name => button)
