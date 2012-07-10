@@ -40,7 +40,10 @@ module HatTrick
 
     def enable_current_validation_group
       validation_group = current_step_validation_group
-      enable_validation_group validation_group if validation_group
+      if validation_group
+        # Rails.logger.info "Enabling validation group #{validation_group}"
+        enable_validation_group validation_group
+      end
     end
   end
 end
