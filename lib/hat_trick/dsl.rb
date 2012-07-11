@@ -47,6 +47,8 @@ module HatTrick
           include HatTrick::DSL::ControllerInstanceMethods
           include HatTrick::ControllerHooks
 
+          ::ActiveRecord::Base.send(:include, HatTrick::ModelMethods)
+
           @wizard_def = HatTrick::WizardDefinition.new
 
           yield
