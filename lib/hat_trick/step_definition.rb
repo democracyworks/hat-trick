@@ -37,21 +37,19 @@ module HatTrick
     end
 
     def default_next_button_label
-      label = "Next"
       begin
-        label = I18n.t("wizard_buttons.next")
+        label = I18n.t("wizard.buttons.next", :default => "Next")
       rescue NameError
-        # do nothing
+        label = "Next"
       end
       label
     end
 
     def default_back_button_label
-      label = "Back"
       begin
-        label = I18n.t("wizard_buttons.back")
+        label = I18n.t("wizard.buttons.back", :default => "Back")
       rescue NameError
-        # do nothing
+        label = "Back"
       end
       label
     end
