@@ -272,7 +272,7 @@
       var stateData = {};
       var title = $("title").text();
       var currentState = History.getState();
-      var currentStep = currentState.data.step;
+      var currentStep = this.currentStep;
       var urlPathComponents = currentState.url.split("/");
       var newUrlPathComponents = [];
       var newUrl;
@@ -443,7 +443,7 @@
       }
     },
 
-    _state : function(state){
+    _state : function(state) {
       var currentState = { "settings" : this.options,
         "activatedSteps" : this.activatedSteps,
         "isLastStep" : this.isLastStep,
