@@ -285,8 +285,11 @@
         }
       }
 
-      if (urlPathComponents[lastIndex] !== currentStep) {
-        newUrlPathComponents.push(urlPathComponents[lastIndex]);
+      // remove any query params from the end of the URL
+      lastPathComponent = urlPathComponents[lastIndex].split("?")[0];
+
+      if (lastPathComponent !== currentStep) {
+        newUrlPathComponents.push(lastPathComponent);
       }
 
       newUrlPathComponents.push(step);
