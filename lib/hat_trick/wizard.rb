@@ -20,9 +20,6 @@ module HatTrick
 
     def model=(new_model)
       @model = new_model
-      unless @model.class.included_modules.include?(HatTrick::ModelMethods)
-        @model.class.send(:include, HatTrick::ModelMethods)
-      end
     end
 
     def current_step=(_step)
@@ -143,11 +140,12 @@ module HatTrick
     end
 
     def include_data
+      include_data_for_step(current_step)
+    end
+
+    def include_data_for_step(step)
       return {} if model.nil?
-      step_data = current_step.run_include_data_callback(controller, model)
-      return {} unless step_data.respond_to?(:as_json)
-      key = current_step.include_data_key.to_s.camelize(:lower)
-      { key => camelize_hash_keys(step_data) }
+      step.include_data(controller, model)
     end
 
     def alias_action_methods
@@ -175,18 +173,6 @@ module HatTrick
     def find_step_after(step)
       next_path_step = step_after step
       next_path_step or find_next_active_step(step)
-    end
-
-    def camelize_hash_keys(_hash)
-      hash = {}
-      if _hash.respond_to?(:each)
-        _hash.each do |k,v|
-          hash[k.to_s.camelize(:lower)] = v
-        end
-      else
-        hash = _hash
-      end
-      hash
     end
   end
 end

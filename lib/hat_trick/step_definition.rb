@@ -131,6 +131,13 @@ module HatTrick
       @include_data_key = hash.keys.first
     end
 
+    def include_data(context, model)
+      inc_data = run_include_data_callback(context, model)
+      return {} unless inc_data.respond_to?(:as_json)
+      key = include_data_key.to_s.camelize(:lower)
+      { key => camelize_hash_keys(inc_data) }
+    end
+
     def run_before_callback(context, model)
       run_callback(:before, context, model)
     end
@@ -156,6 +163,18 @@ module HatTrick
           context.instance_eval &callback
         end
       end
+    end
+
+    def camelize_hash_keys(_hash)
+      hash = {}
+      if _hash.respond_to?(:each)
+        _hash.each do |k,v|
+          hash[k.to_s.camelize(:lower)] = v
+        end
+      else
+        hash = _hash
+      end
+      hash
     end
   end
 end

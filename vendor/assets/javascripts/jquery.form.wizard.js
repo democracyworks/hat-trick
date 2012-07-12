@@ -74,42 +74,43 @@
 
       this._updateButtons();
 
-      if(this.options.validationEnabled && jQuery().validate  == undefined){
+      if (this.options.validationEnabled && jQuery().validate === undefined) {
         this.options.validationEnabled = false;
-        if( (window['console'] !== undefined) ){
+        if ( (window['console'] !== undefined) ) {
           console.log("%s", "validationEnabled option set, but the validation plugin is not included");
         }
-      }else if(this.options.validationEnabled){
+      } else if(this.options.validationEnabled) {
         this.element.validate(this.options.validationOptions);
       }
-      if(this.options.formPluginEnabled && jQuery().ajaxSubmit == undefined){
+      if (this.options.formPluginEnabled && jQuery().ajaxSubmit === undefined) {
         this.options.formPluginEnabled = false;
-        if( (window['console'] !== undefined) ){
+        if ( (window['console'] !== undefined) ) {
           console.log("%s", "formPluginEnabled option set but the form plugin is not included");
         }
       }
 
-      if(this.options.disableInputFields == true){
+      if (this.options.disableInputFields === true) {
         $(this.steps).find(":input:not('.wizard-ignore')").attr("disabled","disabled");
       }
 
-      if(this.options.historyEnabled){
+      if (this.options.historyEnabled) {
         History.Adapter.bind(window, 'statechange', function() {
           var state;
           var step;
           state = History.getState();
           step = state.data.step;
-          if(step !== wizard.currentStep){
-            if(wizard.options.validationEnabled && step === wizard._navigate(wizard.currentStep)){
-              if(!wizard.element.valid()){
-                wizard._updateHistory(wizard.currentStep);
+          if (step !== wizard.currentStep) {
+            if (wizard.options.validationEnabled && step === wizard._navigate(wizard.currentStep)) {
+              if (!wizard.element.valid()) {
+                wizard._show(wizard.currentStep);
                 wizard.element.validate().focusInvalid();
 
                 return false;
               }
             }
-            if(step !== wizard.currentStep)
+            if (step !== wizard.currentStep) {
               wizard._show(step);
+            }
           }
         });
       }
@@ -184,10 +185,10 @@
         }
       }
 
-      if(this.options.remoteAjax != undefined){
+      if (this.options.remoteAjax !== undefined) {
         var options = this.options.remoteAjax[this.currentStep];
         var wizard = this;
-        if(options !== undefined){
+        if (options !== undefined) {
           var success = options.success;
           var beforeSend = options.beforeSend;
           var complete = options.complete;
@@ -226,11 +227,11 @@
       return this._continueToNextStep();
     },
 
-    _back : function(){
-      if(this.activatedSteps.length > 0){
-        if(this.options.historyEnabled){
-          this._updateHistory(this.activatedSteps[this.activatedSteps.length - 2]);
-        }else{
+    _back : function() {
+      if (this.activatedSteps.length > 0) {
+        if (this.options.historyEnabled) {
+          History.back();
+        } else {
           this._show(this.activatedSteps[this.activatedSteps.length - 2], true);
         }
       }
@@ -242,9 +243,9 @@
         for(var i = 0; i < this.activatedSteps.length; i++){
           this.steps.filter("#" + this.activatedSteps[i]).find(":input").not(".wizard-ignore").removeAttr("disabled");
         }
-        if(!this.options.formPluginEnabled){
+        if (!this.options.formPluginEnabled) {
           return true;
-        }else{
+        } else {
           this._disableNavigation();
           this.element.ajaxSubmit(this.options.formOptions);
           return false;
@@ -252,15 +253,19 @@
       }
 
       var step = this._navigate(this.currentStep);
-      if(step == this.currentStep){
+      if (step == this.currentStep) {
         return false;
       }
-      if(this.options.historyEnabled){
+      if (this.options.historyEnabled) {
         this._updateHistory(step);
-      }else{
+      } else {
         this._show(step, true);
       }
       return false;
+    },
+
+    _setState : function() {
+
     },
 
     _updateHistory : function(step) {
@@ -352,28 +357,28 @@
       }
     },
 
-    _getLink : function(step){
-      var link = undefined;
+    _getLink : function(step) {
+      var link;
       var links = this.steps.filter("#" + step).find(this.options.linkClass);
 
-      if(links != undefined){
-        if(links.filter(":radio,:checkbox").size() > 0){
+      if (links !== undefined) {
+        if (links.filter(":radio,:checkbox").size() > 0) {
           link = links.filter(this.options.linkClass + ":checked").val();
-        }else{
+        } else {
           link = $(links).val();
         }
       }
       return link;
     },
 
-    _navigate : function(step){
+    _navigate : function(step) {
       var link = this._getLink(step);
-      if(link != undefined){
-        if((link != "" && link != null && link != undefined) && this.steps.filter("#" + link).attr("id") != undefined){
+      if (link !== undefined) {
+        if ((link !== "" && link !== null && link !== undefined) && this.steps.filter("#" + link).attr("id") !== undefined) {
           return link;
         }
         return this.currentStep;
-      }else if(link == undefined && !this.isLastStep){
+      } else if (link === undefined && !this.isLastStep) {
         var step1 =  this.steps.filter("#" + step).next().attr("id");
         return step1;
       }
@@ -389,28 +394,34 @@
       }
     },
 
-    _show : function(step){
+    _show : function(step) {
       var backwards = false;
       var triggerStepShown = step !== undefined;
       var fragment;
-      if(step == undefined || step == ""){
+      if (step === undefined || step === "") {
         step = this._stepFromPath() || this.firstStep;
         this.activatedSteps.pop();
         this.activatedSteps.push(step);
-      }else{
-        if($.inArray(step, this.activatedSteps) > -1){
+      } else {
+        if ($.inArray(step, this.activatedSteps) > -1) {
           backwards = true;
           this.activatedSteps.pop();
-        }else {
+        } else {
           this.activatedSteps.push(step);
         }
       }
+
+      // console.log("Showing step " + step);
 
       if (this.currentStep !== step || step === this.firstStep) {
         this.previousStep = this.currentStep;
         this._checkIflastStep(step);
         this.currentStep = step;
-        var stepShownCallback = function(){if(triggerStepShown)$(this.element).trigger('step_shown', $.extend({"isBackNavigation" : backwards},this._state()));};
+        var stepShownCallback = function() {
+          if (triggerStepShown) {
+            $(this.element).trigger('step_shown', $.extend({"isBackNavigation" : backwards}, this._state()));
+          }
+        };
         this._animate(this.previousStep, step, stepShownCallback);
       }
 
@@ -425,12 +436,11 @@
       this.activatedSteps = [];
       this.previousStep = undefined;
       this.isLastStep = false;
-      if(this.options.historyEnabled){
+      if (this.options.historyEnabled) {
         this._updateHistory(this.firstStep);
-      }else{
+      } else {
         this._show(this.firstStep);
       }
-
     },
 
     _state : function(state){
@@ -444,10 +454,11 @@
         "nextButton" : this.nextButton,
         "steps" : this.steps,
         "firstStep" : this.firstStep
-      }
+      };
 
-      if(state !== undefined)
+      if (state !== undefined) {
         return currentState[state];
+      }
 
       return currentState;
     },
@@ -455,9 +466,9 @@
     /*Methods*/
 
     show : function(step){
-      if(this.options.historyEnabled){
+      if (this.options.historyEnabled) {
         this._updateHistory(step);
-      }else{
+      } else {
         this._show(step);
       }
     },

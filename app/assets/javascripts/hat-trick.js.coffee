@@ -21,7 +21,7 @@ class HatTrickWizard
       this.addFakeLastStep()
     this.updateStepFromMetadata()
     if not @formwizardEnabled
-      currentStepId = this.currentStepIdFromMetadata()
+      currentStepId = this.currentStepId()
       # can't go back from the first step
       if hatTrick.metadata.currentStep.first
         delete this.buttons[currentStepId]["back"]
@@ -43,9 +43,6 @@ class HatTrickWizard
   addStepClass: ->
     @form.find("fieldset").addClass("step")
 
-  currentStepIdFromMetadata: ->
-    hatTrick.metadata.currentStep.name
-
   findStep: (stepId) ->
     @form.find("fieldset##{stepId}")
 
@@ -64,12 +61,13 @@ class HatTrickWizard
       @form.prepend(this.createMethodField(method))
 
   currentStepId: ->
-    @form.formwizard("state").currentStep
+    stepId = @form.formwizard("state").currentStep
+    unless stepId? and stepId isnt ""
+      stepId = hatTrick.metadata.currentStep.name
+    stepId
 
   currentStep: ->
     stepId = this.currentStepId()
-    unless stepId?
-      stepId = this.currentStepIdFromMetadata()
     this.findStep(stepId)
 
   fieldsets: ->
@@ -316,19 +314,46 @@ class HatTrickWizard
       do (stepName, partial) =>
         stepId = underscoreString stepName
         $partial = $(partial)
-        fieldsetContents = $partial.find('fieldset').html()
+        fieldsetContents = if $partial.filter("fieldset").length > 0
+          $partial.filter("fieldset").html()
+        else
+          $partial.find('fieldset').html()
         $step = $("fieldset##{stepId}")
         $step.html fieldsetContents
+        $step.data("contents", "loaded")
         @stepsNeedUpdate = true
 
-  handleServerData: (data) ->
-    if data.metadata?
+  handleServerData: (data) =>
+    if data.metadata?.url? and data.metadata?.method?
       this.setAction(data.metadata.url, data.metadata.method)
     $.extend(window.hatTrick, data) # merge new data with hatTrick
     this.updateStepFromMetadata()
 
+  metadataRequestCallback: (data) =>
+    this.handleServerData(data)
+    this.removeLinkField() # updateStepFromMetadata sets this to currentStep
+    this.setupButtonsForCurrentStep()
+    this.updateButtons()
+    this.setFormFields(hatTrick.model)
+    @form.trigger "hat_trick_step_shown", { currentStep: this.currentStepId() }
+
+  requestMetadataFromServer: ->
+    metadataUrl = document.location.pathname
+    lastChar = metadataUrl.charAt(metadataUrl.length - 1)
+    metadataUrl += "/" unless lastChar is "/"
+    metadataUrl += "metadata"
+    $.ajax
+      type: "GET"
+      url: metadataUrl
+      success: this.metadataRequestCallback
+      dataType: "json"
+
   updateStepContents: ->
-    this.setContents(hatTrick.data.hatTrickStepContents)
+    stepKey = camelizeString(this.currentStepId())
+    if hatTrick.data?.hatTrickStepContents?[stepKey]?
+      this.setContents(hatTrick.data.hatTrickStepContents)
+    else
+      this.requestMetadataFromServer()
 
   setButtonMetadataForCurrentStep: ->
     if hatTrick.metadata?.currentStep?
@@ -347,8 +372,10 @@ class HatTrickWizard
     this.currentStep().find("input[name^='#{this.modelName()}[']").length > 0
 
   updateStepFromMetadata: ->
+    currentStepId = this.currentStepId()
+    if $("fieldset##{currentStepId}").data("contents") is "server"
+      this.updateStepContents()
     if hatTrick.metadata?.currentStep?
-      this.updateStepContents() if hatTrick.data.hatTrickStepContents?
       this.setButtonMetadataForCurrentStep()
       this.createDummyModelField() unless this.currentStepHasModelFields()
 
@@ -361,6 +388,7 @@ class HatTrickWizard
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>
       this.stepShownCallback()
+      @form.trigger "hat_trick_step_shown", data
 
 $ ->
   if $("form.wizard").length > 0
