@@ -54,6 +54,10 @@ module HatTrick
 
       steps << new_step
 
+      if steps.count == 1
+        new_step.first = true
+      end
+
       new_step
     end
 

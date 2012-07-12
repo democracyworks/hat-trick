@@ -2,7 +2,7 @@ module HatTrick
   class StepDefinition
     attr_reader :callbacks, :include_data_key
     attr_accessor :name, :fieldset, :buttons, :repeat_of
-    attr_writer :skipped
+    attr_writer :skipped, :first
 
     def initialize(args={})
       args.each_pair do |k,v|
@@ -16,8 +16,9 @@ module HatTrick
         next: default_next_button,
         back: default_back_button
       }
-      @skipped = false
-      @last = false
+      @skipped ||= false
+      @last ||= false
+      @first ||= false
     end
 
     def initialize_copy(source)
@@ -25,6 +26,7 @@ module HatTrick
       @buttons = source.buttons.dup
       @skipped = false
       @last = false
+      @first = false
       @repeat_of = source
     end
 
@@ -112,6 +114,7 @@ module HatTrick
       json[:repeatOf] = repeat_of.as_json if repeat?
       json[:buttons] = buttons.empty? ? {} : buttons
       json[:pageTitle] = page_title
+      json[:first] = @first
       json
     end
 

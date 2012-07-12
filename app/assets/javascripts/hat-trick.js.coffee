@@ -23,7 +23,7 @@ class HatTrickWizard
     if not @formwizardEnabled
       currentStepId = this.currentStepIdFromMetadata()
       # can't go back from the first step
-      if this.buttons[currentStepId]? and this.buttons[currentStepId]["back"]?
+      if hatTrick.metadata.currentStep.first
         delete this.buttons[currentStepId]["back"]
       this.setupButtonsForStep(currentStepId)
       this.enableFormwizard()
