@@ -49,7 +49,11 @@ module HatTrick
       return if klass.nil?
       step_name = wizard_step.name
       validation_groups = ::ActiveRecord::Base.validation_group_classes[klass] || []
-      unless validation_groups.include?(step_name)
+      dynamic_group_exists = HatTrick::ModelMethods.dynamic_validation_groups.include?(step_name)
+      static_validation_group_exists = validation_groups.include?(step_name) && !dynamic_group_exists
+      dynamic_validation_group = false
+      unless static_validation_group_exists
+        dynamic_validation_group = true
         validation_fields = params.keys # TODO: Try it without these (so only the model keys below)
         model = model_key
         if model
@@ -58,7 +62,9 @@ module HatTrick
         validation_fields = validation_fields.map(&:to_sym)
         klass.validation_group(step_name, :fields => validation_fields)
       end
-      HatTrick::ModelMethods.set_current_validation_group_for(model_class, step_name)
+      HatTrick::ModelMethods.set_current_validation_group_for(model_class,
+                                                              step_name,
+                                                              dynamic_validation_group)
     end
   end
 end

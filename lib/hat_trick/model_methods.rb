@@ -2,6 +2,7 @@ module HatTrick
   module ModelMethods
     extend ActiveSupport::Concern
     mattr_accessor :validation_groups
+    mattr_accessor :dynamic_validation_groups
 
     attr_accessor :_dummy # so the dummy field will have something to set
 
@@ -10,9 +11,14 @@ module HatTrick
       alias_method_chain :as_json, :model_name if instance_methods.include?(:as_json)
     end
 
-    def self.set_current_validation_group_for(klass, validation_group_name)
+    def self.dynamic_validation_groups
+      @dynamic_validation_groups ||= []
+    end
+
+    def self.set_current_validation_group_for(klass, validation_group_name, dynamic)
       self.validation_groups ||= {}
       validation_groups[klass.to_s.underscore] = validation_group_name
+      dynamic_validation_groups << validation_group_name if dynamic
     end
 
     def self.current_validation_group_for(klass)
@@ -41,8 +47,10 @@ module HatTrick
     def enable_current_validation_group
       validation_group = current_step_validation_group
       if validation_group
-        # Rails.logger.info "Enabling validation group #{validation_group}"
+        Rails.logger.info "Enabling validation group #{validation_group}"
         enable_validation_group validation_group
+      else
+        Rails.logger.info "NOT enabling a validation group"
       end
     end
   end
