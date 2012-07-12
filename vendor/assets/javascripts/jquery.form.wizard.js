@@ -142,12 +142,7 @@
             typeof events['click'] === "undefined" ||
             events['click'].length === 0) {
           $(this).click(function() {
-            var nextClickCallbackData = {
-              "currentStep": wizard.currentStep,
-              "button": $(this).attr("id")
-            };
-            $(wizard.element).trigger('next_click', nextClickCallbackData);
-            return wizard._next();
+            return wizard._next(this);
           });
         }
       });
@@ -177,9 +172,15 @@
       this.backButton.val(this.options.textBack);
     },
 
-    _next : function(){
-      if(this.options.validationEnabled){
-        if(!this.element.valid()){
+    _next : function(button) {
+      var nextClickCallbackData = {
+        "currentStep": this.currentStep,
+        "button": $(button).attr("id")
+      };
+      $(this.element).trigger('next_click', nextClickCallbackData);
+
+      if (this.options.validationEnabled) {
+        if (!this.element.valid()) {
           this.element.validate().focusInvalid();
           return false;
         }
