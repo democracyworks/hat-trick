@@ -9,7 +9,7 @@ class HatTrickWizard
 
   linkClass: "_ht_link"
 
-  buttons: {}
+  buttons: []
 
   stepsNeedUpdate: false
 
@@ -24,7 +24,10 @@ class HatTrickWizard
       currentStepId = this.currentStepId()
       # can't go back from the first step
       if hatTrick.metadata.currentStep.first
-        delete this.buttons[currentStepId]["back"]
+        # delete this.buttons[currentStepId]["back"]
+        this.buttons[currentStepId].filter (button) ->
+          not button.back?
+
       this.setupButtonsForStep(currentStepId)
       this.enableFormwizard()
       this.bindEvents()
@@ -103,6 +106,7 @@ class HatTrickWizard
               ]
         this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.model when key isnt "__name__"
+        this.removeLinkField()
         @form.trigger 'ajaxErrors', appErrors.model
     ajax
 
@@ -251,12 +255,12 @@ class HatTrickWizard
     $elem.val value
     $elem
 
-  createButton: (name, button) ->
-    $button = this.createButtonElement name, button.value, button.label
+  createButton: (toStep, button) ->
+    $button = this.createButtonElement button.name, button.value, button.label
     if button.id?
       $button.attr("id", button.id)
     else
-      $button.attr("id", "#{this.currentStepId()}_#{name}_#{button.value}")
+      $button.attr("id", "#{this.currentStepId()}_#{button.name}_#{button.value}")
     if button["class"]?
       $button.addClass(button["class"])
     $button.click =>
@@ -267,9 +271,9 @@ class HatTrickWizard
     $button
 
   # TODO: DRY this up
-  setButton: (stepId, name, button) ->
+  setButton: (stepId, toStep, button) ->
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
-    switch name
+    switch toStep
       when "next"
         $button = $buttonsDiv.find('button.wizard_next')
         unless $button.length > 0
@@ -293,13 +297,15 @@ class HatTrickWizard
           $button.attr "id", "#{stepId}_back_button"
         $button.addClass button["class"] if button["class"]?
       else
-        buttonSelector = """button[name="#{name}"][value="#{button.value}"]"""
+        buttonSelector = """button[name="#{button.name}"][value="#{button.value}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
-          $newButton = $(this.createButton(name, button)).appendTo($buttonsDiv)
+          $newButton = $(this.createButton(toStep, button)).appendTo($buttonsDiv)
           $newButton.click (event) =>
             event.preventDefault()
-            this.goToStepId(name)
+            fieldId = "button_#{$newButton.attr("name")}_#{$newButton.val()}_field"
+            this.setHiddenInput $newButton.attr("name"), $newButton.val(), fieldId, "", $buttonsDiv
+            this.goToStepId(toStep)
 
   setupButtonsForCurrentStep: ->
     this.setupButtonsForStep this.currentStepId()
@@ -307,7 +313,9 @@ class HatTrickWizard
   setupButtonsForStep: (stepId) ->
     buttons = this.buttons[stepId]
     if buttons?
-      this.setButton(stepId, name, button) for name, button of buttons
+      for button in buttons
+        do (button) =>
+          this.setButton(stepId, toStep, buttonData) for toStep, buttonData of button
 
   setContents: (stepPartials) ->
     for stepName, partial of stepPartials

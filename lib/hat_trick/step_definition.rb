@@ -1,7 +1,7 @@
 module HatTrick
   class StepDefinition
-    attr_reader :callbacks, :include_data_key
-    attr_accessor :name, :fieldset, :buttons, :repeat_of
+    attr_reader :callbacks, :include_data_key, :buttons
+    attr_accessor :name, :fieldset, :repeat_of
     attr_writer :skipped, :first
 
     def initialize(args={})
@@ -12,10 +12,10 @@ module HatTrick
         end
       end
       @callbacks = {}
-      @buttons = {
-        next: default_next_button,
-        back: default_back_button
-      }
+      @buttons = [
+        { next: default_next_button },
+        { back: default_back_button }
+      ]
       @skipped ||= false
       @last ||= false
       @first ||= false
@@ -79,9 +79,9 @@ module HatTrick
     def last=(_last)
       @last = _last
       if @last
-        buttons.delete(:next)
+        buttons.delete_if { |b| b.keys.include?(:next) }
       else
-        buttons[:next] = default_next_button
+        buttons << { :next => default_next_button }
       end
     end
 
@@ -112,7 +112,7 @@ module HatTrick
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
       json[:repeatOf] = repeat_of.as_json if repeat?
-      json[:buttons] = buttons.empty? ? {} : buttons
+      json[:buttons] = buttons.empty? ? [] : buttons
       json[:pageTitle] = page_title
       json[:first] = @first
       json
