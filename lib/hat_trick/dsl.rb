@@ -117,6 +117,12 @@ module HatTrick
         step.buttons << { step_name => button }
       end
 
+      def hide_button(button)
+        raise "before must be called from within a wizard block" unless wizard_def
+        step = wizard_def.last_step
+        step.buttons.delete_if { |b| b.keys.include?(button) }
+      end
+
       def before(&block)
         raise "before must be called from within a wizard block" unless wizard_def
         wizard_def.last_step.before_callback = block
