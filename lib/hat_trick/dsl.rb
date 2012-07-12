@@ -39,6 +39,10 @@ module HatTrick
       ht_wizard.skip_step(ht_wizard.current_step)
     end
 
+    def button_to(step_name, options={})
+      ht_wizard.current_step.buttons << self.class.send(:create_button_to, step_name, options)
+    end
+
     module ClassMethods
       attr_reader :wizard_def
 
@@ -96,25 +100,7 @@ module HatTrick
 
       def button_to(step_name, options={})
         raise "button_to must be called from within a wizard block" unless wizard_def
-        label = options[:label]
-        label ||= step_name.to_s.humanize
-
-        name = options[:name]
-        name ||= step_name.to_s.parameterize
-
-        value = options[:value]
-        value ||= step_name.to_s.parameterize
-
-        if options
-          id = options[:id]
-          css_class = options[:class]
-        end
-
-        step = wizard_def.last_step
-        button = { :name => name, :value => value, :label => label }
-        button[:id] = id unless id.nil?
-        button[:class] = css_class unless css_class.nil?
-        step.buttons << { step_name => button }
+        wizard_def.last_step.buttons << create_button_to(step_name, options)
       end
 
       def hide_button(button)
@@ -144,6 +130,30 @@ module HatTrick
         include_data "hat_trick_step_contents" do |wiz, model|
           { current_step_name => instance_exec(wiz, model, &block) }
         end
+      end
+
+      private
+
+      def create_button_to(to_step_name, options={})
+        label = options[:label]
+        label ||= to_step_name.to_s.humanize
+
+        name = options[:name]
+        name ||= to_step_name.to_s.parameterize
+
+        value = options[:value]
+        value ||= to_step_name.to_s.parameterize
+
+        if options
+          id = options[:id]
+          css_class = options[:class]
+        end
+
+        button = { :name => name, :value => value, :label => label }
+        button[:id] = id unless id.nil?
+        button[:class] = css_class unless css_class.nil?
+
+        { to_step_name => button }
       end
     end
 
