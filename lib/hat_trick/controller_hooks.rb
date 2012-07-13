@@ -29,41 +29,41 @@ module HatTrick
     private
 
     def create_hook(*args)
-      setup_validation_group_for(ht_wizard.current_step)
+      setup_validation_group_for(hat_trick_wizard.current_step)
     end
 
     def update_hook(*args)
-      setup_validation_group_for(ht_wizard.current_step)
+      setup_validation_group_for(hat_trick_wizard.current_step)
     end
 
     def render_with_hat_trick(*args, &block)
       rendered = args.first
       if rendered && rendered.has_key?(:json)
         model = rendered[:json]
-        ht_wizard.model = model
+        hat_trick_wizard.model = model
       end
 
       if params.has_key?('_ht_meta')
         next_step = params['_ht_step_link']
-        ht_wizard.advance_step(next_step)
+        hat_trick_wizard.advance_step(next_step)
       end
 
       wizard_metadata = {
-        :url => ht_wizard.current_form_url,
-        :method => ht_wizard.current_form_method,
-        :currentStep => ht_wizard.current_step,
+        :url => hat_trick_wizard.current_form_url,
+        :method => hat_trick_wizard.current_form_method,
+        :currentStep => hat_trick_wizard.current_step,
       }
 
-      include_data = ht_wizard.include_data
+      include_data = hat_trick_wizard.include_data
 
       # this sets the gon data (JS hatTrick object) for the initial page load
       gon.metadata = wizard_metadata
       gon.data = include_data
-      gon.model = ht_wizard.model
+      gon.model = hat_trick_wizard.model
 
       # this sets the wizard metadata for subsequent AJAX requests
-      if ht_wizard.model && rendered.has_key?(:json)
-        args[0][:json] = { :model => ht_wizard.model,
+      if hat_trick_wizard.model && rendered.has_key?(:json)
+        args[0][:json] = { :model => hat_trick_wizard.model,
                            :metadata => wizard_metadata }
         args[0][:json].merge!( :data => include_data )
       end

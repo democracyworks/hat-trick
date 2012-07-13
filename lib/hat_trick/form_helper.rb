@@ -4,7 +4,7 @@ module HatTrick
       options = args.extract_options!
       options[:html] = { :class => 'wizard' }
 
-      wizard = controller.send(:ht_wizard)
+      wizard = controller.send(:hat_trick_wizard)
       wizard.start unless wizard.started?
 
       options[:url] = wizard.current_form_url

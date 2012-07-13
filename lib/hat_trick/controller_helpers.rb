@@ -28,7 +28,7 @@ module HatTrick
     end
 
     def model_class
-      return ht_wizard.model.class if ht_wizard.model
+      return hat_trick_wizard.model.class if hat_trick_wizard.model
 
       # if that didn't work, try to grab it from the params hash
       model_name = params_model_name
