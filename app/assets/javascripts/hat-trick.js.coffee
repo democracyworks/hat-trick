@@ -16,6 +16,7 @@ class HatTrickWizard
   stepShownCallback: ->
     if not @formwizardEnabled
       this.addStepClass()
+      this.setAction(hatTrick.metadata.url, hatTrick.metadata.method)
       # prevent submitting the step that happens to be the last fieldset
       # TODO: Figure out a better way to do this
       this.addFakeLastStep()
@@ -54,7 +55,6 @@ class HatTrickWizard
 
   setAction: (url, method) ->
     methodLower = method.toLowerCase()
-    # log "Setting form action to #{methodLower} #{url}"
     @form.attr("action", url)
     @form.attr("method", "post")
     @form.formwizard("option", remoteAjax: this.ajaxEvents())
