@@ -48,15 +48,15 @@ module HatTrick
       if step.is_a?(HatTrick::Step) || step.is_a?(HatTrick::StepDefinition)
         new_step = step
       else
-        step_args = args.merge(:name => step)
+        step_args = args.merge(:name => step, :wizard => self)
         new_step = HatTrick::StepDefinition.new(step_args)
       end
-
-      steps << new_step
 
       if steps.count == 1
         new_step.first = true
       end
+
+      steps << new_step
 
       new_step
     end

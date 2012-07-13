@@ -6,41 +6,29 @@ module HatTrick
   module DSL
     extend ActiveSupport::Concern
 
-    attr_accessor :ht_wizard, :configure_callback, :_ht_config
+    attr_accessor :hat_trick_wizard
 
-    delegate :model, :previously_visited_step, :to => :ht_wizard
-
-    included do
-      alias_method_chain :initialize, :hat_trick
-    end
-
-    def initialize_with_hat_trick(*args, &block)
-      @_ht_config = HatTrick::Config.new(self.class.wizard_def)
-      if configure_callback.is_a?(Proc)
-        ht_wizard.controller.instance_exec(@_ht_config, &configure_callback)
-      end
-      initialize_without_hat_trick(*args, &block)
-    end
+    delegate :model, :previously_visited_step, :to => :hat_trick_wizard
 
     def next_step(name=nil)
       if name.nil?
         # getter
-        ht_wizard.next_step
+        hat_trick_wizard.next_step
       else
         # setter
-        step = ht_wizard.find_step(name)
+        step = hat_trick_wizard.find_step(name)
         # explicitly set steps should not be skipped
         step.skipped = false
-        ht_wizard.current_step.next_step = step
+        hat_trick_wizard.current_step.next_step = step
       end
     end
 
     def skip_this_step
-      ht_wizard.skip_step(ht_wizard.current_step)
+      hat_trick_wizard.skip_step(hat_trick_wizard.current_step)
     end
 
     def button_to(step_name, options={})
-      ht_wizard.current_step.buttons << self.class.send(:create_button_to, step_name, options)
+      hat_trick_wizard.current_step.buttons << self.class.send(:create_button_to, step_name, options)
     end
 
     module ClassMethods
@@ -53,7 +41,8 @@ module HatTrick
 
           ::ActiveRecord::Base.send(:include, HatTrick::ModelMethods)
 
-          @wizard_def = HatTrick::WizardDefinition.new
+          config = HatTrick::Config.new
+          @wizard_def = HatTrick::WizardDefinition.new(config)
 
           yield
 
@@ -64,7 +53,11 @@ module HatTrick
 
       def configure(&block)
         raise "Must pass a block to configure" unless block_given?
-        @config_callback = block
+        self.configure_callback = block
+      end
+
+      def button_label(type, label)
+        wizard_def.config.send("#{type}_button_label=", label)
       end
 
       def step(name, args={}, &block)
@@ -134,6 +127,14 @@ module HatTrick
 
       private
 
+      def configure_callback
+        @configure_callback
+      end
+
+      def configure_callback=(block)
+        @configure_callback = block
+      end
+
       def create_button_to(to_step_name, options={})
         label = options[:label]
         label ||= to_step_name.to_s.humanize
@@ -168,12 +169,24 @@ module HatTrick
 
       def setup_wizard
         wizard_def = self.class.instance_variable_get("@wizard_def")
-        @ht_wizard = wizard_def.get_wizard(self)
+        @hat_trick_wizard = wizard_def.get_wizard(self)
+
+        config_callback = self.class.send(:configure_callback)
+        if config_callback.is_a?(Proc)
+          instance_exec(wizard_def.config, &config_callback)
+        end
 
         if params.has_key?('_ht_meta')
           step_name = params['_ht_meta']['step']
-          @ht_wizard.current_step = step_name if step_name
         end
+
+        # TODO: Setup the route that enables this in hat-trick automatically
+        #       Currently done manually in the app.
+        if params.has_key?('step')
+          step_name = params['step']
+        end
+
+        @hat_trick_wizard.current_step = step_name if step_name
       end
     end
   end

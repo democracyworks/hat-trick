@@ -1,17 +1,14 @@
 module HatTrick
   class Config
-    attr_reader :wizard_def
+    attr_accessor :create_url, :update_url, :back_button_label, :next_button_label
 
-    def initialize(wizard_def)
-      @wizard_def = wizard_def
-    end
-
-    def create_url=(url)
-      wizard_def.configured_create_url = url
-    end
-
-    def update_url=(url)
-      wizard_def.configured_update_url = url
+    def initialize(settings={})
+      settings.each do |k,v|
+        setter = "#{k}="
+        if respond_to?(setter)
+          send(setter, v)
+        end
+      end
     end
   end
 end

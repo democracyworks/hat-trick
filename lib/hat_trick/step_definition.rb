@@ -1,8 +1,10 @@
 module HatTrick
   class StepDefinition
     attr_reader :callbacks, :include_data_key, :buttons
-    attr_accessor :name, :fieldset, :repeat_of
+    attr_accessor :name, :fieldset, :repeat_of, :wizard
     attr_writer :skipped, :first
+
+    delegate :config, :to => :wizard
 
     def initialize(args={})
       args.each_pair do |k,v|
@@ -13,8 +15,8 @@ module HatTrick
       end
       @callbacks = {}
       @buttons = [
-        { next: default_next_button },
-        { back: default_back_button }
+        { next: default_button(:next) },
+        { back: default_button(:back) }
       ]
       @skipped ||= false
       @last ||= false
@@ -30,28 +32,20 @@ module HatTrick
       @repeat_of = source
     end
 
-    def default_next_button
-      { label: default_next_button_label }
+    def default_button(type)
+      { label: button_label(type) }
     end
 
-    def default_back_button
-      { label: default_back_button_label }
+    def button_label(type)
+      config.send("#{type}_button_label") or default_button_label(type)
     end
 
-    def default_next_button_label
+    def default_button_label(type)
+      default_label = type.to_s.humanize
       begin
-        label = I18n.t("wizard.buttons.next", :default => "Next")
+        label = I18n.t("wizard.buttons.#{type}", :default => default_label)
       rescue NameError
-        label = "Next"
-      end
-      label
-    end
-
-    def default_back_button_label
-      begin
-        label = I18n.t("wizard.buttons.back", :default => "Back")
-      rescue NameError
-        label = "Back"
+        label = default_label
       end
       label
     end
@@ -150,7 +144,7 @@ module HatTrick
       run_callback(:after, context, model)
     end
 
-    protected
+    private
 
     def run_callback(type, context, model)
       callback = callbacks[type.to_sym]

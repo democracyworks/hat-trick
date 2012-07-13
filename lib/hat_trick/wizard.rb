@@ -9,6 +9,8 @@ module HatTrick
     attr_accessor :controller, :model
     attr_reader :current_step, :wizard_def, :steps
 
+    delegate :config, :to => :wizard_def
+
     def initialize(wizard_def)
       @wizard_def = wizard_def
       @steps = @wizard_def.steps.map { |s| HatTrick::Step.new(s, self) }

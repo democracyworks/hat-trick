@@ -8,7 +8,8 @@ module HatTrick
 
     delegate :name, :fieldset, :buttons, :repeat_of, :to_sym, :to_s, :as_json,
              :run_after_callback, :run_before_callback, :repeat?, :include_data,
-             :run_include_data_callback, :include_data_key, :to => :step_def
+             :run_include_data_callback, :include_data_key, :config,
+             :to => :step_def
 
     def initialize(step_def, wizard)
       @step_def = step_def
