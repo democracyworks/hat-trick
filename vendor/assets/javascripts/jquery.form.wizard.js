@@ -6,7 +6,7 @@
  *
  * http://www.thecodemine.org
  *
- * Licensed under the MIT licens:
+ * Licensed under the MIT license:
  *   http://www.opensource.org/licenses/mit-license.php
  *
  */
@@ -23,9 +23,9 @@
       var formOptionsBeforeSend = this.options.formOptions.beforeSend;
       var formOptionsBeforeSubmit = this.options.formOptions.beforeSubmit;
       var formOptionsBeforeSerialize = this.options.formOptions.beforeSerialize;
-      this.options.formOptions = $.extend(this.options.formOptions,{
-        success  : function(responseText, textStatus, xhr){
-          if(formOptionsSuccess){
+      this.options.formOptions = $.extend(this.options.formOptions, {
+        success  : function(responseText, textStatus, xhr) {
+          if (formOptionsSuccess) {
             formOptionsSuccess(responseText, textStatus, xhr);
           }
           if(wizard.options.formOptions && wizard.options.formOptions.resetForm || !wizard.options.formOptions){
