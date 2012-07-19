@@ -22,12 +22,9 @@ class HatTrickWizard
       # TODO: Figure out a better way to do this
       this.addFakeLastStep()
     currentStepId = this.currentStepId()
-    log "Current step: #{currentStepId}"
     if hatTrick.stepMetadata[currentStepId]?
-      log "setting hatTrick.metadata.currentStep to #{currentStepId}"
       hatTrick.metadata.currentStep = hatTrick.stepMetadata[currentStepId]
     else
-      log "requesting metadata from server"
       # this.requestMetadataFromServer()
       return
     this.updateStepFromMetadata()
@@ -254,7 +251,6 @@ class HatTrickWizard
             $radioGroup.filter("[value=\"#{fieldValue}\"]").attr("checked", "checked")
 
   setFormFields: (model) ->
-    # log "Setting form fields based on: #{JSON.stringify(model)}"
     this.fillTextFields(model)
     this.setSelectFields(model)
     this.setCheckboxes(model)
@@ -343,14 +339,12 @@ class HatTrickWizard
         @stepsNeedUpdate = true
 
   saveStepMetadata: (stepId=this.currentStepId(), metadata=hatTrick.metadata.currentStep) ->
-    log "Saving metadata for step #{stepId}: #{JSON.stringify metadata}"
     hatTrick.stepMetadata = {} unless hatTrick.stepMetadata?
     hatTrick.stepMetadata[stepId] = metadata
 
   handleServerData: (data) =>
     if data.metadata?.url? and data.metadata?.method?
       this.setAction(data.metadata.url, data.metadata.method)
-    log "Saving incoming step metadata: #{JSON.stringify data.metadata.currentStep}"
     this.saveStepMetadata(data.metadata.currentStep.name, data.metadata.currentStep)
     $.extend(hatTrick, data) # merge new data with hatTrick
     this.updateStepFromMetadata()

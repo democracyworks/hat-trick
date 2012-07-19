@@ -71,7 +71,6 @@
       this.firstStep = this.options.firstStep || this.steps.eq(0).attr("id");
 
       $firstStep = this._stepElement(this.firstStep);
-      console.log("Got step: " + $firstStep.attr("id"));
       if ($firstStep.data("page-title") !== undefined) {
         $("title").text($firstStep.data("page-title"));
       }
@@ -142,7 +141,6 @@
     },
 
     _stepElement : function(stepId) {
-      console.log("Looking for step w/ id " + stepId);
       return $(this.steps.filter("#" + stepId)[0]);
     },
 
@@ -313,7 +311,6 @@
       newUrl = "/" + newUrlPathComponents.join("/");
       stateData["step"] = step;
 
-      console.log("pushState title: " + title);
       History.pushState(stateData, title, newUrl);
 
       // for older browsers that don't respect pushState's title arg
