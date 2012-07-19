@@ -360,6 +360,8 @@ class HatTrickWizard
     metadataUrl = document.location.pathname
     lastChar = metadataUrl.charAt(metadataUrl.length - 1)
     metadataUrl += "/" unless lastChar is "/"
+    stepId = this.currentStepId()
+    metadataUrl += "#{stepId}/" if metadataUrl.search("#{stepId}/$") is -1
     metadataUrl += "metadata"
     $.ajax
       type: "GET"
