@@ -25,7 +25,7 @@ class HatTrickWizard
     if hatTrick.stepMetadata[currentStepId]?
       hatTrick.metadata.currentStep = hatTrick.stepMetadata[currentStepId]
     else
-      # this.requestMetadataFromServer()
+      this.requestMetadataFromServer()
       return
     this.updateStepFromMetadata()
     if not @formwizardEnabled
