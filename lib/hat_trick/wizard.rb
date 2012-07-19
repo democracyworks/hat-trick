@@ -14,6 +14,7 @@ module HatTrick
     def initialize(wizard_def)
       @wizard_def = wizard_def
       @steps = @wizard_def.steps.map { |s| HatTrick::Step.new(s, self) }
+      @current_step = first_step
     end
 
     def controller=(new_controller)
