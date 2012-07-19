@@ -32,8 +32,7 @@ class HatTrickWizard
       currentStepId = this.currentStepId()
       # can't go back from the first step
       if hatTrick.metadata.currentStep.first
-        # delete this.buttons[currentStepId]["back"]
-        this.buttons[currentStepId].filter (button) ->
+        this.buttons[currentStepId] = this.buttons[currentStepId].filter (button) ->
           not button.back?
 
       this.setupButtonsForStep(currentStepId)

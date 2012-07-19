@@ -52,7 +52,7 @@ module HatTrick
         new_step = HatTrick::StepDefinition.new(step_args)
       end
 
-      if steps.count == 1
+      if steps.count == 0
         new_step.first = true
       end
 
