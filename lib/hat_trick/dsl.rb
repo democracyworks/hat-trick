@@ -186,7 +186,7 @@ module HatTrick
           step_name = params['step']
         end
 
-        @hat_trick_wizard.current_step = step_name if step_name
+        @hat_trick_wizard.current_step = step_name if step_name.present?
       end
     end
   end
