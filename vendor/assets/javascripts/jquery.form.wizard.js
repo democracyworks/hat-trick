@@ -24,6 +24,7 @@
       var formOptionsBeforeSubmit = this.options.formOptions.beforeSubmit;
       var formOptionsBeforeSerialize = this.options.formOptions.beforeSerialize;
       var $firstStep;
+      var stateData = {};
 
       this.options.formOptions = $.extend(this.options.formOptions, {
         success  : function(responseText, textStatus, xhr) {
@@ -71,11 +72,10 @@
       this.firstStep = this.options.firstStep || this.steps.eq(0).attr("id");
 
       $firstStep = this._stepElement(this.firstStep);
-      if ($firstStep.data("page-title") !== undefined) {
-        $("title").text($firstStep.data("page-title"));
-      }
+      stateData["step"] = this.firstStep;
+      History.replaceState(stateData, $firstStep.data("page-title"), location.pathname);
+      this._setTitleForOlderBrowsers($firstStep.data("page-title"));
 
-      this.activatedSteps = [];
       this.isLastStep = false;
       this.previousStep = undefined;
       this.currentStep = this.firstStep;
@@ -101,27 +101,25 @@
         $(this.steps).find(":input:not('.wizard-ignore')").attr("disabled","disabled");
       }
 
-      if (this.options.historyEnabled) {
-        History.Adapter.bind(window, 'statechange', function() {
-          var state;
-          var step;
-          state = History.getState();
-          step = state.data.step;
-          if (step !== wizard.currentStep) {
-            if (wizard.options.validationEnabled && step === wizard._navigate(wizard.currentStep)) {
-              if (!wizard.element.valid()) {
-                wizard._show(wizard.currentStep);
-                wizard.element.validate().focusInvalid();
+      History.Adapter.bind(window, 'statechange', function() {
+        var state;
+        var step;
+        state = History.getState();
+        step = state.data.step;
+        if (step !== wizard.currentStep) {
+          if (wizard.options.validationEnabled && step === wizard._navigate(wizard.currentStep)) {
+            if (!wizard.element.valid()) {
+              wizard._show(wizard.currentStep);
+              wizard.element.validate().focusInvalid();
 
-                return false;
-              }
-            }
-            if (step !== wizard.currentStep) {
-              wizard._show(step);
+              return false;
             }
           }
-        });
-      }
+          if (step !== wizard.currentStep) {
+            wizard._show(step);
+          }
+        }
+      });
 
       this.element.addClass("ui-formwizard");
       this.element.find(":input").addClass("ui-wizard-content");
@@ -241,39 +239,16 @@
     },
 
     _back : function() {
-      if (this.activatedSteps.length > 0) {
-        if (this.options.historyEnabled) {
-          History.back();
-        } else {
-          this._show(this.activatedSteps[this.activatedSteps.length - 2], true);
-        }
-      }
+      History.back();
       return false;
     },
 
     _continueToNextStep : function(){
-      if(this.isLastStep){
-        for(var i = 0; i < this.activatedSteps.length; i++){
-          this.steps.filter("#" + this.activatedSteps[i]).find(":input").not(".wizard-ignore").removeAttr("disabled");
-        }
-        if (!this.options.formPluginEnabled) {
-          return true;
-        } else {
-          this._disableNavigation();
-          this.element.ajaxSubmit(this.options.formOptions);
-          return false;
-        }
-      }
-
       var step = this._navigate(this.currentStep);
       if (step == this.currentStep) {
         return false;
       }
-      if (this.options.historyEnabled) {
-        this._updateHistory(step);
-      } else {
-        this._show(step, true);
-      }
+      this._updateHistory(step);
       return false;
     },
 
@@ -283,7 +258,6 @@
 
     _updateHistory : function(step) {
       var stateData = {};
-      // var title = $("title").text();
       var $step = this._stepElement(step);
       var title = $step.data("page-title");
       var currentState = History.getState();
@@ -310,16 +284,18 @@
       newUrlPathComponents.push(step);
       newUrl = "/" + newUrlPathComponents.join("/");
       stateData["step"] = step;
-
       History.pushState(stateData, title, newUrl);
+      this._setTitleForOlderBrowsers(title);
+    },
 
+    _setTitleForOlderBrowsers : function(title) {
       // for older browsers that don't respect pushState's title arg
       if ($("title").text() !== title) {
         $("title").text(title);
       }
     },
 
-    _disableNavigation : function(){
+    _disableNavigation : function() {
       this.nextButton.attr("disabled","disabled");
       this.backButton.attr("disabled","disabled");
       if(!this.options.disableUIStyles){
@@ -363,10 +339,6 @@
       var wizard = this;
       old.animate(wizard.options.outAnimation, wizard.options.outDuration, wizard.options.easing, function(){
         current.animate(wizard.options.inAnimation, wizard.options.inDuration, wizard.options.easing, function(){
-          var $firstStep = wizard._stepElement(wizard.firstStep);
-          if (current.attr("id") === wizard.firstStep && $firstStep.data("page-title") !== undefined) {
-            $("title").text($firstStep.data("page-title"));
-          }
           if (wizard.options.focusFirstInput) {
             current.find(":input:first").focus();
           }
@@ -423,32 +395,19 @@
     },
 
     _show : function(step) {
-      var backwards = false;
-      var triggerStepShown = step !== undefined;
       var fragment;
       if (step === undefined || step === "") {
         step = this._stepFromPath() || this.firstStep;
-        this.activatedSteps.pop();
-        this.activatedSteps.push(step);
-      } else {
-        if ($.inArray(step, this.activatedSteps) > -1) {
-          backwards = true;
-          this.activatedSteps.pop();
-        } else {
-          this.activatedSteps.push(step);
-        }
       }
 
-      // console.log("Showing step " + step);
-
       if (this.currentStep !== step || step === this.firstStep) {
+        console.log("Made it past the first if statement");
         this.previousStep = this.currentStep;
         this._checkIflastStep(step);
         this.currentStep = step;
         var stepShownCallback = function() {
-          if (triggerStepShown) {
-            $(this.element).trigger('step_shown', $.extend({"isBackNavigation" : backwards}, this._state()));
-          }
+          console.log("Triggering step_shown");
+          $(this.element).trigger('step_shown', this._state());
         };
         this._animate(this.previousStep, step, stepShownCallback);
       }
@@ -458,22 +417,13 @@
      _reset : function(){
       this.element.resetForm();
       $("label,:input,textarea",this).removeClass("error");
-      for(var i = 0; i < this.activatedSteps.length; i++){
-        this.steps.filter("#" + this.activatedSteps[i]).hide().find(":input").attr("disabled","disabled");
-      }
-      this.activatedSteps = [];
       this.previousStep = undefined;
       this.isLastStep = false;
-      if (this.options.historyEnabled) {
-        this._updateHistory(this.firstStep);
-      } else {
-        this._show(this.firstStep);
-      }
+      this._updateHistory(this.firstStep);
     },
 
     _state : function(state) {
       var currentState = { "settings" : this.options,
-        "activatedSteps" : this.activatedSteps,
         "isLastStep" : this.isLastStep,
         "isFirstStep" : this.currentStep === this.firstStep,
         "previousStep" : this.previousStep,
@@ -494,11 +444,7 @@
     /*Methods*/
 
     show : function(step){
-      if (this.options.historyEnabled) {
-        this._updateHistory(step);
-      } else {
-        this._show(step);
-      }
+      this._updateHistory(step);
     },
 
     state : function(state){
@@ -523,7 +469,6 @@
       this.backButton.unbind("click").val(this.backButtonInitinalValue).removeClass("ui-state-disabled").addClass("ui-state-active");
       this.backButtonInitinalValue = undefined;
       this.nextButtonInitinalValue = undefined;
-      this.activatedSteps = undefined;
       this.previousStep = undefined;
       this.currentStep = undefined;
       this.isLastStep = undefined;
@@ -553,7 +498,6 @@
     },
 
     options: {
-         historyEnabled  : false,
       validationEnabled : false,
       validationOptions : undefined,
       formPluginEnabled : false,
