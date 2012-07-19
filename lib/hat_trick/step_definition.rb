@@ -94,20 +94,10 @@ module HatTrick
       name.to_sym
     end
 
-    def page_title
-      begin
-        title = I18n.t("wizard.page_titles.#{name}")
-      rescue NameError
-        title = name.to_s.humanize
-      end
-      title
-    end
-
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
       json[:repeatOf] = repeat_of.as_json if repeat?
       json[:buttons] = buttons.empty? ? [] : buttons
-      json[:pageTitle] = page_title
       json[:first] = @first
       json
     end

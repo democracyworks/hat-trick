@@ -23,6 +23,8 @@
       var formOptionsBeforeSend = this.options.formOptions.beforeSend;
       var formOptionsBeforeSubmit = this.options.formOptions.beforeSubmit;
       var formOptionsBeforeSerialize = this.options.formOptions.beforeSerialize;
+      var $firstStep;
+
       this.options.formOptions = $.extend(this.options.formOptions, {
         success  : function(responseText, textStatus, xhr) {
           if (formOptionsSuccess) {
@@ -67,6 +69,13 @@
       this.steps = this.element.find(".step").hide();
 
       this.firstStep = this.options.firstStep || this.steps.eq(0).attr("id");
+
+      $firstStep = this._stepElement(this.firstStep);
+      console.log("Got step: " + $firstStep.attr("id"));
+      if ($firstStep.data("page-title") !== undefined) {
+        $("title").text($firstStep.data("page-title"));
+      }
+
       this.activatedSteps = [];
       this.isLastStep = false;
       this.previousStep = undefined;
@@ -132,7 +141,12 @@
       return $(this);
     },
 
-    _updateButtons : function(){
+    _stepElement : function(stepId) {
+      console.log("Looking for step w/ id " + stepId);
+      return $(this.steps.filter("#" + stepId)[0]);
+    },
+
+    _updateButtons : function() {
       var wizard = this;
 
       this.nextButton = this.element.find(this.options.next);
@@ -271,7 +285,9 @@
 
     _updateHistory : function(step) {
       var stateData = {};
-      var title = $("title").text();
+      // var title = $("title").text();
+      var $step = this._stepElement(step);
+      var title = $step.data("page-title");
       var currentState = History.getState();
       var currentStep = this.currentStep;
       var urlPathComponents = currentState.url.split("/");
@@ -297,7 +313,13 @@
       newUrl = "/" + newUrlPathComponents.join("/");
       stateData["step"] = step;
 
+      console.log("pushState title: " + title);
       History.pushState(stateData, title, newUrl);
+
+      // for older browsers that don't respect pushState's title arg
+      if ($("title").text() !== title) {
+        $("title").text(title);
+      }
     },
 
     _disableNavigation : function(){
@@ -344,8 +366,13 @@
       var wizard = this;
       old.animate(wizard.options.outAnimation, wizard.options.outDuration, wizard.options.easing, function(){
         current.animate(wizard.options.inAnimation, wizard.options.inDuration, wizard.options.easing, function(){
-          if(wizard.options.focusFirstInput)
+          var $firstStep = wizard._stepElement(wizard.firstStep);
+          if (current.attr("id") === wizard.firstStep && $firstStep.data("page-title") !== undefined) {
+            $("title").text($firstStep.data("page-title"));
+          }
+          if (wizard.options.focusFirstInput) {
             current.find(":input:first").focus();
+          }
           wizard._enableNavigation();
 
           stepShownCallback.apply(wizard);
