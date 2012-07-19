@@ -3,7 +3,7 @@
 class HatTrickWizard
   constructor: (formElem, @wizard) ->
     @form = $(formElem)
-    this.stepShownCallback() # because we just showed the first step (or the one in the URL)
+    this.enableFormwizard()
 
   formwizardEnabled: false
 
@@ -14,13 +14,6 @@ class HatTrickWizard
   stepsNeedUpdate: false
 
   stepShownCallback: ->
-    if not @formwizardEnabled
-      this.saveStepMetadata()
-      this.addStepClass()
-      this.setAction(hatTrick.metadata.url, hatTrick.metadata.method)
-      # prevent submitting the step that happens to be the last fieldset
-      # TODO: Figure out a better way to do this
-      this.addFakeLastStep()
     currentStepId = this.currentStepId()
     if hatTrick.stepMetadata[currentStepId]?
       hatTrick.metadata.currentStep = hatTrick.stepMetadata[currentStepId]
@@ -28,23 +21,17 @@ class HatTrickWizard
       this.requestMetadataFromServer()
       return
     this.updateStepFromMetadata()
-    if not @formwizardEnabled
-      currentStepId = this.currentStepId()
-      # can't go back from the first step
-      if hatTrick.metadata.currentStep.first
-        this.buttons[currentStepId] = this.buttons[currentStepId].filter (button) ->
-          not button.back?
-
-      this.setupButtonsForStep(currentStepId)
-      this.enableFormwizard()
-      this.bindEvents()
+    currentStepId = this.currentStepId()
+    # can't go back from the first step
+    if hatTrick.metadata.currentStep.first
+      this.buttons[currentStepId] = this.buttons[currentStepId].filter (button) ->
+        not button.back?
+    this.setupButtonsForCurrentStep()
+    if @stepsNeedUpdate
+      this.updateSteps()
+      @stepsNeedUpdate = false
     else
-      this.setupButtonsForCurrentStep()
-      if @stepsNeedUpdate
-        this.updateSteps()
-        @stepsNeedUpdate = false
-      else
-        this.updateButtons()
+      this.updateButtons()
     this.setCurrentStepField()
     this.removeLinkField()
     this.setFormFields(hatTrick.model)
@@ -170,11 +157,17 @@ class HatTrickWizard
     @form.append """<fieldset id="_ht_fake_last_step" style="display: none;" class="step"></fieldset>"""
 
   enableFormwizard: ->
+    this.addStepClass()
+    this.saveStepMetadata()
+    this.setAction(hatTrick.metadata.url, hatTrick.metadata.method)
+    # prevent submitting the step that happens to be the last fieldset
+    # TODO: Figure out a better way to do this
+    this.addFakeLastStep()
+    this.bindEvents()
     @form.formwizard
       formPluginEnabled: true,
       validationEnabled: false,
       focusFirstInput: true,
-      historyEnabled: true,
       disableUIStyles: true,
       inDuration: 0,
       next: "button:submit",
