@@ -28,6 +28,10 @@ module HatTrick
 
     private
 
+    def common_hook(*args)
+      Rails.logger.info "common_hook wizard instance: #{hat_trick_wizard.object_id}"
+    end
+
     def create_hook(*args)
       setup_validation_group_for(hat_trick_wizard.current_step)
     end

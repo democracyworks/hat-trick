@@ -158,6 +158,8 @@ module HatTrick
         wizard_def = self.class.instance_variable_get("@wizard_def")
         @hat_trick_wizard ||= wizard_def.make_wizard_for(self)
 
+        Rails.logger.info "setup_wizard wizard instance: #{@hat_trick_wizard.object_id}"
+
         config_callback = self.class.send(:configure_callback)
         if config_callback.is_a?(Proc)
           instance_exec(wizard_def.config, &config_callback)
@@ -173,9 +175,10 @@ module HatTrick
           step_name = params['step']
         end
 
-        Rails.logger.info "Setting current step to: #{step_name}"
-
-        @hat_trick_wizard.current_step = step_name if step_name.present?
+        if step_name.present?
+          Rails.logger.info "Setting current step to: #{step_name}"
+          @hat_trick_wizard.current_step = step_name
+        end
       end
     end
   end
