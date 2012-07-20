@@ -13,13 +13,12 @@ module HatTrick
       @steps = []
     end
 
-    def get_wizard(controller)
-      controller.send(:hat_trick_wizard) or (
-        wizard = HatTrick::Wizard.new(self)
-        wizard.controller = controller
-        wizard.alias_action_methods
-        wizard
-      )
+    def make_wizard_for(controller)
+      Rails.logger.info "Making new wizard instance"
+      wizard = HatTrick::Wizard.new(self)
+      wizard.controller = controller
+      wizard.alias_action_methods
+      wizard
     end
 
     def configured_create_url

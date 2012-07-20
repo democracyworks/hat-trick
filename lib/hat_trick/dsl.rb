@@ -156,7 +156,7 @@ module HatTrick
 
       def setup_wizard
         wizard_def = self.class.instance_variable_get("@wizard_def")
-        @hat_trick_wizard = wizard_def.get_wizard(self)
+        @hat_trick_wizard ||= wizard_def.make_wizard_for(self)
 
         config_callback = self.class.send(:configure_callback)
         if config_callback.is_a?(Proc)
