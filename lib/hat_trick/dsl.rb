@@ -186,6 +186,8 @@ module HatTrick
           step_name = params['step']
         end
 
+        Rails.logger.info "Setting current step to: #{step_name}"
+
         @hat_trick_wizard.current_step = step_name if step_name.present?
       end
     end
