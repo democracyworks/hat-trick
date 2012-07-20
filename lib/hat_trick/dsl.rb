@@ -66,19 +66,6 @@ module HatTrick
         instance_eval &block if block_given?
       end
 
-      def repeat_step(name)
-        raise "repeat_step must be called from within a wizard block" unless wizard_def
-        repeated_step = wizard_def.find_step(name)
-        raise ArgumentError, "Couldn't find step named #{name}" unless repeated_step
-        new_step = repeated_step.dup
-        # use the repeated step's fieldset id
-        new_step.fieldset = repeated_step.fieldset
-        # but use the current step's name
-        new_step.name = wizard_def.last_step.name
-        # replace the step we're in the middle of defining w/ new_step
-        wizard_def.replace_step(wizard_def.last_step, new_step)
-      end
-
       def skip_this_step
         # skip_this_step in wizard definition (class) context means the step
         # can be explicitly jumped to, but won't be visited in the normal flow

@@ -129,20 +129,6 @@ class HatTrickWizard
     this.setLinkField(stepId)
     @form.formwizard("next")
 
-  # TODO: Try linking to the same step rather than cloning it.
-  # I'm becoming more and more convinced that that won't work, however.
-  # And this isn't as bad as it used to be.
-  repeatStep: (step) ->
-    if $("fieldset##{step.name}").length is 0
-      $sourceStep = this.findStep(step.repeatOf.fieldset)
-      $clonedStep = $sourceStep.clone(true, true)
-      $clonedStep.css("display", "none")
-      $clonedStep.attr("id", step.name)
-      $sourceStep.after($clonedStep)
-      this.buttons[step.name] = this.buttons[step.repeatOf.name]
-      this.updateSteps()
-    this.setLinkField step.name
-
   removeLinkField: ->
     this.currentStep().find("input.#{@linkClass}").remove()
 
@@ -394,10 +380,7 @@ class HatTrickWizard
       this.createDummyModelField() unless this.currentStepHasModelFields()
 
       currentStep = hatTrick.metadata.currentStep
-      if currentStep.repeatOf?
-        this.repeatStep(currentStep)
-      else
-        this.setLinkField(currentStep.fieldset) unless this.linkFieldSet()
+      this.setLinkField(currentStep.fieldset) unless this.linkFieldSet()
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>

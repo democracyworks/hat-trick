@@ -1,7 +1,7 @@
 module HatTrick
   class StepDefinition
     attr_reader :callbacks, :include_data_key, :buttons
-    attr_accessor :name, :fieldset, :repeat_of, :wizard
+    attr_accessor :name, :fieldset, :wizard
     attr_writer :skipped, :first
 
     delegate :config, :to => :wizard
@@ -21,15 +21,6 @@ module HatTrick
       @skipped ||= false
       @last ||= false
       @first ||= false
-    end
-
-    def initialize_copy(source)
-      @callbacks = {}
-      @buttons = source.buttons.dup
-      @skipped = false
-      @last = false
-      @first = false
-      @repeat_of = source
     end
 
     def default_button(type)
@@ -62,10 +53,6 @@ module HatTrick
       @fieldset or name
     end
 
-    def repeat?
-      !repeat_of.nil?
-    end
-
     def skipped?
       @skipped
     end
@@ -96,7 +83,6 @@ module HatTrick
 
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
-      json[:repeatOf] = repeat_of.as_json if repeat?
       json[:buttons] = buttons.empty? ? [] : buttons
       json[:first] = @first
       json

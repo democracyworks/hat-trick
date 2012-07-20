@@ -10,7 +10,7 @@
 Put this in your Gemfile:
 
     gem 'hat-trick'
-    
+
 ## Setup
 In your controller:
 
@@ -27,9 +27,9 @@ In your view:
       <fieldset id="second_step">...</fieldset>
       <fieldset id="third_step">...</fieldset>
     <% end %>
-    
+
 The id's of the fieldsets in your form should match the step names you define in your controller.
-    
+
 ## Controlling the wizard flow
 Sometimes you need to specify different paths through a wizard based on certain conditions. The way you do that with hat-trick is in the wizard DSL in the controller. Here are some examples:
 
@@ -45,20 +45,11 @@ Jumping to a step based on logged in status:
           end
         end
       end
-      
+
       step :second_step # wizard will go here after :first_step if user is not signed in
-      
+
       step :third_step # wizard will go here after :first_step if user is signed in
-      
-Repeating a previous step (for example, to show address sanitization results to the user):
-  
-     wizard do
-       step :enter_address
-        
-       step :confirm_santized_address do
-         repeat_step :enter_address
-       end
-       
+
 Skipping a step under certain conditions:
 
     wizard do

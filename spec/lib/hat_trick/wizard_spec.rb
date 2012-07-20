@@ -41,11 +41,6 @@ describe HatTrick::Wizard do
     end
   end
 
-  describe "repeating steps" do
-    it "should repeat step 2 when requested" do
-    end
-  end
-
   describe "setting explicit next steps" do
     it "should advance to the requested next step when one is set" do
       wizard.steps.first.next_step = :step4
