@@ -46,13 +46,20 @@ module HatTrick
 
     def setup_validation_group_for(wizard_step)
       klass = model_class
-      return if klass.nil?
+      if klass.nil?
+        Rails.logger.warn "model class was nil when setting up validation group for #{wizard_step}"
+        return
+      end
       step_name = wizard_step.name
       validation_groups = ::ActiveRecord::Base.validation_group_classes[klass] || []
       dynamic_group_exists = HatTrick::ModelMethods.dynamic_validation_groups.include?(step_name)
       static_validation_group_exists = validation_groups.include?(step_name) && !dynamic_group_exists
       dynamic_validation_group = false
-      unless static_validation_group_exists
+
+      if static_validation_group_exists
+        Rails.logger.info "Not creating dynamic validation group for #{wizard_step} because a static one exists"
+      else
+        Rails.logger.info "Creating a dynamic validation group for #{wizard_step}"
         dynamic_validation_group = true
         validation_fields = params.keys # TODO: Try it without these (so only the model keys below)
         model = model_key
@@ -62,6 +69,7 @@ module HatTrick
         validation_fields = validation_fields.map(&:to_sym)
         klass.validation_group(step_name, :fields => validation_fields)
       end
+      Rails.logger.info "Setting current validation group to #{dynamic_validation_group} for #{wizard_step}"
       HatTrick::ModelMethods.set_current_validation_group_for(model_class,
                                                               step_name,
                                                               dynamic_validation_group)
