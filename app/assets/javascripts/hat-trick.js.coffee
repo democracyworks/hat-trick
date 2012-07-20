@@ -366,7 +366,7 @@ class HatTrickWizard
     hatTrick.model['__name__']
 
   createDummyModelField: ->
-    this.setHiddenInput "#{this.modelName()}[_dummy]", "1"
+    this.setHiddenInput "#{this.modelName()}[_dummy]", "1", "", this.currentStep()
 
   currentStepHasModelFields: ->
     this.currentStep().find("input[name^='#{this.modelName()}[']").length > 0
