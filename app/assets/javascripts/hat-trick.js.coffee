@@ -165,7 +165,7 @@ class HatTrickWizard
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->
     $scope = $(scope)
-    $input = $scope.find("""input##{id}[name="#{name}"]""")
+    $input = $scope.find("""input[name="#{name}"]""")
     if $input.length is 0
       $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
     $input.val value
