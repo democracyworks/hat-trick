@@ -4,6 +4,12 @@ module HatTrick
   class Engine < ::Rails::Engine
     # just defining this causes Rails to look for assets inside this gem
 
+    initializer 'hat-trick.dsl' do
+      ActiveSupport.on_load(:action_controller) do
+        include HatTrick::DSL
+      end
+    end
+
     initializer 'hat-trick.form_helpers' do
       ActiveSupport.on_load(:action_view) do
         include HatTrick::FormHelper
