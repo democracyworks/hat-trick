@@ -262,7 +262,8 @@ class HatTrickWizard
       when "next"
         $button = $buttonsDiv.find('button.wizard_next')
         unless $button.length > 0
-          $button = $('<button type="submit" class="wizard_button wizard_next" name="next"></button>').appendTo $buttonsDiv
+          $button = $('<button type="submit" class="wizard_button wizard_next"></button>').appendTo $buttonsDiv
+        $button.attr 'name', button.name
         $button.val button.value
         $button.html button.label
         if button.id?

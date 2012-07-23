@@ -157,9 +157,6 @@
         }
       });
 
-      this.nextButtonInitinalValue = this.nextButton.val();
-      this.nextButton.val(this.options.textNext);
-
       this.backButton  = this.element.find(this.options.back);
       this.backButton.each(function() {
         var events = $(this).data('events');
@@ -177,9 +174,6 @@
           });
         }
       });
-
-      this.backButtonInitinalValue = this.backButton.val();
-      this.backButton.val(this.options.textBack);
     },
 
     _next : function(button) {
@@ -204,7 +198,24 @@
           var beforeSend = options.beforeSend;
           var complete = options.complete;
 
-          options = $.extend({},options,{
+          options = $.extend({}, options, {
+            beforeSerialize : function(form, options) {
+              var $button;
+              var buttonName;
+              var buttonValue;
+              var buttonData = {};
+
+              // serialize the button that was clicked into the ajax submission
+              $button = $(button);
+              buttonName = $button.attr("name");
+              buttonValue = $button.val();
+              if (buttonName !== undefined && buttonName !== "" && buttonValue !== undefined && buttonValue !== "") {
+                buttonData[buttonName] = buttonValue;
+                options.data = $.extend({}, options.data, buttonData);
+              }
+              return true;
+            },
+
             beforeSend : function(xhr){
               wizard._disableNavigation();
               if(beforeSend !== undefined)
@@ -304,19 +315,7 @@
       }
     },
 
-    _setNavButtonValues : function(){
-      if(this.isLastStep){
-        this.nextButton.val(this.options.textSubmit);
-      }else{
-        this.nextButton.val(this.options.textNext);
-      }
-    },
-
     _enableNavigation : function(){
-      if(this.nextButton.val() === ""){
-        this._setNavButtonValues();
-      }
-
       if($.trim(this.currentStep) !== this.steps.eq(0).attr("id")){
         this.backButton.removeAttr("disabled");
         if(!this.options.disableUIStyles){
