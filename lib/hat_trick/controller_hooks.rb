@@ -12,16 +12,18 @@ module HatTrick
 
     def self.def_action_method_aliases(action_methods)
       action_methods.each do |meth|
-        # Rails.logger.info "Aliasing #{meth}"
-        module_eval <<-RUBY_EVAL
-          def #{meth}_with_hat_trick(*args)
-            Rails.logger.info "#{meth}_with_hat_trick called"
-            #{meth}_hook(*args) if respond_to?("#{meth}_hook", :include_private)
-            common_hook(*args) if respond_to?(:common_hook, :include_private)
-            #{meth}_without_hat_trick(*args)
-          end
-          private "#{meth}_with_hat_trick"
-        RUBY_EVAL
+        unless respond_to?(:"#{meth}_with_hat_trick")
+          Rails.logger.info "Defining #{meth}_with_hat_trick"
+          module_eval <<-RUBY_EVAL
+            def #{meth}_with_hat_trick(*args)
+              Rails.logger.info "#{meth}_with_hat_trick called"
+              #{meth}_hook(*args) if respond_to?("#{meth}_hook", :include_private)
+              common_hook(*args) if respond_to?(:common_hook, :include_private)
+              #{meth}_without_hat_trick(*args)
+            end
+            private "#{meth}_with_hat_trick"
+          RUBY_EVAL
+        end
       end
       true
     end

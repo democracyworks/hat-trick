@@ -154,12 +154,13 @@ module HatTrick
     def alias_action_methods
       action_methods = controller.action_methods.reject do |m|
         /^render/ =~ m.to_s ||
-        controller.respond_to?("#{m}_with_hat_trick", :include_private)
+        controller.respond_to?("#{m}_without_hat_trick", :include_private)
       end
       HatTrick::ControllerHooks.def_action_method_aliases(action_methods)
-      action_methods.each do |meth|
-        controller.class.send(:alias_method_chain, meth, :hat_trick)
-        controller.class.send(:private, "#{meth}_without_hat_trick")
+      action_methods.each do |m|
+        Rails.logger.info "Aliasing #{m}"
+        controller.class.send(:alias_method_chain, m, :hat_trick)
+        controller.class.send(:private, "#{m}_without_hat_trick")
       end
     end
 
