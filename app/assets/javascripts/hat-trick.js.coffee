@@ -32,7 +32,6 @@ class HatTrickWizard
       @stepsNeedUpdate = false
     else
       this.updateButtons()
-    this.setCurrentStepField()
     this.removeLinkField()
     this.setFormFields(hatTrick.model)
     this.createDummyModelField() unless this.currentStepHasModelFields()
@@ -377,6 +376,7 @@ class HatTrickWizard
     if $("fieldset##{currentStepId}").data("contents") is "server"
       this.updateStepContents()
     if hatTrick.metadata?.currentStep?
+      this.setCurrentStepField()
       this.setButtonMetadataForCurrentStep()
       this.createDummyModelField() unless this.currentStepHasModelFields()
 
