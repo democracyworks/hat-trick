@@ -9,7 +9,9 @@ module HatTrick
     delegate :name, :fieldset, :buttons, :to_sym, :to_s, :as_json,
              :run_after_callback, :run_before_callback, :include_data,
              :run_include_data_callback, :include_data_key, :config,
-             :to => :step_def
+             :last?, :to => :step_def
+
+    delegate :visited_steps, :skipped_steps, :to => :wizard
 
     def initialize(step_def, wizard)
       @step_def = step_def
@@ -22,18 +24,15 @@ module HatTrick
     end
 
     def skipped?
-      @skipped && !visited?
+      (@skipped || skipped_steps.include?(self.to_sym)) && !visited?
     end
 
     def visited?
-      session["hat-trick.visited_steps"].include? self.to_sym
+      visited_steps.include? self.to_sym
     end
 
     def mark_as_visited
-      unless session.has_key?("hat-trick.visited_steps")
-        session["hat-trick.visited_steps"] = []
-      end
-      session["hat-trick.visited_steps"] << self.to_sym
+      visited_steps << self.to_sym
     end
   end
 end

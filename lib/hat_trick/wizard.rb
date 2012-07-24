@@ -102,6 +102,14 @@ module HatTrick
       run_before_callback
     end
 
+    def visited_steps
+      session["hat-trick.visited_steps"] ||= []
+    end
+
+    def skipped_steps
+      session["hat-trick.skipped_steps"] ||= []
+    end
+
     def run_before_callback(step=current_step)
       step.run_before_callback(controller, model)
     end
