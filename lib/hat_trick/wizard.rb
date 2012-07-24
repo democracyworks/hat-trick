@@ -94,12 +94,17 @@ module HatTrick
     end
 
     def start
-      # Reset the session data
-      # TODO: Move the next 2 lines into a StepCollection class
-      session["hat-trick.visited_steps"] = []
-      session["hat-trick.skipped_steps"] = []
+      reset_step_session_data
       self.current_step ||= first_step
       run_before_callback
+    end
+
+    def steps_before_current
+      steps_before(current_step)
+    end
+
+    def steps_after_current
+      steps_after(current_step)
     end
 
     def visited_steps
@@ -108,6 +113,43 @@ module HatTrick
 
     def skipped_steps
       session["hat-trick.skipped_steps"] ||= []
+    end
+
+    def percent_complete(step=current_step)
+      percent = (steps_before_current.count.to_f / total_step_count) * 100
+      if percent > 100.0
+        100
+      elsif percent <= 0
+        0
+      elsif percent < 5.0
+        5
+      else
+        percent
+      end
+    end
+
+    def steps_remaining=(count)
+      self.override_step_count = steps_before_current.count + count
+    end
+
+    def steps_remaining
+      total_step_count - steps_before_current.count
+    end
+
+    def override_step_count=(count)
+      if count.nil?
+        session.delete('hat-trick.override_step_count')
+      else
+        session['hat-trick.override_step_count'] = count
+      end
+    end
+
+    def override_step_count
+      session['hat-trick.override_step_count']
+    end
+
+    def total_step_count
+      override_step_count or steps.count
     end
 
     def run_before_callback(step=current_step)
@@ -174,7 +216,15 @@ module HatTrick
 
     private
 
+    def reset_step_session_data
+      # Reset the session data
+      # TODO: Move this into a StepCollection class (maybe subclass Set)
+      visited_steps = []
+      skipped_steps = []
+    end
+
     def fake_session
+      Rails.logger.warning "Using a fake session object!"
       @fake_session ||= {}
     end
 

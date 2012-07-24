@@ -58,6 +58,7 @@ module HatTrick
         :url => hat_trick_wizard.current_form_url,
         :method => hat_trick_wizard.current_form_method,
         :currentStep => hat_trick_wizard.current_step,
+        :percentComplete => hat_trick_wizard.percent_complete,
       }
 
       include_data = hat_trick_wizard.include_data

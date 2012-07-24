@@ -31,6 +31,26 @@ module HatTrick
       hat_trick_wizard.current_step.buttons << self.class.send(:create_button_to, step_name, options)
     end
 
+    def remaining_step_count
+      hat_trick_wizard.steps_after_current
+    end
+
+    def adjust_remaining_step_count_by(diff)
+      hat_trick_wizard.steps_remaining += diff
+    end
+
+    def change_remaining_step_count_to(count)
+      hat_trick_wizard.steps_remaining = count
+    end
+
+    def total_step_count
+      hat_trick_wizard.total_step_count
+    end
+
+    def reset_step_count
+      hat_trick_wizard.override_step_count = nil
+    end
+
     module ClassMethods
       attr_reader :wizard_def
 
