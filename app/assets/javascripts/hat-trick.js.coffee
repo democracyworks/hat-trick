@@ -328,12 +328,18 @@ class HatTrickWizard
     this.updateStepFromMetadata()
 
   metadataRequestCallback: (data) =>
+    # set empty step contents if we didn't get any
+    # makes sure we can tell whether or not we've already requested metadata
+    stepId = this.currentStepId()
+    emptyStepContents = { hatTrickStepContents: {} }
+    emptyStepContents["hatTrickStepContents"][stepId] = ""
+    data.data = $.extend({}, data.data, emptyStepContents) unless data.data.hatTrickStepContents?
     this.handleServerData(data)
     this.removeLinkField() # updateStepFromMetadata sets this to currentStep
     this.setupButtonsForCurrentStep()
     this.updateButtons()
     this.setFormFields(hatTrick.model)
-    @form.trigger "step_changed", { currentStep: this.currentStepId() }
+    @form.trigger "step_changed", { currentStep: stepId }
 
   requestMetadataFromServer: ->
     metadataUrl = document.location.pathname
