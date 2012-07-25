@@ -387,7 +387,7 @@ class HatTrickWizard
       this.createDummyModelField() unless this.currentStepHasModelFields()
 
       currentStep = hatTrick.metadata.currentStep
-      this.setLinkField(currentStep.fieldset) unless this.linkFieldSet()
+      this.setLinkField(currentStep.fieldset)
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>

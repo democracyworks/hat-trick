@@ -75,7 +75,7 @@ module HatTrick
     def next_step
       step = find_next_step
       while step.skipped? do
-        step = find_step_after(step)
+        step = step_after(step)
       end
       step
     end
@@ -163,10 +163,17 @@ module HatTrick
     def advance_step(next_step_name=nil)
       # clean up current step
       current_step.mark_as_visited
+      before_callback_next_step = current_step.next_step
       run_after_callback
+      after_callback_next_step = current_step.next_step
 
-      # see if there is a requested next step
-      requested_next_step = find_step(next_step_name) unless next_step_name.nil?
+      # if after callback changed the next step, go to that one
+      requested_next_step = if after_callback_next_step != before_callback_next_step
+        after_callback_next_step
+      else
+        # use argument, if there was one
+        find_step(next_step_name) unless next_step_name.nil?
+      end
 
       # finish if we're on the last step
       if current_step == last_step && !requested_next_step
@@ -229,12 +236,7 @@ module HatTrick
     end
 
     def find_next_step
-      find_step(current_step.next_step) or find_step_after(current_step)
-    end
-
-    def find_step_after(step)
-      next_path_step = step_after step
-      next_path_step or find_next_active_step(step)
+      find_step(current_step.next_step) || step_after(current_step)
     end
   end
 end
