@@ -81,13 +81,6 @@ module HatTrick
       name.to_sym
     end
 
-    def as_json(options = nil)
-      json = { :name => name, :fieldset => fieldset }
-      json[:buttons] = buttons.empty? ? [] : buttons
-      json[:first] = @first
-      json
-    end
-
     def before_callback=(blk)
       callbacks[:before] = blk
     end

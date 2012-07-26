@@ -55,6 +55,7 @@ module HatTrick
       end
 
       wizard_metadata = {
+        :externalRedirectURL => hat_trick_wizard.external_redirect_url,
         :url => hat_trick_wizard.current_form_url,
         :method => hat_trick_wizard.current_form_method,
         :currentStep => hat_trick_wizard.current_step,
@@ -74,6 +75,9 @@ module HatTrick
                            :metadata => wizard_metadata }
         args[0][:json].merge!( :data => include_data )
       end
+
+      # unset redirect URL for subsequent steps
+      hat_trick_wizard.external_redirect_url = nil
 
       render_without_hat_trick(*args, &block)
     end

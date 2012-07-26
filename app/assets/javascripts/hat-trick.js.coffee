@@ -321,6 +321,11 @@ class HatTrickWizard
     hatTrick.stepMetadata[stepId] = metadata
 
   handleServerData: (data) =>
+    if data.metadata?.externalRedirectURL?
+      externalRedirectURL = data.metadata.externalRedirectURL
+      if externalRedirectURL isnt ""
+        location.href = data.metadata.externalRedirectURL
+
     if data.metadata?.url? and data.metadata?.method?
       this.setAction(data.metadata.url, data.metadata.method)
     this.saveStepMetadata(data.metadata.currentStep.name, data.metadata.currentStep)
@@ -381,13 +386,13 @@ class HatTrickWizard
     currentStepId = this.currentStepId()
     if $("fieldset##{currentStepId}").data("contents") is "server"
       this.updateStepContents()
+
     if hatTrick.metadata?.currentStep?
+      currentStepData = hatTrick.metadata.currentStep
       this.setCurrentStepField()
       this.setButtonMetadataForCurrentStep()
       this.createDummyModelField() unless this.currentStepHasModelFields()
-
-      currentStep = hatTrick.metadata.currentStep
-      this.setLinkField(currentStep.fieldset)
+      this.setLinkField(currentStepData.fieldset)
 
   bindEvents: ->
     @form.bind "step_shown", (event, data) =>

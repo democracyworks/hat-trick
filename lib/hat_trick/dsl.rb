@@ -51,6 +51,10 @@ module HatTrick
       hat_trick_wizard.override_step_count = nil
     end
 
+    def redirect_to_external_url(url)
+      hat_trick_wizard.external_redirect_url = url
+    end
+
     module ClassMethods
       attr_reader :wizard_def
 

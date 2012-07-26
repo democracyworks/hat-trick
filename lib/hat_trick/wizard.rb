@@ -6,7 +6,7 @@ module HatTrick
   class Wizard
     include WizardSteps
 
-    attr_accessor :controller, :model
+    attr_accessor :controller, :model, :external_redirect_url
     attr_reader :current_step, :wizard_def, :steps
 
     delegate :config, :to => :wizard_def
@@ -28,7 +28,7 @@ module HatTrick
     def current_step=(_step)
       raise "Don't set current_step to nil" if _step.nil?
       step = find_step(_step)
-      raise "#{step} is not a member of this wizard" unless step
+      raise "#{_step} is not a member of this wizard" unless step
       @current_step = step
     end
 
@@ -167,6 +167,9 @@ module HatTrick
       run_after_callback
       after_callback_next_step = current_step.next_step
 
+      # return if an external redirect URL was set
+      return if external_redirect_url.present?
+
       # if after callback changed the next step, go to that one
       requested_next_step = if after_callback_next_step != before_callback_next_step
         after_callback_next_step
@@ -224,7 +227,6 @@ module HatTrick
     private
 
     def reset_step_session_data
-      # Reset the session data
       # TODO: Move this into a StepCollection class (maybe subclass Set)
       visited_steps = []
       skipped_steps = []

@@ -6,7 +6,7 @@ module HatTrick
     attr_accessor :next_step
     attr_writer :skipped
 
-    delegate :name, :fieldset, :buttons, :to_sym, :to_s, :as_json,
+    delegate :name, :fieldset, :buttons, :to_sym, :to_s,
              :run_after_callback, :run_before_callback, :include_data,
              :run_include_data_callback, :include_data_key, :config,
              :last?, :to => :step_def
@@ -33,6 +33,13 @@ module HatTrick
 
     def mark_as_visited
       visited_steps << self.to_sym
+    end
+
+    def as_json(options = nil)
+      json = { :name => name, :fieldset => fieldset }
+      json[:buttons] = buttons.empty? ? [] : buttons
+      json[:first] = @first
+      json
     end
   end
 end
