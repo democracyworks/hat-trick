@@ -1,4 +1,5 @@
 # Hat Trick
+[![Build Status](https://buildhive.cloudbees.com/job/turbovote/job/hat-trick/badge/icon)](https://buildhive.cloudbees.com/job/turbovote/job/hat-trick/)
 > Combines jQuery FormWizard, validation_group, and gon for the perfect triple-play of Rails wizarding.
 
 ## Install
