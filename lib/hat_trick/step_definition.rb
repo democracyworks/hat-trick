@@ -70,6 +70,10 @@ module HatTrick
       @last
     end
 
+    def first?
+      @first
+    end
+
     def to_s
       str = "<HatTrick::Step:0x%08x :#{name}" % (object_id * 2)
       str += " fieldset: #{fieldset}" if fieldset != name

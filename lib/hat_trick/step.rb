@@ -9,7 +9,7 @@ module HatTrick
     delegate :name, :fieldset, :buttons, :to_sym, :to_s,
              :run_after_callback, :run_before_callback, :include_data,
              :run_include_data_callback, :include_data_key, :config,
-             :last?, :to => :step_def
+             :last?, :first?, :to => :step_def
 
     delegate :visited_steps, :skipped_steps, :to => :wizard
 
@@ -38,7 +38,7 @@ module HatTrick
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
       json[:buttons] = buttons.empty? ? [] : buttons
-      json[:first] = @first
+      json[:first] = first?
       json
     end
   end
