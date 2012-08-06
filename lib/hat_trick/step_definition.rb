@@ -41,6 +41,11 @@ module HatTrick
       label
     end
 
+    def add_or_replace_button(button)
+      buttons.delete_if { |b| b.keys.first == button.keys.first }
+      buttons << button
+    end
+
     def name=(name)
       @name = name.to_sym
     end

@@ -257,6 +257,7 @@ class HatTrickWizard
   # TODO: DRY this up
   setButton: (stepId, toStep, button) ->
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
+    @lastButtonChanged ?= $buttonsDiv.find("button").first
     switch toStep
       when "next"
         $button = $buttonsDiv.find('button.wizard_next')
@@ -270,6 +271,7 @@ class HatTrickWizard
         else
           $button.attr "id", "#{stepId}_next_button"
         $button.addClass button["class"] if button["class"]?
+        @lastButtonChanged = $button
       when "back"
         $button = $buttonsDiv.find('button.wizard_back')
         unless $button.length > 0
@@ -281,11 +283,14 @@ class HatTrickWizard
         else
           $button.attr "id", "#{stepId}_back_button"
         $button.addClass button["class"] if button["class"]?
+        @lastButtonChanged = $button
       else
         buttonSelector = """button[name="#{button.name}"][value="#{button.value}"]"""
         $existingButtons = $buttonsDiv.find(buttonSelector)
         if $existingButtons.length is 0
-          $newButton = $(this.createButton(toStep, button)).appendTo($buttonsDiv)
+          $newButton = $(this.createButton(toStep, button))
+          @lastButtonChanged.after $newButton
+          @lastButtonChanged = $newButton
           $newButton.click (event) =>
             event.preventDefault()
             fieldId = "button_#{$newButton.attr("name")}_#{$newButton.val()}_field"

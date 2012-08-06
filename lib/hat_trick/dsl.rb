@@ -28,7 +28,7 @@ module HatTrick
     end
 
     def button_to(step_name, options={})
-      hat_trick_wizard.current_step.buttons << self.class.send(:create_button_to, step_name, options)
+      hat_trick_wizard.current_step.add_or_replace_button self.class.send(:create_button_to, step_name, options)
     end
 
     def remaining_step_count
@@ -104,7 +104,7 @@ module HatTrick
 
       def button_to(step_name, options={})
         raise "button_to must be called from within a wizard block" unless wizard_def
-        wizard_def.last_step.buttons << create_button_to(step_name, options)
+        wizard_def.last_step.add_or_replace_button create_button_to(step_name, options)
       end
 
       def hide_button(button)
