@@ -89,6 +89,7 @@ class HatTrickWizard
       # beforeSubmit: (data) =>
       #   log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
+        this.clearErrors()
         this.handleServerData serverData
         @form.trigger 'ajaxSuccess', serverData
         # log "Successful form POST; got #{JSON.stringify(serverData)}"
