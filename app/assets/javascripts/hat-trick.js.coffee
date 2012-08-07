@@ -34,7 +34,7 @@ class HatTrickWizard
       @stepsNeedUpdate = false
     else
       this.updateButtons()
-    this.removeLinkField()
+    this.removeLinkFields()
     this.setFormFields(hatTrick.model)
     this.createDummyModelField() unless this.currentStepHasModelFields()
     @form.trigger 'step_changed', { currentStep: this.currentStepId() }
@@ -83,6 +83,9 @@ class HatTrickWizard
     ajax =
       url: @form.attr("action")
       dataType: "json"
+      beforeSerialize: (form, options) =>
+        if options.data._ht_step_link == this.currentStepId()
+          log "Warning: Tried to link to the current step; this is probably not what you want."
       # beforeSubmit: (data) =>
       #   log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
@@ -101,7 +104,7 @@ class HatTrickWizard
               ]
         this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.model when key isnt "__name__"
-        this.removeLinkField()
+        this.removeLinkFields()
         @form.trigger 'ajaxErrors', appErrors.model
     ajax
 
@@ -130,8 +133,8 @@ class HatTrickWizard
     this.setLinkField(stepId)
     @form.formwizard("next")
 
-  removeLinkField: ->
-    this.currentStep().find("input.#{@linkClass}").remove()
+  removeLinkFields: ->
+    @form.find("input.#{@linkClass}").remove()
 
   setLinkField: (stepId) ->
     inputId = "_ht_link_to_#{stepId}"
@@ -356,7 +359,7 @@ class HatTrickWizard
     emptyStepContents["hatTrickStepContents"][stepId] = ""
     data.data = $.extend({}, data.data, emptyStepContents) unless data.data.hatTrickStepContents?
     this.handleServerData(data)
-    this.removeLinkField() # updateStepFromMetadata sets this to currentStep
+    this.removeLinkFields() # updateStepFromMetadata sets this to currentStep
     this.setupButtonsForCurrentStep()
     this.updateButtons()
     this.setFormFields(hatTrick.model)
