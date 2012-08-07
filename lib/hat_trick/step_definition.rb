@@ -24,7 +24,7 @@ module HatTrick
     end
 
     def default_button(type)
-      { label: button_label(type) }
+      { :label => button_label(type), :default => true }
     end
 
     def button_label(type)
@@ -41,8 +41,10 @@ module HatTrick
       label
     end
 
-    def add_or_replace_button(button)
-      buttons.delete_if { |b| b.keys.first == button.keys.first }
+    def add_button(button)
+      buttons.delete_if do |b|
+        b.keys.first == button.keys.first && b[b.keys.first][:default]
+      end
       buttons << button
     end
 
