@@ -74,7 +74,6 @@
       $firstStep = this._stepElement(this.firstStep);
       stateData["step"] = this.firstStep;
       History.replaceState(stateData, $firstStep.data("page-title"), location.pathname);
-      this._setTitleForOlderBrowsers($firstStep.data("page-title"));
 
       this.isLastStep = false;
       this.previousStep = undefined;
@@ -296,14 +295,8 @@
       newUrl = "/" + newUrlPathComponents.join("/");
       stateData["step"] = step;
       History.pushState(stateData, title, newUrl);
-      this._setTitleForOlderBrowsers(title);
     },
 
-    _setTitleForOlderBrowsers : function(title) {
-      // for older browsers that don't respect pushState's title arg
-      if ($("title").text() !== title) {
-        $("title").text(title);
-      }
     },
 
     _disableNavigation : function() {
