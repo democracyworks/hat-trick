@@ -5,8 +5,6 @@ class HatTrickWizard
     @form = $(formElem)
     this.enableFormwizard()
 
-  formwizardEnabled: false
-
   linkClass: "_ht_link"
 
   buttons: []
@@ -160,7 +158,6 @@ class HatTrickWizard
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
       firstStep: hatTrick.metadata.currentStep.name
-    this.formwizardEnabled = true
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->
     $scope = $(scope)
