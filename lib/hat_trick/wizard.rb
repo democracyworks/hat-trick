@@ -160,6 +160,12 @@ module HatTrick
       step.run_after_callback(controller, model)
     end
 
+    def redirect_to_step(step)
+      redirect_from = current_step.fieldset
+      self.current_step = step
+      current_step.redirect_from = redirect_from
+    end
+
     def advance_step(next_step_name=nil)
       # clean up current step
       current_step.mark_as_visited
@@ -167,7 +173,7 @@ module HatTrick
       run_after_callback
       after_callback_next_step = current_step.next_step
 
-      # return if an external redirect URL was set
+      # return if any redirects were requested
       return if external_redirect_url.present?
 
       # if after callback changed the next step, go to that one

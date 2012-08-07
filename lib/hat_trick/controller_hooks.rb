@@ -47,6 +47,10 @@ module HatTrick
       if rendered && rendered.has_key?(:json)
         model = rendered[:json]
         hat_trick_wizard.model = model
+      else # loading first step
+        unless hat_trick_wizard.model.nil?
+          hat_trick_wizard.run_before_callback
+        end
       end
 
       if params.has_key?('_ht_meta')
@@ -76,7 +80,7 @@ module HatTrick
         args[0][:json].merge!( :data => include_data )
       end
 
-      # unset redirect URL for subsequent steps
+      # unset redirects for subsequent steps
       hat_trick_wizard.external_redirect_url = nil
 
       render_without_hat_trick(*args, &block)

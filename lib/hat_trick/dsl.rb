@@ -50,9 +50,9 @@ module HatTrick
     def reset_step_count
       hat_trick_wizard.override_step_count = nil
     end
-    
+
     def redirect_to_step(step_name)
-      hat_trick_wizard.current_step = step_name
+      hat_trick_wizard.redirect_to_step step_name
     end
 
     def redirect_to_external_url(url)
@@ -197,7 +197,7 @@ module HatTrick
           step_name = params['_ht_meta']['step']
         end
 
-        # TODO: Setup the route that enables this in hat-trick automatically
+        # TODO: Setup the route that enables this in hat-trick automatically.
         #       Currently done manually in the app.
         if params.has_key?('step')
           step_name = params['step']

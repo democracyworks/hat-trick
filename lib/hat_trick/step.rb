@@ -3,7 +3,7 @@ require 'hat_trick/step_definition'
 module HatTrick
   class Step
     attr_reader :step_def, :wizard
-    attr_accessor :next_step
+    attr_accessor :next_step, :redirect_from
     attr_writer :skipped
 
     delegate :name, :fieldset, :buttons, :to_sym, :to_s,
@@ -27,6 +27,10 @@ module HatTrick
       (@skipped || skipped_steps.include?(self.to_sym)) && !visited?
     end
 
+    def redirect?
+      redirect_from.present?
+    end
+
     def visited?
       visited_steps.include? self.to_sym
     end
@@ -39,6 +43,8 @@ module HatTrick
       json = { :name => name, :fieldset => fieldset }
       json[:buttons] = buttons.empty? ? [] : buttons
       json[:first] = first?
+      json[:redirect] = redirect?
+      json[:redirectFrom] = redirect_from
       json
     end
   end

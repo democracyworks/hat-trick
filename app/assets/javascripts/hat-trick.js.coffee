@@ -13,11 +13,13 @@ class HatTrickWizard
 
   stepShownCallback: ->
     currentStepId = this.currentStepId()
+
     if hatTrick.stepMetadata[currentStepId]?
       hatTrick.metadata.currentStep = hatTrick.stepMetadata[currentStepId]
     else
       this.requestMetadataFromServer()
       return
+
     this.updateStepFromMetadata()
     currentStepId = this.currentStepId()
     # can't go back from the first step
@@ -147,6 +149,10 @@ class HatTrickWizard
     # TODO: Figure out a better way to do this
     this.addFakeLastStep()
     this.bindEvents()
+    firstStep = if hatTrick.metadata.currentStep?.redirect
+      hatTrick.metadata.currentStep.redirectFrom
+    else
+      hatTrick.metadata.currentStep.fieldset
     @form.formwizard
       formPluginEnabled: true,
       validationEnabled: false,
@@ -157,7 +163,13 @@ class HatTrickWizard
       back: "button:reset",
       linkClass: ".#{@linkClass}",
       remoteAjax: this.ajaxEvents(),
-      firstStep: hatTrick.metadata.currentStep.name
+      firstStep: firstStep
+    # see if we got a redirect & follow if so
+    currentStepId = this.currentStepId()
+    if hatTrick.metadata.currentStep?
+      currentStepData = hatTrick.metadata.currentStep
+      if currentStepData.redirect and currentStepData.redirectFrom is currentStepId
+        @form.formwizard("redirect", currentStepData.fieldset)
 
   setHiddenInput: (name, value, id, classes = "", scope = @form) ->
     $scope = $(scope)
@@ -335,9 +347,9 @@ class HatTrickWizard
     this.updateStepFromMetadata()
 
   metadataRequestCallback: (data) =>
-    # set empty step contents if we didn't get any
-    # makes sure we can tell whether or not we've already requested metadata
     stepId = this.currentStepId()
+    # set empty step contents if we didn't get any;
+    # this makes sure we can tell whether or not we've already requested metadata
     emptyStepContents = { hatTrickStepContents: {} }
     emptyStepContents["hatTrickStepContents"][stepId] = ""
     data.data = $.extend({}, data.data, emptyStepContents) unless data.data.hatTrickStepContents?
@@ -386,6 +398,7 @@ class HatTrickWizard
 
   updateStepFromMetadata: ->
     currentStepId = this.currentStepId()
+
     if $("fieldset##{currentStepId}").data("contents") is "server"
       this.updateStepContents()
 
@@ -403,7 +416,7 @@ class HatTrickWizard
 $ ->
   if $("form.wizard").length > 0
     $form = $("form.wizard")
-    window.hatTrick = {} unless window.hatTrick?
+    window.hatTrick ?= {}
     unless window.hatTrick.wizard?
       window.hatTrick.wizard = new HatTrickWizard($form, hatTrick.metadata)
 

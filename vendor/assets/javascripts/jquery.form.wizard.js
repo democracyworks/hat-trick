@@ -262,26 +262,39 @@
       return false;
     },
 
-    _setState : function() {
-
+    _pageTitleForStep : function(step) {
+      var $step = this._stepElement(step);
+      var title = $step.data("page-title");
+      return title;
     },
 
     _updateHistory : function(step) {
       var stateData = {};
-      var $step = this._stepElement(step);
-      var title = $step.data("page-title");
+      var newUrlPath = this._urlPathForStep(step);
+      var title = this._pageTitleForStep(step);
+
+      stateData["step"] = step;
+      History.pushState(stateData, title, newUrlPath);
+    },
+
+    _urlPathForStep : function(step) {
       var currentState = History.getState();
       var currentStep = this.currentStep;
-      var urlPathComponents = currentState.url.split("/");
+      var urlPathComponents;
       var newUrlPathComponents = [];
       var newUrl;
       var i;
-      var lastIndex = urlPathComponents.length - 1;
+      var lastIndex;
 
-      for (i=3; i<lastIndex; i++) {
-        if (urlPathComponents[i] !== "") {
-          newUrlPathComponents.push(urlPathComponents[i]);
-        }
+      urlPathComponents = currentState.url.split("/").filter(function(c) {
+        return (c !== "");
+      });
+      urlPathComponents.shift(); // drop first element; the "http(s):"
+      urlPathComponents.shift(); // next element is host:port section; drop it
+      lastIndex = urlPathComponents.length - 1;
+
+      for (i=0; i<lastIndex; i++) {
+        newUrlPathComponents.push(urlPathComponents[i]);
       }
 
       // remove any query params from the end of the URL
@@ -293,10 +306,13 @@
 
       newUrlPathComponents.push(step);
       newUrl = "/" + newUrlPathComponents.join("/");
-      stateData["step"] = step;
-      History.pushState(stateData, title, newUrl);
+
+      return newUrl;
     },
 
+    _redirect : function(step) {
+      var stepUrlPath = this._urlPathForStep(step);
+      location.pathname = stepUrlPath;
     },
 
     _disableNavigation : function() {
@@ -433,8 +449,12 @@
 
     /*Methods*/
 
-    show : function(step){
+    show : function(step) {
       this._updateHistory(step);
+    },
+
+    redirect : function(step) {
+      this._redirect(step);
     },
 
     state : function(state){
