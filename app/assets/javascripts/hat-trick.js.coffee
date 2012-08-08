@@ -86,6 +86,7 @@ class HatTrickWizard
       beforeSerialize: (form, options) =>
         if options.data._ht_step_link == this.currentStepId()
           log "Warning: Tried to link to the current step; this is probably not what you want."
+        return true;
       # beforeSubmit: (data) =>
       #   log "Sending these data to the server: #{JSON.stringify data}"
       success: (serverData) =>
@@ -164,7 +165,8 @@ class HatTrickWizard
       validationEnabled: false,
       focusFirstInput: true,
       disableUIStyles: true,
-      inDuration: 0,
+      outDuration: 200,
+      inDuration: 10, # don't set this to 0 or step_shown will be triggered too early
       next: "button:submit",
       back: "button:reset",
       linkClass: ".#{@linkClass}",
