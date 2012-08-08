@@ -47,10 +47,6 @@ module HatTrick
       if rendered && rendered.has_key?(:json)
         model = rendered[:json]
         hat_trick_wizard.model = model
-      else # loading first step
-        unless hat_trick_wizard.model.nil?
-          hat_trick_wizard.run_before_callback
-        end
       end
 
       if params.has_key?('_ht_meta')
