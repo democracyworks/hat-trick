@@ -445,5 +445,5 @@ underscoreString = (string) ->
   result
 
 log = (msg) ->
-  if window['console']? and hatTrick.debug
+  if window['console']? and hatTrick.wizard.debug
     console.log msg
