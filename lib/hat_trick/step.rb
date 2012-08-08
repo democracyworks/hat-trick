@@ -19,10 +19,6 @@ module HatTrick
       @skipped = step_def.skipped?
     end
 
-    def session
-      wizard.session
-    end
-
     def skipped?
       (@skipped || skipped_steps.include?(self.to_sym)) && !visited?
     end
