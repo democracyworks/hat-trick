@@ -7,6 +7,7 @@ module HatTrick
     include WizardSteps
 
     attr_reader :config
+    attr_accessor :before_callback_for_all_steps, :after_callback_for_all_steps
 
     def initialize(config)
       @config = config

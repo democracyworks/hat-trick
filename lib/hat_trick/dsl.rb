@@ -117,14 +117,22 @@ module HatTrick
         step.buttons.delete_if { |b| b.keys.include?(button) }
       end
 
-      def before(&block)
+      def before(scope=:current_step, &block)
         raise "before must be called from within a wizard block" unless wizard_def
-        wizard_def.last_step.before_callback = block
+        if scope == :each
+          wizard_def.before_callback_for_all_steps = block
+        else
+          wizard_def.last_step.before_callback = block
+        end
       end
 
-      def after(&block)
+      def after(scope=:current_step, &block)
         raise "after must be called from within a wizard block" unless wizard_def
-        wizard_def.last_step.after_callback = block
+        if scope == :each
+          wizard_def.after_callback_for_all_steps = block
+        else
+          wizard_def.last_step.after_callback = block
+        end
       end
 
       def include_data(key, &block)

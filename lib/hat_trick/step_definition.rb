@@ -112,31 +112,52 @@ module HatTrick
       { key => camelize_hash_keys(inc_data) }
     end
 
+    def before_callbacks
+      before_callbacks = [callbacks[:before]]
+      if wizard.before_callback_for_all_steps
+        before_callbacks << wizard.before_callback_for_all_steps
+      end
+      before_callbacks
+    end
+
     def run_before_callback(context, model)
-      run_callback(:before, context, model)
+      run_callbacks(before_callbacks, context, model)
     end
 
     def run_include_data_callback(context, model)
-      run_callback(:include_data, context, model)
+      run_callbacks([callbacks[:include_data]], context, model)
+    end
+
+    def after_callbacks
+      after_callbacks = [callbacks[:after]]
+      if wizard.after_callback_for_all_steps
+        after_callbacks << wizard.after_callback_for_all_steps
+      end
+      after_callbacks
     end
 
     def run_after_callback(context, model)
-      run_callback(:after, context, model)
+      run_callbacks(after_callbacks, context, model)
     end
 
     private
 
-    def run_callback(type, context, model)
-      callback = callbacks[type.to_sym]
-      if callback && callback.is_a?(Proc)
-        if callback.arity > 0
-          unless model.is_a?(ActiveModel::Errors)
-            context.instance_exec model, &callback
+    def run_callbacks(callbacks, context, model)
+      result = nil
+      callbacks.each do |callback|
+        if callback && callback.is_a?(Proc)
+          if callback.arity > 0
+            unless model.is_a?(ActiveModel::Errors)
+              result = context.instance_exec model, &callback
+            end
+          else
+            result = context.instance_eval &callback
           end
-        else
-          context.instance_eval &callback
         end
       end
+
+      # return the last result; mainly for include_data
+      result
     end
 
     def camelize_hash_keys(_hash)
