@@ -6,7 +6,7 @@ module HatTrick
     attr_accessor :next_step, :redirect_from
     attr_writer :skipped
 
-    delegate :name, :fieldset, :buttons, :to_sym, :to_s,
+    delegate :name, :fieldset, :add_button, :buttons, :to_sym, :to_s,
              :run_after_callback, :run_before_callback, :include_data,
              :run_include_data_callback, :include_data_key, :config,
              :last?, :first?, :to => :step_def
