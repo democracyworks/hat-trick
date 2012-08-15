@@ -360,8 +360,10 @@ class HatTrickWizard
     # set empty step contents if we didn't get any;
     # this makes sure we can tell whether or not we've already requested metadata
     emptyStepContents = { hatTrickStepContents: {} }
-    emptyStepContents["hatTrickStepContents"][stepId] = ""
-    data.data = $.extend({}, data.data, emptyStepContents) unless data.data.hatTrickStepContents?
+    stepKey = camelizeString(stepId)
+    emptyStepContents["hatTrickStepContents"][stepKey] = ""
+    unless data.data.hatTrickStepContents? and data.data.hatTrickStepContents[stepKey]?
+      data.data = $.extend({}, data.data, emptyStepContents)
     this.handleServerData(data)
     this.removeLinkFields() # updateStepFromMetadata sets this to currentStep
     this.setupButtonsForCurrentStep()
