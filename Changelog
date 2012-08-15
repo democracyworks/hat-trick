@@ -1,17 +1,17 @@
-* 0.1.3 - Handle non-root URLs correctly in pushState (Closes GH issue #5)
-        - Don't loop past the last step when looking for the next one (Closes GH issue #6)
-        - Only run the include_data callback for the current step (Closes GH issue #8)
-        - Trigger ajaxErrors event on form element when we get errors back from an ajax call
-        - Trigger ajaxSuccess event on form element when ajax calls return successfully
-        - Don't add slashes to wizard step URLs
-        - Fix buggy radio button selection logic
-        - Use <button> elements for all buttons & improve button creation logic
-        - Allow HTML inside <button> elements; use button_to label: "[your html]"
-        - Don't focus the first input in fieldsets with the "no-focus" CSS class
-        - SO many other changes that I stopped listing them here. Oops.
+* 0.1.3    - Handle non-root URLs correctly in pushState (Closes GH issue #5)
+           - Don't loop past the last step when looking for the next one (Closes GH issue #6)
+           - Only run the include_data callback for the current step (Closes GH issue #8)
+           - Trigger ajaxErrors event on form element when we get errors back from an ajax call
+           - Trigger ajaxSuccess event on form element when ajax calls return successfully
+           - Don't add slashes to wizard step URLs
+           - Fix buggy radio button selection logic
+           - Use <button> elements for all buttons & improve button creation logic
+           - Allow HTML inside <button> elements; use button_to label: "[your html]"
+           - Don't focus the first input in fieldsets with the "no-focus" CSS class
+           - SO many other changes that I stopped listing them here. Oops.
 
-* 0.1.2 - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
+* 0.1.2    - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
 
-* 0.1.1 - Added LICENSE file to license hat-trick under the MIT license.
+* 0.1.1    - Added LICENSE file to license hat-trick under the MIT license.
 
-* 0.1 - Initial working release
+* 0.1      - Initial working release

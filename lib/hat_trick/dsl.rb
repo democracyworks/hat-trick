@@ -142,10 +142,7 @@ module HatTrick
 
       def set_contents(&block)
         raise "set_contents must be called from within a wizard block" unless wizard_def
-        current_step_name = wizard_def.last_step.to_sym
-        include_data "hat_trick_step_contents" do |wiz, model|
-          { current_step_name => instance_exec(wiz, model, &block) }
-        end
+        wizard_def.last_step.step_contents_callback = block
       end
 
       private

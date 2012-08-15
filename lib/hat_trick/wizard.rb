@@ -214,7 +214,11 @@ module HatTrick
 
     def include_data_for_step(step)
       return {} if model.nil?
-      step.include_data(controller, model)
+      inc_data = step.include_data(controller, model)
+      contents = step.step_contents(controller, model)
+      inc_data.merge! contents
+      inc_data.delete_if { |k,v| v.nil? }
+      inc_data
     end
 
     def alias_action_methods

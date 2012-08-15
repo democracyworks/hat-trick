@@ -92,17 +92,30 @@ module HatTrick
       name.to_sym
     end
 
-    def before_callback=(blk)
-      callbacks[:before] = blk
+    def before_callback=(block)
+      callbacks[:before] = block
     end
 
-    def after_callback=(blk)
-      callbacks[:after] = blk
+    def after_callback=(block)
+      callbacks[:after] = block
     end
 
     def include_data=(hash)
       callbacks[:include_data] = hash.values.first
       @include_data_key = hash.keys.first
+    end
+
+    def step_contents_callback=(block)
+      callbacks[:step_contents] = block
+    end
+
+    def step_contents(context, model)
+      contents = run_step_contents_callback(context, model)
+      {
+        :hatTrickStepContents => {
+          name.to_s.camelize(:lower).to_sym => contents
+        }
+      }
     end
 
     def include_data(context, model)
@@ -121,11 +134,16 @@ module HatTrick
     end
 
     def run_before_callback(context, model)
+      Rails.logger.info "Running before callback for #{name}"
       run_callbacks(before_callbacks, context, model)
     end
 
     def run_include_data_callback(context, model)
       run_callbacks([callbacks[:include_data]], context, model)
+    end
+
+    def run_step_contents_callback(context, model)
+      run_callbacks([callbacks[:step_contents]], context, model)
     end
 
     def after_callbacks

@@ -8,8 +8,9 @@ module HatTrick
 
     delegate :name, :fieldset, :add_button, :buttons, :to_sym, :to_s,
              :run_after_callback, :run_before_callback, :include_data,
-             :run_include_data_callback, :include_data_key, :config,
-             :last?, :first?, :to => :step_def
+             :run_include_data_callback, :run_step_contents_callback,
+             :include_data_key, :config, :step_contents, :last?, :first?,
+             :to => :step_def
 
     delegate :visited_steps, :skipped_steps, :to => :wizard
 
@@ -20,7 +21,7 @@ module HatTrick
     end
 
     def skipped?
-      (@skipped || skipped_steps.include?(self.to_sym)) && !visited?
+      @skipped || (skipped_steps.include?(self.to_sym) && !visited?)
     end
 
     def redirect?
