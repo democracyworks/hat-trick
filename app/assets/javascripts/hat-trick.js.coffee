@@ -335,7 +335,7 @@ class HatTrickWizard
           $partial.find('fieldset').html()
         $step = $("fieldset##{stepId}")
         $step.html fieldsetContents
-        $step.find(":input:not(input[type=hidden]):first").focus()
+        $step.filter("fieldset:not(.no-focus)").find(":input:not(input[type=hidden]):first").focus();
         $step.data("contents", "loaded")
         @stepsNeedUpdate = true
 

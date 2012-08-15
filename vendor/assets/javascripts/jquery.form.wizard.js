@@ -348,7 +348,7 @@
       old.animate(wizard.options.outAnimation, wizard.options.outDuration, wizard.options.easing, function(){
         current.animate(wizard.options.inAnimation, wizard.options.inDuration, wizard.options.easing, function(){
           if (wizard.options.focusFirstInput) {
-            current.find(":input:not(input[type=hidden]):first").focus();
+            current.filter("fieldset:not(.no-focus)").find(":input:not(input[type=hidden]):first").focus();
           }
           wizard._enableNavigation();
 
