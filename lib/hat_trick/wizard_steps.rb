@@ -1,4 +1,6 @@
 module HatTrick
+  class StepNotFound < StandardError; end
+
   module WizardSteps
     include Enumerable
     attr_reader :steps

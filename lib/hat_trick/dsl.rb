@@ -210,7 +210,11 @@ module HatTrick
 
         if step_name.present?
           Rails.logger.info "Setting current step to: #{step_name}"
-          @hat_trick_wizard.current_step = step_name
+          begin
+            @hat_trick_wizard.current_step = step_name
+          rescue StepNotFound => e
+            raise ActionController::RoutingError, e.message
+          end
         end
       end
     end

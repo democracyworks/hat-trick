@@ -28,7 +28,7 @@ module HatTrick
     def current_step=(_step)
       raise "Don't set current_step to nil" if _step.nil?
       step = find_step(_step)
-      raise "#{_step} is not a member of this wizard" unless step
+      raise StepNotFound, "#{_step} is not a member of this wizard" unless step
       @current_step = step
     end
 
