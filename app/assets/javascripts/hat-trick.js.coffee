@@ -265,8 +265,10 @@ class HatTrickWizard
         button["class"] = "wizard_next"
         type = "submit"
       when "back"
-        button["class"] = "wizard_back"
-        delete button["name"]
+        button.class = "wizard_back"
+        button.name = "back"
+        unless button.id?
+          button.id = "#{this.currentStepId()}_back_button"
         delete button["value"]
         type = "reset"
       else
@@ -278,17 +280,18 @@ class HatTrickWizard
       $button.attr("id", "#{this.currentStepId()}_#{button.name}_#{button.value}")
     if button["class"]?
       $button.addClass(button["class"])
-    $button.click =>
-      clickCallbackData =
-        currentStep: this.currentStepId()
-        button: $button.attr "id"
-      @form.trigger "other_button_click", clickCallbackData
+    if type is "button"
+      $button.click =>
+        clickCallbackData =
+          currentStep: this.currentStepId()
+          button: $button.attr "id"
+        @form.trigger "other_button_click", clickCallbackData
     $button
 
   setButton: (stepId, toStep, button) ->
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     if $buttonsDiv.find("button").length > 0
-      @lastButtonChanged ?= $buttonsDiv.find("button").first
+      @lastButtonChanged ?= $buttonsDiv.find("button").first()
     buttonSelector = """button[name="#{button.name}"][value="#{button.value}"]"""
     $existingButtons = $buttonsDiv.find(buttonSelector)
     if $existingButtons.length is 0
