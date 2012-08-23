@@ -151,7 +151,6 @@
             typeof events['click'] === "undefined" ||
             events['click'].length === 0) {
           $(this).click(function() {
-            console.log("Next clicked");
             return wizard._next(this);
           });
         }
@@ -164,7 +163,6 @@
             typeof events['click'] === "undefined" ||
             events['click'].length === 0) {
           $(this).click(function() {
-            console.log("Back clicked");
             var backClickCallbackData = {
               "currentStep": wizard.currentStep,
               "button": $(this).attr("id")
