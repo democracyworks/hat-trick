@@ -16,6 +16,8 @@ class HatTrickWizard
   stepShownCallback: ->
     currentStepId = this.currentStepId()
 
+    @lastButtonChanged = null
+
     if hatTrick.stepMetadata[currentStepId]?
       hatTrick.metadata.currentStep = hatTrick.stepMetadata[currentStepId]
     else
@@ -251,16 +253,28 @@ class HatTrickWizard
     this.setRadioButtons(model)
 
   createButtonElement: (name, value, label, type="button") ->
-    $elem = $("""<button type="#{type}" class="wizard_button" name="#{name}"></button>""")
+    $elem = $("""<button type="#{type}" class="wizard_button"></button>""")
+    $elem.attr "name", name if name?
     $elem.html label
-    $elem.val value
+    $elem.val value if value?
     $elem
 
   createButton: (toStep, button) ->
-    $button = this.createButtonElement button.name, button.value, button.label
+    switch toStep
+      when "next"
+        button["class"] = "wizard_next"
+        type = "submit"
+      when "back"
+        button["class"] = "wizard_back"
+        delete button["name"]
+        delete button["value"]
+        type = "reset"
+      else
+        type = "button"
+    $button = this.createButtonElement button.name, button.value, button.label, type
     if button.id?
       $button.attr("id", button.id)
-    else
+    else if button.name? and button.value?
       $button.attr("id", "#{this.currentStepId()}_#{button.name}_#{button.value}")
     if button["class"]?
       $button.addClass(button["class"])
@@ -271,8 +285,27 @@ class HatTrickWizard
       @form.trigger "other_button_click", clickCallbackData
     $button
 
-  # TODO: DRY this up
   setButton: (stepId, toStep, button) ->
+    $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
+    if $buttonsDiv.find("button").length > 0
+      @lastButtonChanged ?= $buttonsDiv.find("button").first
+    buttonSelector = """button[name="#{button.name}"][value="#{button.value}"]"""
+    $existingButtons = $buttonsDiv.find(buttonSelector)
+    if $existingButtons.length is 0
+      $newButton = $(this.createButton(toStep, button))
+      if @lastButtonChanged?
+        @lastButtonChanged.after $newButton
+      else
+        $buttonsDiv.append $newButton
+      @lastButtonChanged = $newButton
+      $newButton.click (event) =>
+        event.preventDefault()
+        fieldId = "button_#{$newButton.attr("name")}_#{$newButton.val()}_field"
+        this.setHiddenInput $newButton.attr("name"), $newButton.val(), fieldId, "", $buttonsDiv
+        this.goToStepId(toStep)
+
+  # TODO: DRY this up
+  setButtonOld: (stepId, toStep, button) ->
     $buttonsDiv = $("fieldset##{stepId}").find("div.buttons")
     @lastButtonChanged ?= $buttonsDiv.find("button").first
     switch toStep
