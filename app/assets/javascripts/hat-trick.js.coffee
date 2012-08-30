@@ -189,7 +189,7 @@ class HatTrickWizard
         $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
       catch err
         # WTF IE
-        window.location.reload() if $.msie
+        window.location.reload() if $.browser.msie
     $input.val value
     $input
 
