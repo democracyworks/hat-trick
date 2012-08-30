@@ -23,6 +23,14 @@ module HatTrick
       end
     end
 
+    def previously_visited_step_name
+      if previously_visited_step.nil?
+        ''
+      else
+        previously_visited_step.name
+      end
+    end
+
     def skip_this_step
       hat_trick_wizard.skip_step(hat_trick_wizard.current_step)
     end
@@ -183,6 +191,12 @@ module HatTrick
 
       included do
         before_filter :setup_wizard
+      end
+
+      def back_to_start
+        respond_to do |format|
+          format.json { }
+        end
       end
 
       private

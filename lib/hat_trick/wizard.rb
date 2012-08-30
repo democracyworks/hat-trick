@@ -34,9 +34,6 @@ module HatTrick
 
     def session
       if controller.nil?
-        # TODO: It seems to use the fake_session most or all of the time.
-        #       Need to figure out what's up with that.
-        # Rails.logger.warn "Hat-Trick controller is nil; using fake session"
         fake_session
       else
         controller.session
