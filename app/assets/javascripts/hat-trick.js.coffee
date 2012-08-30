@@ -185,7 +185,11 @@ class HatTrickWizard
     $scope = $(scope)
     $input = $scope.find("""input[name="#{name}"]""")
     if $input.length is 0
-      $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
+      try
+        $input = $(this.hiddenInputHTML(name, id, classes)).prependTo $scope
+      catch err
+        # WTF IE
+        window.location.reload() if $.msie
     $input.val value
     $input
 
