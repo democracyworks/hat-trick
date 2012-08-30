@@ -8,6 +8,7 @@
            - Use <button> elements for all buttons & improve button creation logic
            - Allow HTML inside <button> elements; use button_to label: "[your html]"
            - Don't focus the first input in fieldsets with the "no-focus" CSS class
+           - Allow multiple next buttons on each step so they can have different labels, names, values
            - SO many other changes that I stopped listing them here. Oops.
 
 * 0.1.2    - Closes GH issue #4 - Don't run skipped steps' include_data callbacks
