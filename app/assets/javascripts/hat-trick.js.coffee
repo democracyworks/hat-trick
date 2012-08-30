@@ -310,8 +310,9 @@ class HatTrickWizard
 
   setupButtonsForCurrentStep: ->
     $currentStep = this.currentStep()
-    $buttons = $currentStep.find("div.buttons button")
-    if $buttons.length < @buttons[$currentStep.attr("id")].length
+    $buttonsDiv = $currentStep.find("div.buttons")
+    $buttons = $buttonsDiv.find("button")
+    unless $buttonsDiv.data "buttonsAdded"
       this.setupButtonsForStep this.currentStepId()
 
   setupButtonsForStep: (stepId) ->
@@ -320,6 +321,7 @@ class HatTrickWizard
       for button in buttons
         do (button) =>
           this.setButton(stepId, toStep, buttonData) for toStep, buttonData of button
+    $("##{stepId} div.buttons").data "buttonsAdded", true
 
   setContents: (stepPartials) ->
     for stepName, partial of stepPartials
