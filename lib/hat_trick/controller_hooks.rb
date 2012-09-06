@@ -17,7 +17,9 @@ module HatTrick
           module_eval <<-RUBY_EVAL
             def #{meth}_with_hat_trick(*args)
               Rails.logger.info "#{meth}_with_hat_trick called"
-              #{meth}_hook(*args) if respond_to?("#{meth}_hook", :include_private)
+              if respond_to?("#{meth}_hook", :include_private)
+                #{meth}_hook(*args)
+              end
               common_hook(*args) if respond_to?(:common_hook, :include_private)
               #{meth}_without_hat_trick(*args)
             end
@@ -45,8 +47,9 @@ module HatTrick
     def render_with_hat_trick(*args, &block)
       rendered = args.first
       if rendered && rendered.has_key?(:json)
-        model = rendered[:json]
-        hat_trick_wizard.model = model
+        hat_trick_wizard.model = rendered[:json]
+      else
+        Rails.logger.warn "No model found in render args #{args.inspect}; model is #{hat_trick_wizard.model.inspect}"
       end
 
       if params.has_key?('_ht_meta')
