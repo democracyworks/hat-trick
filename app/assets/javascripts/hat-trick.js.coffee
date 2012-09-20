@@ -346,7 +346,10 @@ class HatTrickWizard
     if data.metadata?.externalRedirectURL?
       externalRedirectURL = data.metadata.externalRedirectURL
       if externalRedirectURL isnt ""
-        location.href = data.metadata.externalRedirectURL
+        if (top.location == self.location)
+          location.href = data.metadata.externalRedirectURL
+        else
+          window.open(data.metadata.externalRedirectURL)
 
     if data.metadata?.url? and data.metadata?.method?
       this.setAction(data.metadata.url, data.metadata.method)
