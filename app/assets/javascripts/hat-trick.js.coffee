@@ -106,10 +106,12 @@ class HatTrickWizard
               unknown: [
                 "There was an error communicating with the server. TurboVote staff have been notified."
               ]
+            status: status
+            event: event
         this.clearErrors()
         this.addErrorItem value[0] for key, value of appErrors.model when key isnt "__name__"
         this.removeLinkFields()
-        @form.trigger 'ajaxErrors', appErrors.model
+        @form.trigger 'ajaxErrors', appErrors
     ajax
 
   getErrorListElement: ->
