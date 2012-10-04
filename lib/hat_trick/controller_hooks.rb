@@ -13,7 +13,7 @@ module HatTrick
     def self.def_action_method_aliases(action_methods)
       action_methods.each do |meth|
         unless respond_to?(:"#{meth}_with_hat_trick")
-          Rails.logger.info "Defining #{meth}_with_hat_trick"
+          Rails.logger.info "Defining #{meth}_with_hat_trick on #{self.inspect}"
           module_eval <<-RUBY_EVAL
             def #{meth}_with_hat_trick(*args)
               Rails.logger.info "#{meth}_with_hat_trick called"
