@@ -219,7 +219,6 @@ module HatTrick
     end
 
     def alias_action_methods
-      Rails.logger.info "alias_action_methods: controller is #{controller.inspect}"
       action_methods = controller.action_methods.reject do |m|
         /^render/ =~ m.to_s ||
         controller.respond_to?("#{m}_without_hat_trick", :include_private)
