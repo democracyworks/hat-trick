@@ -220,7 +220,8 @@ module HatTrick
 
     def alias_action_methods
       action_methods = controller.action_methods.reject do |m|
-        /^render/ =~ m.to_s ||
+        /^render/ =~ m.to_s or
+        meth.include?('!') or
         controller.respond_to?("#{m}_without_hat_trick", :include_private)
       end
       HatTrick::ControllerHooks.def_action_method_aliases(action_methods)
