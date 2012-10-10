@@ -165,7 +165,7 @@ module HatTrick
       callbacks.each do |callback|
         if callback && callback.is_a?(Proc)
           if callback.arity > 0
-            unless model.is_a?(ActiveModel::Errors)
+            unless model.nil? || model.is_a?(ActiveModel::Errors)
               result = context.instance_exec model, &callback
             end
           else
