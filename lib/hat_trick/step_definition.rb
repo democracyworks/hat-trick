@@ -1,6 +1,6 @@
 module HatTrick
   class StepDefinition
-    attr_reader :callbacks, :include_data_key, :buttons
+    attr_reader :callbacks, :include_data_key
     attr_accessor :name, :fieldset, :wizard
     attr_writer :skipped, :first
 
@@ -23,22 +23,20 @@ module HatTrick
       @first ||= false
     end
 
-    def default_button(type)
-      { :label => button_label(type), :default => true }
-    end
-
-    def button_label(type)
-      config.send("#{type}_button_label") or default_button_label(type)
-    end
-
-    def default_button_label(type)
-      default_label = type.to_s.humanize
-      begin
-        label = I18n.t("wizard.buttons.#{type}", :default => default_label)
-      rescue NameError
-        label = default_label
+    def buttons
+      # We should check for a new translation every time because the user may
+      # have changed their desired localization.
+      @buttons.map do |b|
+        button_type = b.keys.first
+        if b[button_type][:default]
+          b[button_type][:label] = button_label(button_type)
+        end
+        b
       end
-      label
+    end
+
+    def default_button(type)
+      { :label => button_label(type), :type => type, :default => true }
     end
 
     def add_button(button)
@@ -159,6 +157,28 @@ module HatTrick
     end
 
     private
+
+    def button_label(type)
+      config.send("#{type}_button_label") or
+      if i18n_key = config.send("#{type}_button_label_i18n_key")
+        I18n.t i18n_key
+      end or
+      default_button_label(type)
+    end
+
+    def default_button_label(type)
+      translate_button_label(type)
+    end
+
+    def translate_button_label(type)
+      default_label = type.to_s.humanize
+      begin
+        label = I18n.t("wizard.buttons.#{type}", :default => default_label)
+      rescue NameError
+        label = default_label
+      end
+      label
+    end
 
     def run_callbacks(callbacks, context, model)
       result = nil

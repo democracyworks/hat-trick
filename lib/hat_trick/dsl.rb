@@ -96,6 +96,10 @@ module HatTrick
         wizard_def.config.send("#{type}_button_label=", label)
       end
 
+      def button_label_i18n_key(type, i18n_key)
+        wizard_def.config.send("#{type}_button_label_i18n_key=", i18n_key)
+      end
+
       def step(name, args={}, &block)
         raise "step must be called from within a wizard block" unless wizard_def
         wizard_def.add_step(name, args)
