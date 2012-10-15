@@ -35,15 +35,32 @@ module HatTrick
       end
     end
 
+    def next_button
+      get_button(:next)
+    end
+
+    def back_button
+      get_button(:back)
+    end
+
+    def get_button(type)
+      button = buttons.detect { |b| b.keys.first == type.to_sym }
+      button[type.to_sym] unless button.nil?
+    end
+
     def default_button(type)
-      { :label => button_label(type), :type => type, :default => true }
+      { :label => button_label(type), :default => true }
     end
 
     def add_button(button)
-      buttons.delete_if do |b|
+      @buttons.delete_if do |b|
         b.keys.first == button.keys.first && b[b.keys.first][:default]
       end
-      buttons << button
+      @buttons << button
+    end
+
+    def delete_button(type)
+      @buttons.delete_if { |b| b.keys.first == type }
     end
 
     def name=(name)
@@ -65,9 +82,9 @@ module HatTrick
     def last=(_last)
       @last = _last
       if @last
-        buttons.delete_if { |b| b.keys.include?(:next) }
+        @buttons.delete_if { |b| b.keys.include?(:next) }
       else
-        buttons << { :next => default_next_button }
+        @buttons << { :next => default_next_button }
       end
     end
 
