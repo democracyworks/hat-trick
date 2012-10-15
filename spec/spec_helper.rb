@@ -13,6 +13,11 @@ module Rails
   end
 end
 
+module ActiveRecord
+  class Base
+  end
+end
+
 require File.expand_path('../../lib/hat-trick', __FILE__)
 require 'rspec/autorun'
 

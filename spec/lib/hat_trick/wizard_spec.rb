@@ -1,18 +1,28 @@
 require 'spec_helper'
 
 describe HatTrick::Wizard do
-  subject {
-    wiz_def = HatTrick::WizardDefinition.new
-    wiz_def.add_step(:step1)
-    wiz_def.add_step(:step2)
-    wiz_def.add_step(:step3)
-    wiz_def.add_step(:step4)
-    wiz_def.add_step(:step5)
-
-    HatTrick::Wizard.new(wiz_def)
+  let(:mock_config) {
+    mock("HatTrick::Config").tap do |mc|
+      mc.stubs(:next_button_label).returns(nil)
+      mc.stubs(:back_button_label).returns(nil)
+      mc.stubs(:next_button_label_i18n_key).returns(nil)
+      mc.stubs(:back_button_label_i18n_key).returns(nil)
+    end
   }
 
-  let(:wizard) { subject }
+  let(:wizard_definition) {
+    HatTrick::WizardDefinition.new(mock_config).tap do |wiz_def|
+      wiz_def.add_step(:step1)
+      wiz_def.add_step(:step2)
+      wiz_def.add_step(:step3)
+      wiz_def.add_step(:step4)
+      wiz_def.add_step(:step5)
+    end
+  }
+
+  subject(:wizard) {
+    HatTrick::Wizard.new(wizard_definition)
+  }
 
   before :each do
     wizard.start

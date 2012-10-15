@@ -241,7 +241,7 @@ module HatTrick
     end
 
     def fake_session
-      Rails.logger.warning "Using a fake session object!"
+      Rails.logger.warn "Using a fake session object!"
       @fake_session ||= {}
     end
 

@@ -1,25 +1,26 @@
 require 'spec_helper'
 
-# will automatically get HatTrick::DSL included
-class FakeController < ActionController::Base; end
-
 describe HatTrick::DSL do
-  let(:controller_class) { FakeController }
+  subject(:controller) {
+    Class.new.send(:include, HatTrick::DSL).tap do |c|
+      c.stubs(:before_filter)
+      c.any_instance.stubs(:render)
+    end
+  }
 
-  # save some typing
-  def dsl(&block)
-    controller_class.instance_eval &block
-  end
-  
   describe HatTrick::DSL::ClassMethods do
     describe "#step" do
       it "should call Wizard#add_step" do
         HatTrick::WizardDefinition.any_instance.expects(:add_step).with(:foo, {})
-        dsl do
+        controller.instance_eval do
           wizard do
             step :foo
           end
         end
+      end
+
+      it "raises an error if called outside a wizard block" do
+        expect { controller.step :foo }.to raise_error
       end
     end
   end
