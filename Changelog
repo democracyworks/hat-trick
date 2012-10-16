@@ -1,4 +1,5 @@
-* 0.1.3    - Handle non-root URLs correctly in pushState (Closes GH issue #5)
+* 0.1.3    - The "production" release. TurboVote.org runs on this version.
+           - Handle non-root URLs correctly in pushState (Closes GH issue #5)
            - Don't loop past the last step when looking for the next one (Closes GH issue #6)
            - Only run the include_data callback for the current step (Closes GH issue #8)
            - Trigger ajaxErrors event on form element when we get errors back from an ajax call
