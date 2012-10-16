@@ -22,8 +22,8 @@ In your controller:
       step :third_step
     end
 
-*** Make sure your controller's CRUD methods know how to return JSON responses
-containing the model instance you're building in the wizard. ***
+**Make sure your controller's CRUD methods know how to return JSON responses
+containing the model instance you're building in the wizard.**
 
 In your view:
 
