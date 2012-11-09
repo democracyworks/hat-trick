@@ -71,6 +71,7 @@ module HatTrick
       gon.metadata = wizard_metadata
       gon.data = include_data
       gon.model = hat_trick_wizard.model
+      gon.rails_env = Rails.env
 
       # this sets the wizard metadata for subsequent AJAX requests
       if hat_trick_wizard.model && rendered.has_key?(:json)

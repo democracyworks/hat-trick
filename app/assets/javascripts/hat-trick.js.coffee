@@ -5,7 +5,8 @@ class HatTrickWizard
     @form = $(formElem)
     this.enableFormwizard()
 
-  debug: true
+  debug: ->
+    window.hatTrick.railsEnv == "development"
 
   linkClass: "_ht_link"
 
@@ -454,5 +455,5 @@ underscoreString = (string) ->
   result
 
 log = (msg) ->
-  if window['console']? and hatTrick.wizard.debug
+  if window['console']? and hatTrick.wizard.debug()
     console.log msg
