@@ -40,6 +40,10 @@ module HatTrick
       hat_trick_wizard.current_step.add_button button
     end
 
+    def hide_button(button_type)
+      hat_trick_wizard.current_step.delete_button button_type
+    end
+
     def remaining_step_count
       hat_trick_wizard.steps_after_current
     end
