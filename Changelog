@@ -1,3 +1,5 @@
+* 0.1.5    - Allow hide_button DSL method inside before / after blocks
+
 * 0.1.4    - Make the rails env available in JS as window.hatTrick.railsEnv
            - Only output console log messages in development env
 
