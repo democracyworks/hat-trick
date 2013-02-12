@@ -143,7 +143,7 @@ module HatTrick
     def before_callbacks
       before_callbacks = [callbacks[:before]]
       if wizard.before_callback_for_all_steps
-        before_callbacks << wizard.before_callback_for_all_steps
+        before_callbacks.unshift wizard.before_callback_for_all_steps
       end
       before_callbacks
     end
@@ -164,7 +164,7 @@ module HatTrick
     def after_callbacks
       after_callbacks = [callbacks[:after]]
       if wizard.after_callback_for_all_steps
-        after_callbacks << wizard.after_callback_for_all_steps
+        after_callbacks.unshift wizard.after_callback_for_all_steps
       end
       after_callbacks
     end
