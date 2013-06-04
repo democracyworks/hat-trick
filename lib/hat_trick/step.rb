@@ -23,7 +23,7 @@ module HatTrick
 
     def add_button(button)
       @buttons.delete_if do |b|
-        b.keys.first == buttons.keys.first && b[b.keys.first][:default]
+        b.keys.first == button.keys.first && b[b.keys.first][:default]
       end
       @buttons << button
     end
