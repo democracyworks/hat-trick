@@ -149,7 +149,12 @@ module HatTrick
     end
 
     def run_before_callback(context, model)
-      Rails.logger.info "Running before callback for #{name} with model id #{model.id}"
+      log_msg = if model
+                  "Running before callback for #{name} with model id #{model.id}"
+                else
+                  "Running before callback for #{name}"
+                end
+      Rails.logger.info log_msg
       run_callbacks(before_callbacks, context, model)
     end
 
