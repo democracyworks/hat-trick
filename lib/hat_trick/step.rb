@@ -2,12 +2,12 @@ require 'hat_trick/step_definition'
 
 module HatTrick
   class Step
-    attr_reader :step_def, :wizard
+    attr_reader :step_def, :wizard, :buttons
     attr_accessor :next_step, :redirect_from
     attr_writer :skipped
 
-    delegate :name, :fieldset, :add_button, :delete_button, :buttons, :to_sym,
-             :to_s, :run_after_callback, :run_before_callback, :include_data,
+    delegate :name, :fieldset, :to_sym, :to_s, :run_after_callback,
+             :run_before_callback, :include_data,
              :run_include_data_callback, :run_step_contents_callback,
              :include_data_key, :config, :step_contents, :last?, :first?,
              :to => :step_def
@@ -16,8 +16,20 @@ module HatTrick
 
     def initialize(step_def, wizard)
       @step_def = step_def
+      @buttons = step_def.buttons.dup
       @wizard = wizard
       @skipped = step_def.skipped?
+    end
+
+    def add_button(button)
+      @buttons.delete_if do |b|
+        b.keys.first == buttons.keys.first && b[b.keys.first][:default]
+      end
+      @buttons << button
+    end
+
+    def delete_button(type)
+      @buttons.delete_if { |b| b.keys.first == type }
     end
 
     def skipped?
