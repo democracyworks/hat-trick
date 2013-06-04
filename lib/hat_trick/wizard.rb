@@ -22,6 +22,7 @@ module HatTrick
     end
 
     def model=(new_model)
+      Rails.logger.info "Setting model for #{object_id} to #{new_model.inspect}"
       @model = new_model
     end
 
