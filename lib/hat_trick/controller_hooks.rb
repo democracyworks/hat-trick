@@ -13,10 +13,10 @@ module HatTrick
     def self.def_action_method_aliases(action_methods)
       action_methods.each do |meth|
         unless respond_to?(:"#{meth}_with_hat_trick")
-          Rails.logger.info "Defining #{meth}_with_hat_trick"
+          Rails.logger.debug "Defining #{meth}_with_hat_trick"
           module_eval <<-RUBY_EVAL
             def #{meth}_with_hat_trick(*args)
-              Rails.logger.info "#{meth}_with_hat_trick called"
+              Rails.logger.debug "#{meth}_with_hat_trick called"
               if respond_to?("#{meth}_hook", :include_private)
                 #{meth}_hook(*args)
               end
@@ -31,10 +31,6 @@ module HatTrick
     end
 
     private
-
-    def common_hook(*args)
-      Rails.logger.info "common_hook wizard instance: #{hat_trick_wizard.object_id}"
-    end
 
     def create_hook(*args)
       setup_validation_group_for(hat_trick_wizard.current_step)

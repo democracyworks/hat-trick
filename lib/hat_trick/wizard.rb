@@ -22,7 +22,7 @@ module HatTrick
     end
 
     def model=(new_model)
-      Rails.logger.info "Setting model for #{object_id} to #{new_model.inspect}"
+      Rails.logger.debug "Setting model for #{object_id} to #{new_model.inspect}"
       @model = new_model
     end
 
@@ -187,7 +187,7 @@ module HatTrick
         raise "Tried to advance beyond the last step of the wizard"
       else # we're not on the last step
         if requested_next_step
-          Rails.logger.info "Force advancing to step: #{requested_next_step}"
+          Rails.logger.debug "Force advancing to step: #{requested_next_step}"
           self.current_step = requested_next_step
           run_before_callback
           # if the step was explicitly requested, we ignore #skipped?
@@ -201,7 +201,7 @@ module HatTrick
             # make sure we don't loop forever
             break if current_step == last_step
           end
-          Rails.logger.info "Advancing to step: #{current_step}"
+          Rails.logger.debug "Advancing to step: #{current_step}"
         end
       end
     end
@@ -227,7 +227,6 @@ module HatTrick
       end
       HatTrick::ControllerHooks.def_action_method_aliases(action_methods)
       action_methods.each do |m|
-        Rails.logger.info "Aliasing #{m}"
         controller.class.send(:alias_method_chain, m, :hat_trick)
         controller.class.send(:private, "#{m}_without_hat_trick")
       end

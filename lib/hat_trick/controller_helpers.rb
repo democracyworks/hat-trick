@@ -57,9 +57,9 @@ module HatTrick
       dynamic_validation_group = false
 
       if static_validation_group_exists
-        Rails.logger.info "Not creating dynamic validation group for #{step_name} because a static one exists"
+        Rails.logger.debug "Not creating dynamic validation group for #{step_name} because a static one exists"
       else
-        Rails.logger.info "Creating a dynamic validation group for #{step_name}"
+        Rails.logger.debug "Creating a dynamic validation group for #{step_name}"
         dynamic_validation_group = true
         validation_fields = params.keys # TODO: Try it without these (so only the model keys below)
         model = model_key
@@ -69,7 +69,7 @@ module HatTrick
         validation_fields = validation_fields.map(&:to_sym)
         klass.validation_group(step_name, :fields => validation_fields)
       end
-      Rails.logger.info "Setting current validation group for model class #{model_class} to #{step_name}"
+      Rails.logger.debug "Setting current validation group for model class #{model_class} to #{step_name}"
       HatTrick::ModelMethods.set_current_validation_group_for(model_class,
                                                               step_name,
                                                               dynamic_validation_group)

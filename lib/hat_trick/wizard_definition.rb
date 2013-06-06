@@ -15,7 +15,7 @@ module HatTrick
     end
 
     def make_wizard_for(controller)
-      Rails.logger.info "Making new wizard instance"
+      Rails.logger.debug "Making new wizard instance"
       wizard = HatTrick::Wizard.new(self)
       wizard.controller = controller
       wizard.alias_action_methods
