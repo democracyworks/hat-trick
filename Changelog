@@ -1,3 +1,5 @@
+* 0.2.2    - Lower logging severity to debug for all of the formerly info-level logging output.
+
 * 0.2.1    - Fix a bug where button_to data was shared across multiple users of the app. They are now user-specific, as they should be.
 
 * 0.2.0    - Now calls before/after :each callbacks before the step-specific ones
