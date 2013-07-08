@@ -80,8 +80,6 @@ module HatTrick
           include HatTrick::DSL::ControllerInstanceMethods
           include HatTrick::ControllerHooks
 
-          ::ActiveRecord::Base.send(:include, HatTrick::ModelMethods)
-
           config = HatTrick::Config.new
           @wizard_def = HatTrick::WizardDefinition.new(config)
 
@@ -95,6 +93,10 @@ module HatTrick
       def configure(&block)
         raise "Must pass a block to configure" unless block_given?
         self.configure_callback = block
+      end
+
+      def model_class(klass)
+        klass.send(:include, HatTrick::ModelMethods)
       end
 
       def button_label(type, label)

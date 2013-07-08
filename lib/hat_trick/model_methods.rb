@@ -18,7 +18,9 @@ module HatTrick
     def self.set_current_validation_group_for(klass, validation_group_name, dynamic)
       self.validation_groups ||= {}
       validation_groups[klass.to_s.underscore] = validation_group_name
-      dynamic_validation_groups << validation_group_name if dynamic
+      if dynamic && !dynamic_validation_groups.include?(validation_group_name)
+        dynamic_validation_groups << validation_group_name
+      end
     end
 
     def self.current_validation_group_for(klass)
@@ -26,9 +28,24 @@ module HatTrick
       validation_groups[klass.to_s.underscore]
     end
 
+    def self.clear_current_validation_group_for(klass)
+      unless validation_groups.nil?
+        Rails.logger.debug "Clearing current validation groups for #{klass.to_s.underscore}"
+        validation_groups.delete klass.to_s.underscore
+      end
+    end
+
     def perform_validations_with_hat_trick(*args, &block)
       enable_current_validation_group
       perform_validations_without_hat_trick(*args, &block)
+    end
+
+    def disable_validation_groups
+      if respond_to?(:disable_validation_group)
+        Rails.logger.debug "Disabling validation groups"
+        disable_validation_group
+      end
+      HatTrick::ModelMethods.clear_current_validation_group_for(self.class)
     end
 
     def as_json_with_model_name(*args, &block)

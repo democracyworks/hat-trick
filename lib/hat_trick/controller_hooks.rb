@@ -22,6 +22,9 @@ module HatTrick
               end
               common_hook(*args) if respond_to?(:common_hook, :include_private)
               #{meth}_without_hat_trick(*args)
+              if hat_trick_wizard.model && hat_trick_wizard.model.respond_to?(:disable_validation_groups)
+                hat_trick_wizard.model.disable_validation_groups
+              end
             end
             private "#{meth}_with_hat_trick"
           RUBY_EVAL
