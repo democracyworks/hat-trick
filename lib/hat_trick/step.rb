@@ -48,9 +48,22 @@ module HatTrick
       visited_steps << self.to_sym
     end
 
+    def render_buttons(buttons)
+      buttons.map do |b|
+        button_type = b.keys.first
+        button = b[button_type]
+        if button[:label].respond_to?(:call)
+          rendered_label = button[:label].call
+          { button_type => button.merge({label: rendered_label}) }
+        else
+          b
+        end
+      end
+    end
+
     def as_json(options = nil)
       json = { :name => name, :fieldset => fieldset }
-      json[:buttons] = buttons.empty? ? [] : buttons
+      json[:buttons] = buttons.empty? ? [] : render_buttons(buttons)
       json[:first] = first?
       json[:redirect] = redirect?
       json[:redirectFrom] = redirect_from
