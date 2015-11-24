@@ -1,3 +1,4 @@
+* 0.4.0    - Add ability to set lambdas as button labels. They will be called each time the button is rendered.
 * 0.3.0    - Add model_class DSL method to explicitly tell hat-trick which model to use.
 	   - Clean up validation_groups on models after each request.
 	   - Stop monkey-patching all of ActiveRecord::Base with hat-trick's model methods.
